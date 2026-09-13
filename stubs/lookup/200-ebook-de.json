@@ -1,0 +1,47 @@
+{
+  "isAuthenticated": false,
+  "meta": {
+    "language": {
+      "tag": "de-de"
+    },
+    "storefront": {
+      "cc": "DE",
+      "id": "143443"
+    }
+  },
+  "results": {
+    "492186116": {
+      "artistName": "Franz Kafka",
+      "artwork": {
+        "height": 2400,
+        "url": "https://is1-ssl.mzstatic.com/image/thumb/Publication124/v4/42/00/c5/4200c53c-1b09-6d07-22c6-185381a0852f/PD_Die_Verwandlung-Adj.jpg/{w}x{h}bb.{f}",
+        "width": 1538
+      },
+      "description": {
+        "standard": "Ungeliebter Sohn und unverstandener Außenseiter. Franz Kafka verwandelt die Tragik seines eigenen Lebens in einen fiktionalen Horrortrip der literarischen Extra…"
+      },
+      "genreNames": [
+        "Literarische Belletristik",
+        "Bücher",
+        "Belletristik und Literatur"
+      ],
+      "id": "492186116",
+      "kind": "epubBook",
+      "name": "Die Verwandlung",
+      "offers": [
+        {
+          "price": 0.00,
+          "priceFormatted": "0,00 €",
+          "type": "get"
+        }
+      ],
+      "releaseDate": "1924-01-01",
+      "url": "https://books.apple.com/de/book/die-verwandlung/id492186116",
+      "userRating": {
+        "ratingCount": 1529,
+        "value": 4
+      }
+    }
+  },
+  "version": 2
+}

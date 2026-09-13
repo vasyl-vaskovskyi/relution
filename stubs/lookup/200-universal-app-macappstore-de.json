@@ -1,0 +1,73 @@
+{
+  "isAuthenticated": false,
+  "meta": {
+    "language": {
+      "tag": "de-de"
+    },
+    "storefront": {
+      "cc": "DE",
+      "id": "143443"
+    }
+  },
+  "results": {
+    "361309726": {
+      "artistName": "Apple",
+      "artwork": {
+        "height": 1024,
+        "url": "https://is1-ssl.mzstatic.com/image/thumb/Purple211/v4/2b/70/69/2b706947-7fcd-e2e5-50ca-52f6aa9491f5/AppIcon-0-0-85-220-0-0-6-0-0-2x-P3-0-0-0-0-0.png/{w}x{h}bb.{f}",
+        "width": 1024
+      },
+      "bundleId": "com.apple.Pages",
+      "description": {
+        "standard": "Pages ist jetzt Teil von Apple Creator Studio, einer beeindruckenden Sammlung der leistungsstärksten kreativen Apps von Apple, die dir helfen sollen, deine Idee…"
+      },
+      "deviceFamilies": [
+        "mac",
+        "iphone",
+        "ipad"
+      ],
+      "genreNames": [
+        "Produktivität",
+        "Wirtschaft"
+      ],
+      "iconArtwork": {
+        "height": 1024,
+        "url": "https://is1-ssl.mzstatic.com/image/thumb/PurpleSource211/v4/5e/a6/e5/5ea6e556-401e-94f4-f90d-0b0374fef422/Placeholder.mill/{w}x{h}{c}.{f}",
+        "width": 1024
+      },
+      "id": "361309726",
+      "kind": "iosSoftware",
+      "latestVersionReleaseDate": "4.08.2026",
+      "minimumOSVersion": "15.6",
+      "name": "Pages: Erstelle Dokumente",
+      "offers": [
+        {
+          "price": 0.00,
+          "priceFormatted": "0,00 €",
+          "type": "get",
+          "version": {
+            "display": "15.3.1",
+            "externalId": 887954956
+          }
+        }
+      ],
+      "releaseDate": "2010-05-26",
+      "softwareInfo": {
+        "eulaUrl": "https://itunes.apple.com/WebObjects/MZStore.woa/wa/viewEula?cc=de&id=361309726",
+        "privacyPolicyTextUrl": null,
+        "privacyPolicyUrl": "https://www.apple.com/legal/privacy/de-ww/",
+        "seller": "Apple Distribution International",
+        "supportUrl": "http://www.apple.com/de/support/ipad/pages/",
+        "websiteUrl": "http://www.apple.com/de/pages/"
+      },
+      "subtitle": "Design, Layout und Gestaltung",
+      "url": "https://apps.apple.com/de/app/pages-erstelle-dokumente/id361309726",
+      "userRating": {
+        "ratingCount": 31856,
+        "value": 4.5
+      },
+      "whatsNew": "Dieses Update enthält Fehlerbehebungen und Leistungsverbesserungen."
+    }
+  },
+  "version": 2
+}

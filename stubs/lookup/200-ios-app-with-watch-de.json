@@ -1,0 +1,89 @@
+{
+  "isAuthenticated": false,
+  "meta": {
+    "language": {
+      "tag": "de-de"
+    },
+    "storefront": {
+      "cc": "DE",
+      "id": "143443"
+    }
+  },
+  "results": {
+    "310633997": {
+      "artistName": "WhatsApp Inc.",
+      "artwork": {
+        "height": 1024,
+        "url": "https://is1-ssl.mzstatic.com/image/thumb/Purple211/v4/06/ee/d1/06eed185-996b-bd98-b5c4-36b365f93e08/AppIcon-0-0-1x_U007epad-0-0-0-1-0-0-sRGB-0-85-220.png/{w}x{h}bb.{f}",
+        "width": 1024
+      },
+      "bundleId": "net.whatsapp.WhatsApp",
+      "circularArtwork": {
+        "bgColor": "60d367",
+        "hasAlpha": false,
+        "hasP3": true,
+        "height": 1024,
+        "supportsLayeredImage": false,
+        "textColor1": "141614",
+        "textColor2": "141615",
+        "textColor3": "233c25",
+        "textColor4": "233c26",
+        "url": "https://is1-ssl.mzstatic.com/image/thumb/Purple211/v4/77/7c/64/777c6408-a390-9682-8bab-2babd29c883c/AppIcon-0-0-1x_U007ewatch-0-1-0-P3-85-220.png/{w}x{h}bb.{f}",
+        "width": 1024
+      },
+      "description": {
+        "standard": "WhatsApp from Meta ist eine kostenlose App für Messaging und Anrufe, die von über 2 Milliarden Menschen in über 180 Ländern verwendet wird. Die App ist einfach,…"
+      },
+      "deviceFamilies": [
+        "mac",
+        "watch",
+        "iphone",
+        "ipad",
+        "ipod"
+      ],
+      "genreNames": [
+        "Soziale Netze",
+        "Dienst­programme"
+      ],
+      "iconArtwork": {
+        "height": 1024,
+        "url": "https://is1-ssl.mzstatic.com/image/thumb/PurpleSource221/v4/f5/99/06/f59906a3-1229-7eb1-9bba-5132f27c1e6e/Placeholder.mill/{w}x{h}{c}.{f}",
+        "width": 1024
+      },
+      "id": "310633997",
+      "kind": "iosSoftware",
+      "latestVersionReleaseDate": "9.09.2026",
+      "minimumOSVersion": "15.1",
+      "name": "WhatsApp Messenger",
+      "offers": [
+        {
+          "price": 0.00,
+          "priceFormatted": "0,00 €",
+          "type": "get",
+          "version": {
+            "display": "26.35.74",
+            "externalId": 891023537
+          }
+        }
+      ],
+      "releaseDate": "2009-05-04",
+      "softwareInfo": {
+        "eulaUrl": "https://itunes.apple.com/WebObjects/MZStore.woa/wa/viewEula?cc=de&id=310633997",
+        "privacyPolicyTextUrl": null,
+        "privacyPolicyUrl": "https://www.whatsapp.com/legal/#Privacy",
+        "seller": "WhatsApp Inc.",
+        "supportUrl": "http://www.whatsapp.com/faq/",
+        "websiteUrl": "http://www.whatsapp.com/"
+      },
+      "subtitle": "Einfach. Verlässlich. Privat.",
+      "url": "https://apps.apple.com/de/app/whatsapp-messenger/id310633997",
+      "userRating": {
+        "ratingCount": 3883175,
+        "value": 4.5
+      },
+      "watchBundleId": "net.whatsapp.WhatsApp.watchkitapp",
+      "whatsNew": "Wir aktualisieren die App regelmäßig, um Fehler zu beheben, die Leistung zu optimieren und das Benutzererlebnis zu verbessern. Danke, dass du WhatsApp benutzt!"
+    }
+  },
+  "version": 2
+}

@@ -1,0 +1,70 @@
+{
+  "isAuthenticated": false,
+  "meta": {
+    "language": {
+      "tag": "de-de"
+    },
+    "storefront": {
+      "cc": "DE",
+      "id": "143443"
+    }
+  },
+  "results": {
+    "424389933": {
+      "artistName": "Apple",
+      "artwork": {
+        "height": 1024,
+        "url": "https://is1-ssl.mzstatic.com/image/thumb/Purple211/v4/9d/95/ff/9d95ff81-dd3d-9075-149f-c6e2a4773ca0/AppIcon-0-85-220-0-6-0-0-2x-sRGB-0-0.png/{w}x{h}bb.{f}",
+        "width": 1024
+      },
+      "bundleId": "com.apple.FinalCut",
+      "description": {
+        "standard": "Final Cut Pro kombiniert revolutionäre Videobearbeitung mit effizienter Medienorganisation sowie unglaublicher Leistung. So kannst du deine Ideen blitzschnell u…"
+      },
+      "deviceFamilies": [
+        "mac"
+      ],
+      "genreNames": [
+        "Foto und Video"
+      ],
+      "iconArtwork": {
+        "height": 1024,
+        "url": "https://is1-ssl.mzstatic.com/image/thumb/PurpleSource211/v4/77/32/95/77329535-5419-ab6b-a448-739e948a03a8/Placeholder.mill/{w}x{h}{c}.{f}",
+        "width": 1024
+      },
+      "id": "424389933",
+      "kind": "desktopApp",
+      "latestVersionReleaseDate": "30.06.2026",
+      "minimumOSVersion": "15.6",
+      "name": "Final Cut Pro",
+      "offers": [
+        {
+          "price": 349.99,
+          "priceFormatted": "349,99 €",
+          "type": "buy",
+          "version": {
+            "display": "12.3",
+            "externalId": 885086868
+          }
+        }
+      ],
+      "releaseDate": "2011-06-21",
+      "softwareInfo": {
+        "eulaUrl": "https://itunes.apple.com/WebObjects/MZStore.woa/wa/viewEula?cc=de&id=424389933",
+        "privacyPolicyTextUrl": null,
+        "privacyPolicyUrl": "https://www.apple.com/legal/privacy/de-ww",
+        "seller": "Apple Distribution International",
+        "supportUrl": "http://www.apple.com/de/support/finalcutpro/",
+        "websiteUrl": "http://www.apple.com/de/finalcutpro/"
+      },
+      "subtitle": "Professionelle Nachbearbeitung",
+      "url": "https://apps.apple.com/de/app/final-cut-pro/id424389933?mt=12",
+      "userRating": {
+        "ratingCount": 0,
+        "value": 0
+      },
+      "whatsNew": "Leistungsstarke intelligente Funktionen\n• Mithilfe von „Untertitel generieren“ Untertitel einfach hinzufügen und deren Aussehen anpassen, um einfach zugängliche…"
+    }
+  },
+  "version": 2
+}

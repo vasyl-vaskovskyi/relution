@@ -1,0 +1,67 @@
+{
+  "isAuthenticated": false,
+  "meta": {
+    "language": {
+      "tag": "en-us"
+    },
+    "storefront": {
+      "cc": "US",
+      "id": "143441"
+    }
+  },
+  "results": {
+    "451796775": {
+      "artistName": "GamekitTester",
+      "artwork": {
+        "height": 1024,
+        "url": "https://is2-ssl.mzstatic.com/image/thumb/Purple124/v4/f3/2c/7f/f32c7f07-0441-052d-dc71-a406c9f90c09/AppIcon-0-1x_U007emarketing-0-0-GLES2_U002c0-512MB-sRGB-0-0-0-85-220-0-0-0-7.png/{w}x{h}bb.{f}",
+        "width": 1024
+      },
+      "bundleId": "com.apple.b2bTest2",
+      "description": {
+        "standard": "B2B App Store Testing App"
+      },
+      "deviceFamilies": [
+        "iphone",
+        "ipad",
+        "ipod"
+      ],
+      "genreNames": [
+        "Utilities"
+      ],
+      "id": "451796775",
+      "kind": "iosSoftware",
+      "latestVersionReleaseDate": "Dec 19, 2018",
+      "minimumOSVersion": "12.1",
+      "name": "b2b Test 2",
+      "watchBundleId": "com.example.bbTest.watchkitapp",
+      "offers": [
+        {
+          "price": 0,
+          "priceFormatted": "$0.00",
+          "type": "get",
+          "version": {
+            "display": "3.0",
+            "externalId": 126462631
+          }
+        }
+      ],
+      "releaseDate": "2018-12-19",
+      "softwareInfo": {
+        "eulaUrl": null,
+        "privacyPolicyTextUrl": null,
+        "privacyPolicyUrl": "http://apple.com/privacy",
+        "seller": "Apple Inc. - Gamekit Tester",
+        "supportUrl": "http://support.apple.com",
+        "websiteUrl": null
+      },
+      "url": "https://apps.apple.com/us/app/b2b-test-2/id451796775",
+      "userRating": {
+        "ratingCount": 0,
+        "value": 0
+      },
+      "whatsNew": "lksdjfsdljfdsljfs"
+    }
+  },
+  "version": 2
+}

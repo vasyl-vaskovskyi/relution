@@ -1,0 +1,77 @@
+{
+  "results": {
+    "361309726": {
+      "artwork": [
+        {
+          "width": 128,
+          "height": 128,
+          "url": "https://is4-ssl.mzstatic.com/image/thumb/Purple113/v4/73/d4/73/73d47332-fefc-d350-2984-5b4a4755a502/AppIcon-0-1x_U007emarketing-0-0-GLES2_U002c0-512MB-sRGB-0-0-0-85-220-0-0-0-6.png/128x128bb.png"
+        },
+        {
+          "width": 216,
+          "height": 216,
+          "url": "https://is4-ssl.mzstatic.com/image/thumb/Purple113/v4/73/d4/73/73d47332-fefc-d350-2984-5b4a4755a502/AppIcon-0-1x_U007emarketing-0-0-GLES2_U002c0-512MB-sRGB-0-0-0-85-220-0-0-0-6.png/360x216bb.png"
+        }
+      ],
+      "artistName": "Apple",
+      "url": "https://itunes.apple.com/us/app/pages/id361309726?mt=8",
+      "softwareInfo": {
+        "seller": "Apple Inc.",
+        "eulaUrl": "https://itunes.apple.com/WebObjects/MZStore.woa/wa/viewEula?cc=us&id=361309726",
+        "supportUrl": "http://www.apple.com/support/ipad/pages/",
+        "websiteUrl": "http://www.apple.com/pages/",
+        "privacyPolicyUrl": "https://www.apple.com/legal/privacy/en-ww",
+        "privacyPolicyTextUrl": null
+      },
+      "ageBand": null,
+      "deviceFamilies": [
+        "iphone",
+        "ipad",
+        "ipod"
+      ],
+      "genreNames": [
+        "Productivity",
+        "Business"
+      ],
+      "whatsNew": "This update contains stability and performance improvements.",
+      "id": 361309726,
+      "releaseDate": "2010-04-01",
+      "userRating": {
+        "value": 3.5,
+        "ratingCount": 37414
+      },
+      "name": "Pages",
+      "subtitle": "Documents that stand apart",
+      "bundleId": "com.apple.Pages",
+      "kind": "iosSoftware",
+      "circularArtwork": null,
+      "latestVersionReleaseDate": "Apr 9, 2019",
+      "minimumOSVersion": "11.0",
+      "description": {
+        "standard": "Pages is the most beautiful word processor you've ever seen on a mobile device.  Start with an Apple-designed template to instantly create gorgeous reports, dig…"
+      },
+      "offers": [
+        {
+          "type": "get",
+          "priceFormatted": "$0.00",
+          "price": 0,
+          "version": {
+            "display": "5.0.1",
+            "externalId": 830786363
+          }
+        }
+      ]
+    }
+  },
+  "version": 1,
+  "isAuthenticated": false,
+  "meta": {
+    "storefront": {
+      "id": "143441",
+      "cc": "US"
+    },
+    "language": {
+      "tag": "en-us"
+    }
+  }
+}

@@ -1,0 +1,55 @@
+{
+  "resultCount": 2,
+  "results": [
+    {
+      "kind": "mac-software",
+      "artworkUrl512": "https://is1-ssl.mzstatic.com/image/thumb/Purple211/v4/57/85/b7/5785b745-e2bb-6903-21be-869a7b0a9344/AppIcon-0-0-85-220-0-0-0-6-0-2x-0-0-0.png/512x512bb.png",
+      "artworkUrl60": "https://is1-ssl.mzstatic.com/image/thumb/Purple211/v4/57/85/b7/5785b745-e2bb-6903-21be-869a7b0a9344/AppIcon-0-0-85-220-0-0-0-6-0-2x-0-0-0.png/60x60bb.png",
+      "artworkUrl100": "https://is1-ssl.mzstatic.com/image/thumb/Purple211/v4/57/85/b7/5785b745-e2bb-6903-21be-869a7b0a9344/AppIcon-0-0-85-220-0-0-0-6-0-2x-0-0-0.png/100x100bb.png",
+      "currentVersionReleaseDate": "2026-09-12T15:08:43Z",
+      "artistName": "Mineko IMANISHI",
+      "trackName": "CotEditor",
+      "trackId": 1024640650,
+      "bundleId": "com.coteditor.CotEditor",
+      "sellerName": "Mineko IMANISHI",
+      "releaseDate": "2015-10-10T20:05:01Z",
+      "primaryGenreName": "Productivity",
+      "version": "7.1.0",
+      "currency": "EUR",
+      "description": "CotEditor ist ein leichter Klartext-Editor für Quellcode, Notizen, Markdown, Webinhalte und mehr. Seine klare, aufgeräum…",
+      "formattedPrice": "Gratis",
+      "averageUserRating": 0,
+      "price": 0.00,
+      "userRatingCount": 0
+    },
+    {
+      "features": [
+        "iosUniversal"
+      ],
+      "supportedDevices": [
+        "MacDesktop-MacDesktop",
+        "iPhone5s-iPhone5s",
+        "iPadAir-iPadAir"
+      ],
+      "kind": "software",
+      "artworkUrl512": "https://is1-ssl.mzstatic.com/image/thumb/Purple221/v4/a4/dd/6d/a4dd6df5-1294-ba16-f473-cd952d1a459f/AppIcon-0-0-1x_U007emarketing-0-8-0-85-220.png/512x512bb.jpg",
+      "artworkUrl60": "https://is1-ssl.mzstatic.com/image/thumb/Purple221/v4/a4/dd/6d/a4dd6df5-1294-ba16-f473-cd952d1a459f/AppIcon-0-0-1x_U007emarketing-0-8-0-85-220.png/60x60bb.jpg",
+      "artworkUrl100": "https://is1-ssl.mzstatic.com/image/thumb/Purple221/v4/a4/dd/6d/a4dd6df5-1294-ba16-f473-cd952d1a459f/AppIcon-0-0-1x_U007emarketing-0-8-0-85-220.png/100x100bb.jpg",
+      "currentVersionReleaseDate": "2026-08-08T20:17:23Z",
+      "artistName": "Erik Wegener",
+      "trackName": "Lightweight Text Editor",
+      "trackId": 1626906348,
+      "bundleId": "com.wegenerlabs.Text-Editor",
+      "sellerName": "Erik Wegener",
+      "releaseDate": "2022-06-06T07:00:00Z",
+      "primaryGenreName": "Productivity",
+      "version": "1.1",
+      "currency": "EUR",
+      "description": "Lightweight Text Editor is a great tool for users who work with plain text files.\n\nIf you want to work with raw text wit…",
+      "formattedPrice": "2,99 €",
+      "averageUserRating": 4.29729999999999989768184605054557323455810546875,
+      "price": 2.99,
+      "userRatingCount": 37
+    }
+  ]
+}

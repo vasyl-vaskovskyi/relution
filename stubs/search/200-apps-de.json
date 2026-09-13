@@ -1,0 +1,63 @@
+{
+  "resultCount": 2,
+  "results": [
+    {
+      "artworkUrl512": "https://is1-ssl.mzstatic.com/image/thumb/Purple116/v4/1f/e0/74/1fe0740a-80d2-cb33-6087-0c559ea98c4a/AppIcon_default-0-0-1x_U007emarketing-0-0-0-7-0-0-sRGB-0-0-0-GLES2_U002c0-512MB-85-220-0-0.png/512x512bb.jpg",
+      "supportedDevices": [
+        "iPhone5s-iPhone5s",
+        "iPadAir-iPadAir",
+        "iPadAirCellular-iPadAirCellular"
+      ],
+      "kind": "software",
+      "artworkUrl60": "https://is1-ssl.mzstatic.com/image/thumb/Purple116/v4/1f/e0/74/1fe0740a-80d2-cb33-6087-0c559ea98c4a/AppIcon_default-0-0-1x_U007emarketing-0-0-0-7-0-0-sRGB-0-0-0-GLES2_U002c0-512MB-85-220-0-0.png/60x60bb.jpg",
+      "artworkUrl100": "https://is1-ssl.mzstatic.com/image/thumb/Purple116/v4/1f/e0/74/1fe0740a-80d2-cb33-6087-0c559ea98c4a/AppIcon_default-0-0-1x_U007emarketing-0-0-0-7-0-0-sRGB-0-0-0-GLES2_U002c0-512MB-85-220-0-0.png/100x100bb.jpg",
+      "features": [
+        "iosUniversal"
+      ],
+      "formattedPrice": "Gratis",
+      "artistName": "MWAY DIGITAL GmbH",
+      "price": 0.00,
+      "trackId": 699597062,
+      "trackName": "Relution",
+      "primaryGenreName": "Business",
+      "sellerName": "MWAY DIGITAL GmbH",
+      "releaseDate": "2013-12-19T21:54:24Z",
+      "currentVersionReleaseDate": "2021-12-01T15:27:47Z",
+      "version": "5.4",
+      "currency": "EUR",
+      "description": "Die Relution App ist Teil der Relution-Plattform.\n\nHINWEIS: Bitte sprechen Sie mit Ihrem IT Administrator bevor Sie Relu…",
+      "averageUserRating": 3.454549999999999787547722007730044424533843994140625,
+      "bundleId": "com.mwaysolutions.store.relution",
+      "userRatingCount": 11
+    },
+    {
+      "artworkUrl512": "https://is1-ssl.mzstatic.com/image/thumb/Purple221/v4/4b/80/fc/4b80fc55-1dac-71f3-9412-a68b8022f953/AppIcon-0-1x_U007epad-0-1-85-220-0.png/512x512bb.jpg",
+      "supportedDevices": [
+        "iPhone5s-iPhone5s",
+        "iPadAir-iPadAir",
+        "iPadAirCellular-iPadAirCellular"
+      ],
+      "kind": "software",
+      "artworkUrl60": "https://is1-ssl.mzstatic.com/image/thumb/Purple221/v4/4b/80/fc/4b80fc55-1dac-71f3-9412-a68b8022f953/AppIcon-0-1x_U007epad-0-1-85-220-0.png/60x60bb.jpg",
+      "artworkUrl100": "https://is1-ssl.mzstatic.com/image/thumb/Purple221/v4/4b/80/fc/4b80fc55-1dac-71f3-9412-a68b8022f953/AppIcon-0-1x_U007epad-0-1-85-220-0.png/100x100bb.jpg",
+      "features": [
+        "iosUniversal"
+      ],
+      "formattedPrice": "Gratis",
+      "artistName": "Relution GmbH",
+      "price": 0.00,
+      "trackId": 1596940355,
+      "trackName": "Relution Teacher",
+      "primaryGenreName": "Education",
+      "sellerName": "Relution GmbH",
+      "releaseDate": "2022-03-03T08:00:00Z",
+      "currentVersionReleaseDate": "2026-05-05T09:05:21Z",
+      "version": "26.1.0",
+      "currency": "EUR",
+      "description": "Zentrales Management aller mobilen Endgeräte und Apps für einen reibungslosen, interaktiven Unterricht \n\nDer Relution Te…",
+      "averageUserRating": 2.25,
+      "bundleId": "io.relution.teacher",
+      "userRatingCount": 8
+    }
+  ]
+}

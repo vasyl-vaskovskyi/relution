@@ -1,0 +1,73 @@
+{
+  "isAuthenticated": false,
+  "meta": {
+    "language": {
+      "tag": "de-de"
+    },
+    "storefront": {
+      "cc": "DE",
+      "id": "143443"
+    }
+  },
+  "results": {
+    "361309726": {
+      "artistName": "Apple",
+      "artwork": {
+        "height": 1024,
+        "url": "https://is1-ssl.mzstatic.com/image/thumb/Purple221/v4/ab/38/be/ab38bece-90e5-a842-a091-b06d104e8b86/AppIcon-0-0-1x_U007epad-0-0-0-1-0-0-sRGB-0-0-85-220-0.png/{w}x{h}bb.{f}",
+        "width": 1024
+      },
+      "bundleId": "com.apple.Pages",
+      "description": {
+        "standard": "Pages ist jetzt Teil von Apple Creator Studio, einer beeindruckenden Sammlung der leistungsstärksten kreativen Apps von Apple, die dir helfen sollen, deine Idee…"
+      },
+      "deviceFamilies": [
+        "mac",
+        "iphone",
+        "ipad"
+      ],
+      "genreNames": [
+        "Produktivität",
+        "Wirtschaft"
+      ],
+      "iconArtwork": {
+        "height": 1024,
+        "url": "https://is1-ssl.mzstatic.com/image/thumb/PurpleSource211/v4/a7/08/2b/a7082b4b-27ce-412f-b017-aadcf0ad41bb/Placeholder.mill/{w}x{h}{c}.{f}",
+        "width": 1024
+      },
+      "id": "361309726",
+      "kind": "iosSoftware",
+      "latestVersionReleaseDate": "30.06.2026",
+      "minimumOSVersion": "18.0",
+      "name": "Pages: Erstelle Dokumente",
+      "offers": [
+        {
+          "price": 0.00,
+          "priceFormatted": "0,00 €",
+          "type": "get",
+          "version": {
+            "display": "15.3",
+            "externalId": 886393079
+          }
+        }
+      ],
+      "releaseDate": "2010-05-26",
+      "softwareInfo": {
+        "eulaUrl": "https://itunes.apple.com/WebObjects/MZStore.woa/wa/viewEula?cc=de&id=361309726",
+        "privacyPolicyTextUrl": null,
+        "privacyPolicyUrl": "https://www.apple.com/legal/privacy/de-ww/",
+        "seller": "Apple Distribution International",
+        "supportUrl": "http://www.apple.com/de/support/ipad/pages/",
+        "websiteUrl": "http://www.apple.com/de/pages/"
+      },
+      "subtitle": "Design, Layout und Gestaltung",
+      "url": "https://apps.apple.com/de/app/pages-erstelle-dokumente/id361309726",
+      "userRating": {
+        "ratingCount": 146780,
+        "value": 4.5
+      },
+      "whatsNew": "Im Abonnement von Apple Creator Studio:\n• Öffne ein Bild aus Pages direkt in Pixelmator Pro auf dem iPad und sieh die bearbeitete Version in deinem Dokument.\n• …"
+    }
+  },
+  "version": 2
+}
