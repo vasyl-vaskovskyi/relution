@@ -1,6 +1,6 @@
 # ADR-0030: Native async caches, one lookup-result cache, bounded retry
 
-- **Status:** Accepted; supersedes [ADR-0011](0011-60-second-negative-cache-for-unknown-app-ids.md); amends [ADR-0012](0012-upstream-status-mapping.md)
+- **Status:** Accepted; supersedes [ADR-0011](0011-60-second-negative-cache-for-unknown-app-ids.md); amends [ADR-0012](0012-upstream-status-mapping.md); amended by [ADR-0043](0043-reject-unlisted-storefront-codes-locally.md) (`storefront-verdict` cache removed)
 - **Date:** 2026-09-13 (prep)
 
 - **Context:**

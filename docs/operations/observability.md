@@ -36,7 +36,7 @@ Exposed on `8081/actuator/metrics` and `8081/actuator/prometheus`.
 | `appstore.apple.requests` | Timer with percentiles histogram | `api=search\|lookup`, `outcome=success\|empty\|not_found\|storefront_rejected\|rate_limited\|short_circuited\|connect_error\|read_timeout\|server_error\|contract_error` | One sample per logical upstream call or short-circuit, recorded after retries |
 | `appstore.apple.mapping.missing_field` | Counter | `api`, `field` | Drift signal ([ADR-0037](../adr/0037-legacy-api-drift-detection.md)) |
 | `appstore.storefront.allowlist.mismatch` | Counter | `direction=missing\|outdated` | Allowlist maintenance signal |
-| `cache.gets` (and the other Caffeine cache metrics) | Counter | `cache=app-search\|app-details\|storefront-verdict`, `result=hit\|miss` | Cache effectiveness |
+| `cache.gets` (and the other Caffeine cache metrics) | Counter | `cache=app-search\|app-details`, `result=hit\|miss` | Cache effectiveness |
 
 - **Prometheus names:** `appstore_apple_requests_seconds_count`, `appstore_apple_requests_seconds_bucket` and so on.
 - **Cardinality rules:** never use `term`, `cc`, `id`, client ids or free text as tag values. Every tag listed above has a fixed, small set of values.

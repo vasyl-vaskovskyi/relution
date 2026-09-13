@@ -46,11 +46,10 @@ The caches are native Caffeine `AsyncCache`s (`buildAsync()`, `recordStats()`), 
 |---|---|---|---|
 | `app-search` | `(term.strip().toLowerCase(Locale.ROOT), cc, limit)` | Search result, 10 min | 1 000 |
 | `app-details` | `(id, cc, normalized l, platform)` | `LookupResult`: `Found` 15 min (= Apple `max-age=900`), `NotFound` 60 s, via `Caffeine.expireAfter(Expiry)` | 5 000 |
-| `storefront-verdict` | `cc` (valid ISO codes that aren't on the allowlist) | Served or rejected, 24 h | 250 |
 
 - **Single-flight:** concurrent identical requests share one in-flight future, so one upstream call. That includes lookups of unknown ids.
 - **Failures are never cached:** Caffeine removes a future that completes exceptionally.
-- **Search term:** Apple receives the **trimmed original** term. Only the cache key is lower-cased, on the *inferred* assumption that Apple's search is case-insensitive (*verify* on the day; if it isn't, drop the lower-casing).
+- **Search term:** Apple receives the **trimmed original** term. Only the cache key is lower-cased, because Apple's search is case-insensitive. Observed on 2026-09-14: `WhatsApp`, `whatsapp`, `WHATSAPP` and `wHaTsApP` returned identical results ([`../integrations/apple-api-behavior.md`](../integrations/apple-api-behavior.md#13-edge-cases-observed)).
 - **Language normalization:** before `l` becomes part of the key, it is lower-cased and `_` becomes `-` (`de_DE`, `de-DE` → `de-de`).
 - **Loader executor:**
   - Set explicitly with `Caffeine.executor(...)`: a virtual-thread-per-task executor wrapped with Micrometer context propagation (`ContextExecutorService`), so the MDC (`correlationId`, `clientId`) reaches the loader thread (*verify* the SLF4J MDC accessor on the day).
@@ -64,7 +63,7 @@ The caches are native Caffeine `AsyncCache`s (`buildAsync()`, `recordStats()`), 
 |---|---|---|
 | Caches, the 429 guard and the stretch-goal limiter are per instance | N instances behind one egress IP share Apple's budget but don't coordinate | Shared cache (e.g. Redis) and a central budget |
 | The storefront allowlist is static | Staleness is detected and logged, but not fixed automatically | Runbook refresh every 6 months |
-| Browser-direct search to spread load across user IPs | Not implemented | Open question [ADR-0026](../adr/0026-hybrid-routing-angular-client-calls-apple-search-directly-de.md) |
+| Browser-direct search to spread load across user IPs | Not implemented | Not for the Discovery Day; revisit after the team discussion ([ADR-0026](../adr/0026-hybrid-routing-angular-client-calls-apple-search-directly-de.md)) |
 
 ## Stretch goals (only after all planned work, in this order)
 

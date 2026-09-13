@@ -26,4 +26,3 @@
 | **single-flight** | Concurrent identical requests share one upstream call (via Caffeine `AsyncCache`). |
 | **storefront** | Apple's per-country store. Determines prices, availability and default language. Apple returns its code upper case (`DE`). |
 | **universal app** | An app with `kind = iosSoftware` whose `deviceFamilies` include `mac`. |
-| **verdict (storefront)** | Apple's observed answer (served or rejected) for a valid ISO country code that isn't on our allowlist. Cached for 24 h. |

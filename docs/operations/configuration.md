@@ -34,8 +34,6 @@ If one of these is missing or invalid, the application refuses to start. An `App
 | `appstore.cache.details.ttl` | `APPSTORE_CACHE_DETAILS_TTL` | `PT15M` | `app-details` time to live for `Found` |
 | `appstore.cache.notfound.ttl` | `APPSTORE_CACHE_NOTFOUND_TTL` | `PT60S` | `app-details` time to live for `NotFound` |
 | `appstore.cache.details.size` | `APPSTORE_CACHE_DETAILS_SIZE` | `5000` | `app-details` maximum entries |
-| `appstore.cache.verdict.ttl` | `APPSTORE_CACHE_VERDICT_TTL` | `PT24H` | `storefront-verdict` time to live |
-| `appstore.cache.verdict.size` | `APPSTORE_CACHE_VERDICT_SIZE` | `250` | `storefront-verdict` maximum entries |
 | `spring.profiles.active` | `SPRING_PROFILES_ACTIVE` | (none) | `prod` activates `application-prod.yml` |
 
 ## Profiles

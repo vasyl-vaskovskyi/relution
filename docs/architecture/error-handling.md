@@ -18,7 +18,7 @@ Every `cc` passes through `StorefrontPolicy` before any Apple call. The allowlis
 | `cc` is not 2 letters, or is neither on the allowlist nor an ISO 3166-1 country (`xk` is on the allowlist but not ISO) | **400** `invalid-request` | — |
 | On the allowlist, Apple serves it | normal response | — |
 | On the allowlist, but Apple rejects it (Search 400 `[country]`, or `meta.storefront.cc` ≠ `cc`, compared case-insensitively) | **400** `unsupported-storefront` | **ERROR** `storefront allowlist outdated`, counter `appstore.storefront.allowlist.mismatch{direction=outdated}` |
-| A valid ISO code **not** on the allowlist | Apple's actual verdict: normal response or **400** `unsupported-storefront` | **WARN** `storefront missing from allowlist`, counter `{direction=missing}`. The verdict is cached for 24 h in `storefront-verdict`; while cached, a rejected code gets 400 without calling Apple |
+| A valid ISO code **not** on the allowlist | **400** `unsupported-storefront`, without calling Apple | **WARN** `storefront missing from allowlist, verify the list`, counter `{direction=missing}` ([ADR-0043](../adr/0043-reject-unlisted-storefront-codes-locally.md)) |
 
 The client never learns anything about the allowlist or how it is maintained. The refresh procedure is in [`../operations/runbook.md`](../operations/runbook.md).
 

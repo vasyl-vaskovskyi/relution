@@ -1,6 +1,6 @@
 # ADR-0008: Storefront allowlist that reports its own staleness
 
-- **Status:** Accepted
+- **Status:** Accepted; amended by [ADR-0043](0043-reject-unlisted-storefront-codes-locally.md) (unlisted codes rejected locally, no verdict cache)
 - **Date:** 2026-09-13 (prep)
 
 - **Context:** Some valid ISO countries have no App Store (e.g. `cu`, `kp`). For those, Search returns 400 and MZ **silently serves the US storefront**, so wrong prices and names would look like a success. Java's ISO country list doesn't match Apple's storefronts.

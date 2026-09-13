@@ -5,7 +5,7 @@
 | Layer | Tool | What | Why |
 |---|---|---|---|
 | Mappers | Plain JUnit + WireMock `__files` JSON | iOS app, Mac-only app, universal app on both platforms, ebook (`OTHER`), explicit nulls, both artwork shapes plus a hand-made concrete-URL object, missing offers, numeric and string ids, every raw key name, `BigDecimal` prices | Highest risk: inconsistent Legacy payloads. Pure, fast, cheap |
-| Storefront policy | Plain JUnit (fake verdict cache) | All four cases of the policy table, including the logs and counters emitted, and verdict caching | Our own logic with two maintenance paths |
+| Storefront policy | Plain JUnit (fake Apple outcome) | All four cases of the policy table, including the logs and counters emitted | Our own logic with two maintenance signals |
 | Apple clients | WireMock (`wiremock-spring-boot`) | Happy path; empty results; 429 with `Retry-After` and the short-circuit that follows; 5xx (not retried); connect failure (retried) vs read timeout (not retried) with short test timeouts; malformed JSON; `text/javascript` content type; Search 400 `[country]`; lookup storefront fallback; served language; `outcome` metric tags | Proves error translation and retry classification against real HTTP behavior |
 | Web layer | `@WebMvcTest` + `MockMvcTester` | Validation → 400 with `errors[]`; exception → problem type; correlation id echo and validation; 401 without a token; 403 without the scope; 200 with a token | The public contract |
 | Caching | `@SpringBootTest` + WireMock | N concurrent identical searches → 1 upstream call; concurrent unknown-id lookups → 1 upstream call; `NotFound` expires after its TTL; failures aren't cached | The resilience claims must be proven, not asserted |

@@ -50,6 +50,7 @@ Every entry follows the same pattern: **signal → impact → check → action**
 2. Convert the codes to alpha-2 (`Locale.getISO3Country()` mapping; Kosovo `XKS` → `xk`).
 3. Diff the result against `SupportedStorefronts`, and spot-check added or removed codes against both Apple APIs.
 4. Update the constant, its source and date comment, and [`../integrations/apple-api-behavior.md`](../integrations/apple-api-behavior.md#4-app-store-storefront-allowlist) in one change.
+5. Also review the WARN logs `storefront missing from allowlist` (counter `direction=missing`). Requests for these codes are rejected without calling Apple, so a new Apple storefront shows up only there ([ADR-0043](../adr/0043-reject-unlisted-storefront-codes-locally.md)).
 
 ### Rotate the JWT signing secret
 1. Generate a new secret with `openssl rand -base64 32`.
