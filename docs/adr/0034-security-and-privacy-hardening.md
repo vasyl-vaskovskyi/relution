@@ -1,0 +1,41 @@
+# ADR-0034: Security and privacy hardening
+
+- **Status:** Accepted; amends [ADR-0004](0004-self-issued-hs256-jwt-no-fallback.md), [ADR-0006](0006-docker-with-no-default-secrets.md), [ADR-0019](0019-serve-the-frontend-from-an-nginx-container-same-origin.md), [ADR-0020](0020-central-debug-logging-in-the-frontend.md) and [ADR-0027](0027-observability-logs-and-metrics-in-the-app-opentelemetry-graf.md)
+- **Date:** 2026-09-13 (prep)
+
+- **Context:**
+  - The decoder built by `NimbusJwtDecoder.withSecretKey` checks only time claims by default.
+  - Search terms may contain personal data, and the service is operated in the EU (GDPR).
+  - `X-Correlation-Id` was accepted unvalidated, which allows log injection.
+  - Image tags floated, nginx ran as root, ports were published on all interfaces.
+  - There was no CSP.
+  - The frontend's runtime debug override worked in production builds.
+- **Decision:**
+  - **JWT:**
+    - Tokens carry `iss=appstore`, `aud=appstore-api`, `sub=<client id>` and `scope=apps:read`.
+    - The decoder validates them with `JwtValidators.createDefaultWithValidators(new JwtIssuerValidator(...), audience JwtClaimValidator)`, and the API requires `SCOPE_apps:read`.
+    - Client secrets are compared in constant time (`MessageDigest.isEqual`).
+    - Token TTL is at most 1 h (validated).
+    - Failed token requests are logged without credentials.
+  - **Privacy:**
+    - Search terms are never logged; `termLength` is logged instead. Because the term travels in the query string, nginx access logs use a format without query strings, and tracing drops the query from span attributes.
+    - Tokens, credentials and Apple bodies are never logged.
+    - A test captures log output and asserts that no `Bearer` value or secret appears.
+  - **Correlation id:**
+    - An incoming `X-Correlation-Id` must match `^[A-Za-z0-9._-]{1,64}$`; otherwise a new one is generated.
+    - When tracing is enabled, the trace id is the correlation id, and the header is a response alias.
+  - **Containers:**
+    - Exact image versions are pinned and updated by Dependabot.
+    - The frontend runtime is `nginxinc/nginx-unprivileged` (port 8080).
+    - Compose binds published ports to `127.0.0.1`.
+    - The JVM runs with `-XX:MaxRAMPercentage=75 -XX:+ExitOnOutOfMemoryError`.
+    - The Grafana admin password comes from `.env`.
+  - **Frontend:**
+    - nginx sends a CSP (`default-src 'self'; img-src 'self' https://*.mzstatic.com data:; style-src 'self' 'unsafe-inline'; frame-ancestors 'none'; object-src 'none'; base-uri 'self'`), plus `X-Content-Type-Options`, `Referrer-Policy` and `server_tokens off`.
+    - Apple texts are rendered as text, never with `[innerHTML]`.
+    - The debug-log runtime override exists only in a `demo` build configuration, which the local compose file uses. The production configuration has no override.
+- **Consequences:**
+  - Tokens from a real IdP can later replace ours without API changes (same claims).
+  - `style-src 'unsafe-inline'` remains, because Angular/Material styles need it without per-request nonces; this is documented.
+  - Secret rotation and asymmetric keys remain open items (runbook).
+  - `/auth/token` has no rate limit or lockout yet. This is a known gap, mitigated at the ingress (`docs/architecture/security.md`).
