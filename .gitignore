@@ -1,0 +1,32 @@
+# Secrets — copy .env.example to .env locally, never commit .env
+.env
+.env.*
+!.env.example
+
+# Gradle
+.gradle/
+build/
+!gradle/wrapper/gradle-wrapper.jar
+
+# Node / Angular
+node_modules/
+dist/
+.angular/
+coverage/
+
+# IntelliJ IDEA
+.idea/
+*.iml
+*.ipr
+*.iws
+out/
+
+# VS Code / Eclipse
+.vscode/
+bin/
+
+# macOS
+.DS_Store
+
+# Logs
+*.log
