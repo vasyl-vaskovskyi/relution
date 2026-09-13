@@ -2,7 +2,7 @@
 
 ## Workflow
 
-1. **One logical change per branch or commit.** Keep diffs reviewable.
+1. **One logical change per commit, at most 10 changed files** (see [Commit size](#commit-size)). Keep diffs reviewable.
 2. **Test first** for mappers, Apple clients and the storefront policy. Test data lives in `backend/src/test/resources/wiremock/` (see [`docs/development/testing.md`](docs/development/testing.md)).
 3. **Run the checks locally** before pushing:
    ```bash
@@ -15,6 +15,27 @@
 ## Commit messages
 
 Use [Conventional Commits](https://www.conventionalcommits.org/): `feat:`, `fix:`, `test:`, `refactor:`, `docs:`, `chore:`, `build:`, `ci:`, with a scope where it helps (`feat(frontend): …`, `fix(apple): …`). Use the imperative mood, and keep the subject line under 72 characters.
+
+## Commit size
+
+See [ADR-0042](docs/adr/0042-commit-size-and-parallel-pull-requests.md).
+
+- **At most 10 changed files per commit.** Added, modified, deleted and renamed files each count. If a change needs more, split it into several meaningful commits.
+- **Exceptions**, each stated in the commit body as `Exception: generated | pure move | lockfile | formatting`:
+  - untouched generator output (Initializr, `ng new`, `ng add`);
+  - pure moves or renames with no content changes;
+  - lockfile-only changes;
+  - repository-wide formatting (`./gradlew spotlessApply`).
+- **Check before committing:** `git diff --cached --name-only | wc -l`.
+
+## Branches and pull requests
+
+- **One pull request per block of work,** on GitHub. Branch names: `build/…`, `feat/…`, `test/…`, `ci/…`, `ops/…`, `docs/…`.
+- **Rebase on `main` before merging.** Merge with **Rebase and merge** only; squash and merge commits are disabled, so the individual commits stay in `main`.
+- **CI must be green,** and a maintainer approves.
+- **Sequential work** (changes that build on unmerged code) waits until its prerequisite is merged. Don't stack unreviewed PRs.
+- **Independent work** can run in parallel worktrees: `git worktree add ../<repo>-<track> -b <branch> main`. At most two PRs should wait for review at once.
+- **Shared files** (`.github/workflows/ci.yml`, `.github/dependabot.yml`, `docker-compose.yml`, `backend/gradle/libs.versions.toml`, `README.md`, `docs/operations/configuration.md`): keep edits to them small and in separate commits, so rebases stay trivial.
 
 ## Decisions
 

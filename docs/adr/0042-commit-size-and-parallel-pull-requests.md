@@ -1,0 +1,39 @@
+# ADR-0042: Commit size limit and parallel pull requests
+
+- **Status:** Accepted; amends [ADR-0036](0036-formatting-version-catalog-and-updates.md) (Dependabot PR limit during the Discovery Day)
+- **Date:** 2026-09-14 (prep)
+
+- **Context:**
+  - Reviewers follow the history commit by commit, and the codebase is meant to be maintained by many developers. Large commits are hard to review, revert and bisect.
+  - Much of the planned work is independent (delivery, frontend, operability), but the backend core builds on shared domain contracts.
+  - An AI assistant can work in several git worktrees at once. A human reviewer is the bottleneck.
+- **Options:**
+  - **Commit size:** no limit; a strict 10-file limit; a 10-file limit with documented exceptions.
+  - **Parallelism:** a single branch; a PR per block with parallel independent tracks; parallel PRs for everything, including the backend core.
+  - **Hosting:** GitHub PRs; local branches only.
+- **Decision:**
+  - **Commit size:** at most **10 changed files per commit**. Added, modified, deleted and renamed files each count.
+    - **Allowed exceptions**, which must be stated in the commit body (`Exception: generated | pure move | lockfile | formatting`):
+      - untouched generator output (Initializr, `ng new`, `ng add`);
+      - pure moves or renames (e.g. `stubs/` → WireMock test resources, [ADR-0041](0041-move-captures-into-wiremock-and-remove-stubs.md));
+      - lockfile-only changes;
+      - repository-wide formatting (`spotlessApply`).
+    - **Prep commits:** the five documentation commits made before this decision (up to 42 files) predate the rule and are kept as they are.
+  - **Pull requests:** one PR per block, on **GitHub**. The maintainer provides the repository.
+    - Branches: `build/…`, `feat/…`, `test/…`, `ci/…`, `ops/…`, `docs/…`.
+    - CI ([ADR-0035](0035-continuous-integration.md)) must be green, and the maintainer approves every PR.
+    - **Merge with "Rebase and merge" only.** Squash and merge commits are disabled, so the small commits stay visible in `main`.
+  - **Parallel tracks:**
+    - **Backend core stays strictly sequential:** bootstrap → search → details → errors → auth → caching → OpenAPI and smoke. Each PR is merged before the next one branches off.
+    - **Independent tracks** run in parallel git worktrees once their prerequisite is merged: delivery (Docker), frontend and operability.
+    - **Review load:** at most two PRs wait for review at the same time.
+    - **Before merging,** a branch is rebased on `main`.
+    - **Branch protection:** required CI and one approval. Branches are *not* required to be up to date, which would force a rebase and CI rerun on every open PR after each merge.
+    - **Shared files** (`.github/workflows/ci.yml`, `.github/dependabot.yml`, `docker-compose.yml`, `backend/gradle/libs.versions.toml`, `README.md`, `docs/operations/configuration.md`) are edited in small, separate commits to keep rebase conflicts trivial.
+  - **Commit approval during the challenge:** the maintainer approves the planned commit list at the start of each block, and the assistant commits within it after green tests. The PR review is the real review. Deviations need a new approval.
+  - **Dependabot:** every ecosystem starts with `open-pull-requests-limit: 0` during the Discovery Day, so update PRs don't compete with reviews.
+- **Consequences:**
+  - More, smaller commits and PRs. The history shows each step, and every PR is reviewable in minutes.
+  - Wall-clock time can drop when independent tracks overlap, while review stays the bottleneck.
+  - A GitHub remote and `gh` authentication must be ready before the day.
+  - The details are in `CONTRIBUTING.md` and `docs/challenge/plan.md`.

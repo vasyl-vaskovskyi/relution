@@ -2,13 +2,11 @@
 
 One file per decision, MADR-lite format ([ADR-0039](0039-documentation-structure.md)). Decisions are never rewritten. A later ADR supersedes or amends an earlier one, and the status line links to it.
 
-**Statuses:** `Accepted`, `Accepted; amended by …`, `Superseded by …`, `Open` (do not implement), `Proposed`.
+**Statuses:** `Accepted`, `Accepted; amended by …`, `Superseded by …`, `Open` (do not implement), `Rejected …`, `Proposed`.
 
 ## Open questions
 
-| ADR | Title | Status |
-|---|---|---|
-| [0026](0026-hybrid-routing-angular-client-calls-apple-search-directly-de.md) | Hybrid routing: Angular client calls Apple Search directly, details via our server | Open — do not implement until decided |
+None. [ADR-0026](0026-hybrid-routing-angular-client-calls-apple-search-directly-de.md) (browser-direct search) was closed for the Discovery Day, to be revisited after the team discussion.
 
 ## All decisions
 
@@ -21,7 +19,7 @@ One file per decision, MADR-lite format ([ADR-0039](0039-documentation-structure
 | [0005](0005-treat-the-mzstoreplatform-api-as-untrusted.md) | Treat the MZStorePlatform API as untrusted | Accepted; adapter package renamed by ADR-0028 (`integration.apple`); fixture handling amended by ADR-0040 and ADR-0041 |
 | [0006](0006-docker-with-no-default-secrets.md) | Docker with no default secrets | Accepted; amended by ADR-0033 (variable names) and ADR-0034 (container hardening) |
 | [0007](0007-part-3-direction-resilience-caching.md) | Part 3 direction: resilience + caching | Accepted; scope amended by ADR-0017, ADR-0027, ADR-0030 (retry only on connection failures), ADR-0031 and ADR-0035 |
-| [0008](0008-storefront-allowlist-that-reports-its-own-staleness.md) | Storefront allowlist that reports its own staleness | Accepted |
+| [0008](0008-storefront-allowlist-that-reports-its-own-staleness.md) | Storefront allowlist that reports its own staleness | Accepted; amended by ADR-0043 (unlisted codes rejected locally, no verdict cache) |
 | [0009](0009-report-the-language-apple-served-instead-of-rejecting.md) | Report the language Apple served instead of rejecting | Accepted |
 | [0010](0010-cc-required-on-both-endpoints.md) | `cc` required on both endpoints | Accepted |
 | [0011](0011-60-second-negative-cache-for-unknown-app-ids.md) | 60-second negative cache for unknown app ids | Superseded by ADR-0030 (the 60 s negative-cache intent is kept, the mechanism changed) |
@@ -39,22 +37,24 @@ One file per decision, MADR-lite format ([ADR-0039](0039-documentation-structure
 | [0023](0023-frontend-scope-and-tests.md) | Frontend scope and tests | Accepted; amended by ADR-0029 (errors mapped by problem type) |
 | [0024](0024-keep-real-apple-captures-as-trimmed-consistently-named-fixtu.md) | Keep real Apple captures as trimmed, consistently named fixtures | Accepted; amended by ADR-0040 and ADR-0041 (captures move into WireMock test resources; `stubs/` removed on the day) |
 | [0025](0025-deal-with-the-per-ip-search-rate-limit-within-apples-rules.md) | Deal with the per-IP Search rate limit within Apple's rules | Accepted |
-| [0026](0026-hybrid-routing-angular-client-calls-apple-search-directly-de.md) | Hybrid routing: Angular client calls Apple Search directly, details via our server | Open — do not implement until decided |
+| [0026](0026-hybrid-routing-angular-client-calls-apple-search-directly-de.md) | Hybrid routing: Angular client calls Apple Search directly, details via our server | Rejected for the Discovery Day; revisit after the team discussion |
 | [0027](0027-observability-logs-and-metrics-in-the-app-opentelemetry-graf.md) | Observability: logs and metrics in the app, OpenTelemetry + Grafana LGTM as a stretch goal | Accepted; amended by ADR-0033 (Boot-native OTLP properties, variable names), ADR-0034 (trace id as correlation id) and ADR-0038 (alert rules, `appstore.` metric prefix) |
 | [0028](0028-package-boundaries-and-ports.md) | Package boundaries, ports and ArchUnit enforcement | Accepted; renames sub-packages of ADR-0015 |
 | [0029](0029-domain-terms-in-public-api.md) | Domain terms in the public API, decimal money, extensible contract | Accepted; supersedes ADR-0014; amends ADR-0023 |
-| [0030](0030-details-cache-and-bounded-retry.md) | Native async caches, one lookup-result cache, bounded retry | Accepted; supersedes ADR-0011; amends ADR-0012 |
+| [0030](0030-details-cache-and-bounded-retry.md) | Native async caches, one lookup-result cache, bounded retry | Accepted; supersedes ADR-0011; amends ADR-0012; amended by ADR-0043 (`storefront-verdict` cache removed) |
 | [0031](0031-rate-limit-short-circuit.md) | Short-circuit Search calls after Apple returns 429 | Accepted; amends ADR-0012 and ADR-0007 |
 | [0032](0032-management-port-and-probes.md) | Separate management port, probes, restricted exposure | Accepted |
 | [0033](0033-configuration-namespace.md) | One configuration namespace `appstore.*` | Accepted; amends ADR-0006, ADR-0018 and ADR-0027 |
 | [0034](0034-security-and-privacy-hardening.md) | Security and privacy hardening | Accepted; amends ADR-0004, ADR-0006, ADR-0019, ADR-0020 and ADR-0027 |
 | [0035](0035-continuous-integration.md) | Continuous integration with GitHub Actions | Accepted; amends ADR-0007 (CI is merge hygiene, not a Part 3 topic) |
-| [0036](0036-formatting-version-catalog-and-updates.md) | Formatter, version catalog, wrapper checksum, dependency updates | Accepted; supersedes ADR-0016 for the backend |
+| [0036](0036-formatting-version-catalog-and-updates.md) | Formatter, version catalog, wrapper checksum, dependency updates | Accepted; supersedes ADR-0016 for the backend; amended by ADR-0042 (`open-pull-requests-limit: 0` during the Discovery Day) |
 | [0037](0037-legacy-api-drift-detection.md) | Detect drift of the Legacy Apple APIs | Accepted |
 | [0038](0038-alert-rules.md) | Committed alert rules | Accepted; amends ADR-0027 |
 | [0039](0039-documentation-structure.md) | Documentation structure, ADR format and conventions | Accepted |
 | [0040](0040-capture-archive-and-test-fixtures.md) | Capture archive vs. test fixtures | Superseded by ADR-0041 (`stubs/` is moved into WireMock test resources on the day and then deleted) |
 | [0041](0041-move-captures-into-wiremock-and-remove-stubs.md) | Move the captures into WireMock test resources and remove `stubs/` | Accepted; supersedes ADR-0040 |
+| [0042](0042-commit-size-and-parallel-pull-requests.md) | Commit size limit and parallel pull requests | Accepted; amends ADR-0036 (Dependabot PR limit during the Discovery Day) |
+| [0043](0043-reject-unlisted-storefront-codes-locally.md) | Reject unlisted storefront codes locally | Accepted; amends ADR-0008 and ADR-0030 |
 
 ## Writing a new ADR
 

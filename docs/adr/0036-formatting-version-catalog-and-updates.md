@@ -1,6 +1,6 @@
 # ADR-0036: Formatter, version catalog, wrapper checksum, dependency updates
 
-- **Status:** Accepted; supersedes [ADR-0016](0016-defer-editorconfig-to-the-day.md) for the backend
+- **Status:** Accepted; supersedes [ADR-0016](0016-defer-editorconfig-to-the-day.md) for the backend; amended by [ADR-0042](0042-commit-size-and-parallel-pull-requests.md) (`open-pull-requests-limit: 0` during the Discovery Day)
 - **Date:** 2026-09-13 (prep)
 
 - **Context:** With many developers, formatting debates and whitespace noise waste review time. Dependency versions scattered across build files drift, and nobody updates them.

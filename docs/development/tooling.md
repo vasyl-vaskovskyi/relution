@@ -26,7 +26,7 @@ Versions marked *verify* were checked on 2026-09-13. Confirm them when the files
 
 - **Version catalog:** `backend/gradle/libs.versions.toml` holds every backend library and plugin version.
 - **Gradle wrapper:** pinned `distributionSha256Sum` in `backend/gradle/wrapper/gradle-wrapper.properties`.
-- **Dependabot** (`.github/dependabot.yml`), weekly, with minor and patch updates grouped. Add each ecosystem once its directory exists (kickoff: `gradle`, `github-actions`; Docker block: `docker` for `/backend`, `docker-compose`; frontend block: `npm`, `docker` for `/frontend`):
+- **Dependabot** (`.github/dependabot.yml`), weekly, with minor and patch updates grouped. Add each ecosystem once its directory exists (kickoff: `gradle`, `github-actions`; Docker block: `docker` for `/backend`, `docker-compose`; frontend block: `npm`, `docker` for `/frontend`). During the Discovery Day every entry sets `open-pull-requests-limit: 0`, so update PRs don't compete with the day's reviews; raise the limit (e.g. to 5) afterwards:
 
 | `package-ecosystem` | `directory` |
 |---|---|
@@ -47,6 +47,14 @@ Versions marked *verify* were checked on 2026-09-13. Confirm them when the files
 | `org.wiremock.integrations:wiremock-spring-boot` 4.2.x (test) | Apple HTTP tests | [0003](../adr/0003-spring-boot-4-1-with-restclient.md) |
 | `com.tngtech.archunit:archunit-junit6` 1.5.x (test) | Architecture rules | [0028](../adr/0028-package-boundaries-and-ports.md) |
 | `org.springframework.boot:spring-boot-starter-opentelemetry` (stretch goal) | OTLP export | [0027](../adr/0027-observability-logs-and-metrics-in-the-app-opentelemetry-graf.md) |
+
+## GitHub repository
+
+See [ADR-0042](../adr/0042-commit-size-and-parallel-pull-requests.md).
+
+- **Merge settings:** allow **Rebase and merge** only; disable squash merging and merge commits. Delete branches after merge.
+- **Branch protection on `main`:** require a pull request, one approval and the CI checks `backend`, `frontend` and `images` (once they exist). Don't require branches to be up to date: with parallel tracks, every merge would force a rebase and CI rerun on every open PR. The rebase before merging ([`CONTRIBUTING.md`](../../CONTRIBUTING.md#branches-and-pull-requests)) is enough. No force pushes.
+- **CLI:** `gh` authenticated (`gh auth status`) for creating and reviewing PRs from the terminal.
 
 ## Pull request template
 

@@ -46,10 +46,11 @@ A Spring Boot 4 service (Java 25) with two endpoints: it searches apps via the A
    - Never rewrite an accepted ADR. Supersede or amend it instead.
    - Never implement an ADR whose status is **Open**.
 8. **Docs move with the code.** Update the one doc that owns a fact in the same commit as the code. Link to it from elsewhere; don't copy it. Use American English, kebab-case file names under `docs/`, and roles rather than personal names.
-9. **Commits.**
-   - Conventional Commits, one logical change per commit.
+9. **Commits and pull requests.**
+   - Conventional Commits, one logical change per commit, **at most 10 changed files**. Exceptions (generated output, pure moves, lockfiles, formatting) are stated in the commit body.
    - Run `./gradlew spotlessApply` (backend) before committing.
-   - Never commit without the maintainer's approval.
+   - Commit only within a commit list the maintainer approved (per block; during the challenge see `docs/challenge/plan.md`). Anything outside it needs a new approval.
+   - One pull request per block, rebase-merged. Only independent tracks run in parallel worktrees ([`CONTRIBUTING.md`](CONTRIBUTING.md#branches-and-pull-requests), [ADR-0042](docs/adr/0042-commit-size-and-parallel-pull-requests.md)).
 10. **Prefer current LTS and stable versions** (Java 25, Node 24). Pin exact versions and let Dependabot update them.
 
 ## Commands
