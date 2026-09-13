@@ -1,0 +1,109 @@
+# App Store Search Service
+
+> **Draft.** This README describes the planned service. Its commands will be checked once the code exists, and then this notice will be removed.
+
+A Spring Boot service with two JSON endpoints: **search apps** in the Apple App Store and **look up app details**. It comes with an **Angular web client** that demonstrates both.
+
+The service wraps two Apple APIs:
+- the public [iTunes Search API](https://performance-partners.apple.com/search-api) for search;
+- the [MZStorePlatform lookup](https://developer.apple.com/documentation/devicemanagement/getting-app-and-book-information-legacy) (marked Legacy by Apple) for details.
+
+It turns Apple's responses into small, stable objects and returns upstream failures as RFC 9457 problem responses. It adds caching, bounded retry, protection against Apple's rate limit, JWT authentication, structured logs and metrics.
+
+```
+browser ──▶ frontend (nginx: Angular app, proxies /api and /auth)
+                 └─▶ app (Spring Boot :8080) ──▶ itunes.apple.com / uclient-api.itunes.apple.com
+curl / Bruno ─JWT─▶ app :8080            operators ──▶ app management :8081 (health, metrics)
+```
+
+---
+
+## Quick start (Docker)
+
+**Prerequisites:** Git and Docker with Compose v2.
+
+```bash
+git clone <repo-url> && cd <repo>
+cp .env.example .env          # fill in the required values (see docs/operations/configuration.md)
+docker compose up --build
+```
+
+`.env` is mandatory. The compose file contains no secrets, and the app refuses to start without them. Generate the signing secret with `openssl rand -base64 32`.
+
+| What | URL (bound to 127.0.0.1) |
+|---|---|
+| Web client | http://localhost:4200. Log in with `APPSTORE_AUTH_CLIENT_ID` / `APPSTORE_AUTH_CLIENT_SECRET` from `.env` |
+| API | http://localhost:8080 |
+| Readiness | http://localhost:8080/readyz |
+| Management (health, metrics, Prometheus) | http://localhost:8081/actuator |
+| API docs (not in the `prod` profile) | http://localhost:8080/swagger-ui.html |
+
+The local compose build of the web client uses the `demo` configuration, which logs every API call to the browser console. Production builds don't.
+
+## Local development
+
+**Backend.** Any JDK that can run Gradle is enough; the Gradle toolchain downloads Java 25.
+
+```bash
+set -a; source .env; set +a
+(cd backend && ./gradlew bootRun)
+```
+
+**Frontend.** Requires [nvm](https://github.com/nvm-sh/nvm); `.nvmrc` pins Node 24 LTS.
+
+```bash
+nvm install && nvm use
+cd frontend && npm ci && npm start     # http://localhost:4200, proxies /api and /auth to localhost:8080
+```
+
+## Using the API
+
+```bash
+set -a; source .env; set +a
+TOKEN=$(curl -s -u "$APPSTORE_AUTH_CLIENT_ID:$APPSTORE_AUTH_CLIENT_SECRET" -X POST localhost:8080/auth/token | jq -r .accessToken)
+curl -s -H "Authorization: Bearer $TOKEN" 'localhost:8080/api/v1/apps?term=relution&cc=de' | jq
+curl -s -H "Authorization: Bearer $TOKEN" 'localhost:8080/api/v1/apps/361309726?cc=de&l=de&platform=mac' | jq
+```
+
+Parameters, response fields and error types are documented in [`docs/api/README.md`](docs/api/README.md).
+
+## Tests
+
+```bash
+# from the repository root
+(cd backend && ./gradlew check)                   # formatting, unit, WireMock, web and architecture tests (no live Apple calls)
+(cd backend && ./gradlew liveTest)                # a few real Apple calls to detect API drift (nightly in CI)
+(cd frontend && npm test -- --watch=false)        # focused unit tests
+scripts/smoke.sh                                  # end-to-end checks against a running instance
+```
+
+CI runs `check`, the frontend tests and both image builds on every push. `liveTest` runs nightly, and `smoke.sh` is run manually. See [`docs/development/tooling.md`](docs/development/tooling.md).
+
+## Troubleshooting
+
+- **The app exits at startup with a configuration error.** A required `APPSTORE_*` variable is missing, or the JWT secret is shorter than 32 bytes after decoding.
+- **A port is already in use.** Change the host side of the port mapping in `docker-compose.yml`.
+- **`npm ci` or `ng` complains about the Node version.** Run `nvm use`. Angular 22 does not support Node 25.
+- **Searches return 503.** Apple's rate limit was hit (about 20 calls/min per IP). The service stops calling Apple until `Retry-After` expires; cached searches keep working.
+- **The web client shows the login page again.** The token is kept in memory only and expires after 15 minutes. Reloading the page also clears it.
+
+More in [`docs/operations/runbook.md`](docs/operations/runbook.md).
+
+## Documentation
+
+| Area | Where |
+|---|---|
+| Architecture, errors, caching, security, frontend | [`docs/architecture/`](docs/architecture/) |
+| API contract | [`docs/api/README.md`](docs/api/README.md) |
+| Apple API behavior and mapping | [`docs/integrations/`](docs/integrations/) |
+| Configuration, deployment, observability, runbook | [`docs/operations/`](docs/operations/) |
+| Testing and tooling | [`docs/development/`](docs/development/) |
+| Decisions | [`docs/adr/README.md`](docs/adr/README.md) |
+| Glossary | [`docs/glossary.md`](docs/glossary.md) |
+| Captured Apple responses (until the Discovery Day; then in `backend/src/test/resources/wiremock/`) | [`stubs/README.md`](stubs/README.md) |
+| How to contribute | [`CONTRIBUTING.md`](CONTRIBUTING.md) |
+| Discovery Day challenge material (temporary) | [`docs/challenge/`](docs/challenge/) |
+
+## Repository layout
+
+See [`docs/architecture/overview.md`](docs/architecture/overview.md#repository-layout).
