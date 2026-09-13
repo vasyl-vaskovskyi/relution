@@ -54,6 +54,7 @@ Reconnaissance of the two upstream APIs, done on **2026-09-13** from a German IP
 | `offset=0/5/10/200` | identical results, so **no pagination** |
 | `limit=5` on term "app" | 4 results. Fewer than `limit` can come back |
 | `lang=ja_jp` on `country=de` | German names. `lang` doesn't work outside JP |
+| `term=WhatsApp` / `whatsapp` / `WHATSAPP` / `wHaTsApP` (2026-09-14) | Identical results in identical order: **term matching is case-insensitive** |
 | `resultCount` vs `results.length` | equal in every capture. Iterate `results` anyway |
 
 ### 1.4 Rate limiting (observed)

@@ -18,19 +18,30 @@
 
 **CI:** the green pipeline, and the nightly drift workflow.
 
-## 2. Decisions (3 min)
+## 2. Decisions (3 min): three in depth
 
-- **Scope:** server first, client time-boxed. Java 25 and Node 24 LTS.
-- **Boundaries:** ports and adapters with ArchUnit enforcement. Apple terms stay inside the adapter (`platform=ios|mac`, decimal prices).
-- **Error tolerance:** the self-monitoring storefront allowlist, the error matrix, served-language reporting.
-- **Resilience:** async caches with single-flight and a negative cache, connection-only retry bounded to 8 s, the 429 short-circuit.
-- **Operability:** management port 8081, probes that don't depend on Apple, one `appstore.*` config namespace, security and privacy hardening.
-- **Merge hygiene:** CI, Spotless, version catalog, Dependabot, drift detection, alert rules, and ADR-based docs separated from challenge material.
-- **Left out, and why:**
-  - pagination (Apple ignores `offset`);
-  - books;
-  - browser-direct search (open, [ADR-0026](../adr/0026-hybrid-routing-angular-client-calls-apple-search-directly-de.md));
-  - the stretch goals: Level 2 observability, rate limiter, circuit breaker.
+Present three decisions properly, and keep everything else for Q&A.
+
+1. **Error tolerance against a Legacy API:** the storefront allowlist with detection of Apple's rejections, the silent storefront and language fallbacks made visible (`storefront.language`), and the error matrix (ADR-0008, ADR-0009, ADR-0012, ADR-0043).
+2. **Resilience under a per-IP rate limit:** the 429 short-circuit, single-flight async caches with a negative cache, retry on connection failures only, and why IP rotation was rejected (ADR-0025, ADR-0030, ADR-0031).
+3. **Boundaries for a long-lived codebase:** ports in `catalog`, the Apple adapter in `integration.apple`, ArchUnit enforcement, and Apple's terms kept out of the public API (ADR-0028, ADR-0029).
+
+**Ready for Q&A, one sentence each:**
+- scope: server first, client time-boxed;
+- Java 25 / Node 24 LTS;
+- management port and probes;
+- `appstore.*` configuration;
+- security hardening;
+- CI, Spotless, Dependabot;
+- drift detection;
+- ADR-based docs;
+- the commit and PR workflow.
+
+**Left out, and why:**
+- pagination (Apple ignores `offset`);
+- books;
+- browser-direct search (a scaling option, not for the day, ADR-0026);
+- the stretch goals: Level 2 observability, rate limiter, circuit breaker.
 
 ## 3. Working with AI (2–3 min)
 

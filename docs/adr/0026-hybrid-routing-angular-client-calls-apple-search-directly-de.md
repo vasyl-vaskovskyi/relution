@@ -1,6 +1,6 @@
 # ADR-0026: Hybrid routing: Angular client calls Apple Search directly, details via our server
 
-- **Status:** Open — do not implement until decided
+- **Status:** Rejected for the Discovery Day; revisit after the team discussion
 - **Date:** 2026-09-13 (prep)
 
 - **Context:**
@@ -26,4 +26,4 @@
   - How many users share an office IP at typical customers?
   - Is duplicating the mapping in the client acceptable?
   - Should the client share types or mappers with the server (e.g. a generated OpenAPI client for details only)?
-- **Decision:** pending.
+- **Decision:** Not for the Discovery Day. The client uses our server for both search and details. Browser-direct search is presented as a scaling option only. The maintainer will revisit it after discussing the office-NAT risk with colleagues; if it is adopted, a new ADR records that.
