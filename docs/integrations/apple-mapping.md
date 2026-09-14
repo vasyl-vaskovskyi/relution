@@ -39,7 +39,9 @@ These rules are implemented as pure functions in `integration.apple`. Every rule
 | `storefront` | `meta.storefront.cc` (lower-cased), `meta.language.tag`, requested `platform` |
 
 - **Results location:** the result is `results["<requested id>"]`. An empty `results`, or a missing requested id, becomes `LookupResult.NotFound`.
-- **Storefront check:** if `meta.storefront.cc` differs from the requested `cc` (case-insensitive), the client throws `StorefrontNotServedException`.
+- **Storefront check:** if `meta.storefront.cc` differs from the requested `cc` (case-insensitive), the client throws `StorefrontNotServedException`. The check also runs for empty results. A response without `meta.storefront.cc` is an `UpstreamContractException`.
+- **Required fields:** an item without `name` is an `UpstreamContractException` (502), because `name` is never `null` in our API. A missing `kind` maps to `OTHER`.
+- **`universal`** is computed from the raw values (`kind == "iosSoftware"` and `deviceFamilies` contains `mac`); `platforms` lists the known device families in a fixed order (`IPHONE`, `IPAD`, `IPOD`, `MAC`, `WATCH`, `TV`).
 
 ## Search responses
 
