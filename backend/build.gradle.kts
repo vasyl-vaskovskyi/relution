@@ -2,6 +2,7 @@ plugins {
 	java
 	alias(libs.plugins.spring.boot)
 	alias(libs.plugins.spring.dependency.management)
+	alias(libs.plugins.spotless)
 }
 
 group = "com.example"
@@ -20,6 +21,15 @@ repositories {
 
 springBoot {
 	buildInfo()
+}
+
+spotless {
+	java {
+		palantirJavaFormat(libs.versions.palantir.java.format.get())
+		removeUnusedImports()
+		trimTrailingWhitespace()
+		endWithNewline()
+	}
 }
 
 dependencies {
