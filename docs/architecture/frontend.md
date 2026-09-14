@@ -115,5 +115,4 @@ See [ADR-0023](../adr/0023-frontend-scope-and-tests.md).
 1. **`auth.interceptor`:** attaches the bearer token, adds no header to `/auth/token`, a 401 from an API call clears the token and navigates to `/login`, and a 401 from `/auth/token` doesn't redirect.
 2. **`locale.service`:** `de-DE` → de/de, `en` without a region → us/en, and the first entry with a region wins.
 3. **`problem-message`:** every row of the error table, including the unknown-type fallback and `Retry-After`.
-
-Components and templates aren't unit-tested; the demo covers them.
+4. **Components** (`*.component.spec.ts`): the login, search and details views and the shared loading and problem panels, tested through the DOM with the real router (`RouterTestingHarness`) and mocked HTTP (`HttpTestingController`), never through private members. The cases are listed in [`../development/testing.md`](../development/testing.md#strategy).

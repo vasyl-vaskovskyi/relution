@@ -18,13 +18,14 @@
 | API contract snapshot | `@SpringBootTest` (`OpenApiContractSnapshotTest`) | `/v3/api-docs`, normalized (keys sorted, generated `servers` removed, pretty-printed), equals the committed [`docs/api/openapi.json`](../api/openapi.json); a mismatch fails with the first differing lines and the update command | Every public API change is visible in the pull request diff |
 | Architecture | ArchUnit (`archunit-junit6`) | Package dependency rules ([`../architecture/overview.md`](../architecture/overview.md#dependency-rules-enforced-by-an-archunit-test)) | Boundaries don't erode |
 | Apple drift | `liveTest` source set (`AppleDriftLiveTest`), tag `live`, plain JUnit without a Spring context | Exactly 3 real calls on `cc=de`: one Search (`pages`), a lookup of Pages (`361309726`, iOS) and one of Final Cut Pro (`424389933`, Mac). They use the production clients, mappers, `AppleMissingFieldDetector` and the URLs and timeouts from `application.yml`. No `missing_field` counter increments (the same required-key list), plus known values (`kind`, `bundleId`, `deviceFamilies`, offer version). The unit test `AppleMissingFieldDetectorTest` proves that the captures produce no signal | Frozen fixtures can't detect Legacy API changes ([ADR-0037](../adr/0037-legacy-api-drift-detection.md)) |
-| Frontend | Vitest | Auth interceptor, locale pre-fill, problem-type → message ([`../architecture/frontend.md`](../architecture/frontend.md#tests)) | The client logic most likely to break silently |
+| Frontend logic | Vitest | Auth interceptor, debug log, locale pre-fill, problem-type → message ([`../architecture/frontend.md`](../architecture/frontend.md#tests)) | The client logic most likely to break silently |
+| Frontend components | Vitest with `TestBed`, `RouterTestingHarness` and `HttpTestingController`; fake timers for the debounce and the slow hint | Login (validation, success and return URL, wrong credentials, server and network errors), search (debounce, URL sync, loading and slow hint, no results, result list, field validation, problem types → messages, retry), details (render, placeholders, safe links, platform switch, served-language note, not-found, storefront and invalid-request errors, retry), the shared loading and problem panels ([`../architecture/frontend.md`](../architecture/frontend.md#tests)) | The screens and states the demo shows, checked through the DOM and the HTTP calls instead of by hand |
 
 **Deliberately not tested:**
 - Spring wiring beyond one context-load test and the integration tests above.
 - Records and accessors.
 - Individual OpenAPI details beyond the presence checks: the snapshot test covers the whole document, and reviewers judge its diff.
-- Angular templates and components (covered by the demo).
+- Angular Material's own behavior, styles and layout, and the app shell beyond one render test.
 - Live Apple calls in `check`: these run only in `liveTest`.
 
 ## Test data ([ADR-0041](../adr/0041-move-captures-into-wiremock-and-remove-stubs.md))
@@ -49,7 +50,8 @@ backend/src/test/resources/wiremock/
 ```bash
 (cd backend && ./gradlew check)       # Spotless check + all tests except live; compiles the live tests without running them
 (cd backend && ./gradlew liveTest)    # real Apple calls; not part of check (nightly: .github/workflows/apple-drift.yml)
-(cd frontend && npm test -- --watch=false)    # Vitest via ng test
+(cd frontend && npm test -- --watch=false)    # Vitest via ng test (logic and component specs)
+(cd frontend && npm test -- --watch=false --include src/app/features/search/search.component.spec.ts)    # one spec
 ```
 
 ### Update the OpenAPI contract snapshot
