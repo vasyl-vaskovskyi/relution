@@ -5,7 +5,7 @@
 | **adamId** | Apple's numeric identifier of a store item. The Search API returns it as `trackId` (a number), the lookup API as `id` (a string live, a number in doc samples). Our API always uses a string `id`. |
 | **allowlist (storefront)** | Our list of 175 country codes that have an App Store storefront ([ADR-0008](adr/0008-storefront-allowlist-that-reports-its-own-staleness.md)). |
 | **Apps and Books (VPP)** | Apple's authenticated API for organizations to manage purchased apps and books. Its request limits do **not** apply to the public lookup API. |
-| **captures** | Real Apple responses (trimmed, dated), used as test fixtures. Kept in `stubs/` until the Discovery Day, then in `backend/src/test/resources/wiremock/` ([ADR-0041](adr/0041-move-captures-into-wiremock-and-remove-stubs.md)). |
+| **captures** | Real Apple responses (trimmed, dated), used as test fixtures. Kept in `backend/src/test/resources/wiremock/` ([ADR-0041](adr/0041-move-captures-into-wiremock-and-remove-stubs.md)). |
 | **`cc`** | Country code of the storefront (ISO 3166-1 alpha-2, plus `xk`). A query parameter on both endpoints; internally `countryCode`. |
 | **correlation id** | An id that ties together one request's logs, responses and frontend console output. Header `X-Correlation-Id`. When tracing is enabled, it equals the trace id. |
 | **drift** | Apple changing a response shape without notice. Detected by the nightly live test and the `missing_field` metric ([ADR-0037](adr/0037-legacy-api-drift-detection.md)). |

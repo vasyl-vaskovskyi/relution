@@ -33,7 +33,7 @@ backend/src/test/resources/wiremock/
 └── __files/apple/lookup/…json        incl. doc-sample-*.json
 ```
 
-- **Origin:** the Apple captures prepared before the Discovery Day move here from `stubs/` (same names) at the start of the Search block, together with their README (request URLs, capture date, trimming rules, naming). `stubs/` is then deleted.
+- **Origin:** real Apple captures from 2026-09-13 plus two documentation samples. Request URLs, capture date, trimming rules and naming are in [`wiremock/README.md`](../../backend/src/test/resources/wiremock/README.md). They moved here from the former `stubs/` folder at the start of the Search block.
 - **Refreshing:** replace the file here directly; there is no second copy. The procedure is in [`../operations/runbook.md`](../operations/runbook.md#refresh-captures-and-fixtures).
 - **Hand-made variants** (e.g. an artwork object with a concrete URL) are named `synthetic-<scenario>.json`, so they're never mistaken for captures.
 - **Timeouts:** tests set short `appstore.apple.timeout.*` values (e.g. `PT0.2S`) and use WireMock `fixedDelayMilliseconds`.

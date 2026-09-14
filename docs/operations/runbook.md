@@ -62,7 +62,7 @@ Every entry follows the same pattern: **signal → impact → check → action**
 Set new `APPSTORE_AUTH_CLIENT_ID` and `APPSTORE_AUTH_CLIENT_SECRET` values, deploy, and hand the new values to API clients. Tokens already issued stay valid until they expire.
 
 ### Refresh captures and fixtures
-1. Capture with `curl -s '<url>' | jq .`. The request URLs and trimming rules are in `backend/src/test/resources/wiremock/README.md` (until the Discovery Day, in [`../../stubs/README.md`](../../stubs/README.md)). Stay within Apple's rate limit.
+1. Capture with `curl -s '<url>' | jq .`. The request URLs and trimming rules are in [`backend/src/test/resources/wiremock/README.md`](../../backend/src/test/resources/wiremock/README.md). Stay within Apple's rate limit.
 2. Apply the trimming rules and replace the file under `__files/apple/…`, or the mapping for captures that include headers. There is no second copy.
 3. Run the mapper and client tests. If Apple's behavior changed, update the assertions and record the change in [`../integrations/apple-api-behavior.md`](../integrations/apple-api-behavior.md).
 

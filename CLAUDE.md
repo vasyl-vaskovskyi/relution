@@ -30,7 +30,7 @@ A Spring Boot 4 service (Java 25) with two endpoints: it searches apps via the A
 | CI, formatting, dependency updates | [`docs/development/tooling.md`](docs/development/tooling.md) |
 | Decisions (ADRs) and open questions | [`docs/adr/README.md`](docs/adr/README.md) |
 | Terms (storefront, adamId, kind, …) | [`docs/glossary.md`](docs/glossary.md) |
-| Captured Apple responses (moved into WireMock test resources on the day) | [`stubs/README.md`](stubs/README.md), later `backend/src/test/resources/wiremock/README.md` |
+| Captured Apple responses (WireMock test data) | [`backend/src/test/resources/wiremock/README.md`](backend/src/test/resources/wiremock/README.md) |
 | Contribution workflow | [`CONTRIBUTING.md`](CONTRIBUTING.md) |
 
 ## Rules
@@ -39,7 +39,7 @@ A Spring Boot 4 service (Java 25) with two endpoints: it searches apps via the A
 2. **Confirm concrete actions before creating code or files.** Picking an option in a planning question is not an instruction to run generators, write code or install tools. Ask first.
 3. **No new dependencies** beyond the stack in `docs/architecture/overview.md` and the accepted ADRs, unless the maintainer approves.
 4. **Respect the architecture rules** ([ADR-0028](docs/adr/0028-package-boundaries-and-ports.md)). The ArchUnit test enforces them. Don't weaken the test to make code pass.
-5. **Test-first** for mappers, Apple clients and the storefront policy. Backend test data lives in `backend/src/test/resources/wiremock/`. The Search block starts by moving `stubs/` there and deleting it ([ADR-0041](docs/adr/0041-move-captures-into-wiremock-and-remove-stubs.md)).
+5. **Test-first** for mappers, Apple clients and the storefront policy. Backend test data lives in `backend/src/test/resources/wiremock/`, the single copy of the Apple captures ([ADR-0041](docs/adr/0041-move-captures-into-wiremock-and-remove-stubs.md)).
 6. **Never leak or log sensitive data.** The binding list is in [`docs/architecture/security.md`](docs/architecture/security.md#logging-and-privacy). In short: no Apple bodies or stack traces in responses; never log tokens, credentials or search terms; never forward Apple's `itvt` cookie.
 7. **Decisions go into ADRs.**
    - Every non-obvious choice gets a new ADR (see `docs/adr/README.md`).

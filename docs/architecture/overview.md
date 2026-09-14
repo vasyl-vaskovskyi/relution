@@ -19,7 +19,6 @@ curl/Bruno ────▶ │  ▲                         ▲ gateways (ports)
 backend/     Spring Boot service (Gradle Kotlin DSL, version catalog)
 frontend/    Angular 22 + Angular Material
 docs/        architecture, api, integrations, operations, development, adr, glossary
-stubs/       captured Apple responses (temporary: moved into backend test resources on the day, ADR-0041)
 ops/         alert rules (alerts.yml)
 scripts/     smoke.sh
 .github/     CI workflows, Dependabot, pull request template

@@ -100,7 +100,7 @@ More in [`docs/operations/runbook.md`](docs/operations/runbook.md).
 | Testing and tooling | [`docs/development/`](docs/development/) |
 | Decisions | [`docs/adr/README.md`](docs/adr/README.md) |
 | Glossary | [`docs/glossary.md`](docs/glossary.md) |
-| Captured Apple responses (until the Discovery Day; then in `backend/src/test/resources/wiremock/`) | [`stubs/README.md`](stubs/README.md) |
+| Captured Apple responses (WireMock test data) | [`backend/src/test/resources/wiremock/README.md`](backend/src/test/resources/wiremock/README.md) |
 | How to contribute | [`CONTRIBUTING.md`](CONTRIBUTING.md) |
 | Discovery Day challenge material (temporary) | [`docs/challenge/`](docs/challenge/) |
 

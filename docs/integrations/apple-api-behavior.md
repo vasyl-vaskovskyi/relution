@@ -2,7 +2,7 @@
 
 Reconnaissance of the two upstream APIs, done on **2026-09-13** from a German IP. Each claim is tagged:
 - **documented**: from Apple's docs.
-- **observed**: from live calls. The captured responses are in [`stubs/`](../../stubs/README.md) until the Discovery Day, then in `backend/src/test/resources/wiremock/` ([ADR-0041](../adr/0041-move-captures-into-wiremock-and-remove-stubs.md)).
+- **observed**: from live calls. The captured responses are the WireMock test data in [`backend/src/test/resources/wiremock/`](../../backend/src/test/resources/wiremock/README.md) ([ADR-0041](../adr/0041-move-captures-into-wiremock-and-remove-stubs.md)).
 - **inferred**: reasoned from the above, not seen directly.
 
 ---
