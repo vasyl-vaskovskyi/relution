@@ -1,6 +1,6 @@
 # ADR-0048: Level 2 observability: trace id only with export, no OTLP log export
 
-- **Status:** Accepted; amends [ADR-0027](0027-observability-logs-and-metrics-in-the-app-opentelemetry-graf.md)
+- **Status:** Accepted; amends [ADR-0027](0027-observability-logs-and-metrics-in-the-app-opentelemetry-graf.md); amended by [ADR-0051](0051-export-application-logs-over-otlp.md) (logs are exported over OTLP)
 - **Date:** 2026-09-14 (Discovery Day, stretch goal)
 
 - **Context:**

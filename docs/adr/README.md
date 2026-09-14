@@ -59,8 +59,9 @@ None. [ADR-0026](0026-hybrid-routing-angular-client-calls-apple-search-directly-
 | [0045](0045-search-budget-is-configuration-and-the-outbound-limiter-is-core.md) | The Search budget is configuration, and the outbound limiter is core | Accepted; amends ADR-0007, ADR-0017 and ADR-0025 |
 | [0046](0046-frontend-assets-stay-same-origin-no-cdn-fonts-or-icons.md) | Frontend assets stay same-origin: no CDN fonts or icons | Accepted |
 | [0047](0047-circuit-breaker-per-apple-api.md) | A circuit breaker per Apple API | Accepted; amends ADR-0030 |
-| [0048](0048-level-2-observability-trace-id-rule-and-no-log-export.md) | Level 2 observability: trace id only with export, no OTLP log export | Accepted; amends ADR-0027 |
+| [0048](0048-level-2-observability-trace-id-rule-and-no-log-export.md) | Level 2 observability: trace id only with export, no OTLP log export | Accepted; amends ADR-0027; amended by ADR-0051 |
 | [0050](0050-alert-rule-unit-tests-with-promtool.md) | Unit-test the alert rules with promtool in CI | Accepted; amends ADR-0038 |
+| [0051](0051-export-application-logs-over-otlp.md) | Export application logs over OTLP in the Level 2 stack | Accepted; amends ADR-0048 |
 | [0053](0053-pre-fill-the-german-storefront.md) | Pre-fill the German storefront instead of the browser locale | Accepted; amends ADR-0023 |
 
 ## Writing a new ADR
