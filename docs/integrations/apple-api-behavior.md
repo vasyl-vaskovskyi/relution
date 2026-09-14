@@ -56,6 +56,7 @@ Reconnaissance of the two upstream APIs, done on **2026-09-13** from a German IP
 | `lang=ja_jp` on `country=de` | German names. `lang` doesn't work outside JP |
 | `term=WhatsApp` / `whatsapp` / `WHATSAPP` / `wHaTsApP` (2026-09-14) | Identical results in identical order: **term matching is case-insensitive** |
 | `resultCount` vs `results.length` | equal in every capture. Iterate `results` anyway |
+| `formattedPrice` on `country=de` (e.g. `2,99 €`) | The space before `€` is a **no-break space** (U+00A0), not an ASCII space. `formatted` passes it through unchanged; don't compare it with a plain space |
 
 ### 1.4 Rate limiting (observed)
 - The first **429** came after about 36–43 rapid sequential calls, which is looser than the documented 20/min. The response came through Akamai (`x-cache: TCP_MISS`) from Apple's origin (`server: daiquiri/5`, `x-apple-partner: origin.0`). Where exactly the limiter runs is *inferred*, not known.
