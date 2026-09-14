@@ -39,7 +39,7 @@ com.example.appstore
 ├── integration/apple/     SearchGatewayAdapter, LookupGatewayAdapter (implement the gateways; 429 guard;
 │                          one outcome metric and log line per logical call), ItunesSearchClient, MzLookupClient
 │                          (HTTP, @Retryable), raw Apple records, pure mappers, RestClient beans, AppleProperties,
-│                          SearchRateLimitGuard
+│                          SearchRateLimitGuard, SearchBudget (outbound token bucket)
 ├── auth/                  TokenController, TokenService, SecurityConfig, AuthProperties
 └── observability/         CorrelationIdFilter, MDC context propagation for loader threads, MetricNames
 ```
