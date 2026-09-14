@@ -12,7 +12,6 @@ import { AppSummary, SearchResponse } from '../../core/api/api.types';
 import { SLOW_HINT_MS } from '../../core/api/load-state';
 import { DEBUG_LOG_CONFIG } from '../../core/debug/debug-log.service';
 import { provideAppIcons } from '../../core/icons/app-icons';
-import { BROWSER_LANGUAGES } from '../../core/locale/locale.service';
 import { SEARCH_DEBOUNCE_MS, SearchComponent } from './search.component';
 
 @Component({ template: 'details page' })
@@ -51,7 +50,6 @@ describe('SearchComponent', () => {
           { path: 'search', component: SearchComponent },
           { path: 'apps/:id', component: DetailsStubComponent },
         ]),
-        { provide: BROWSER_LANGUAGES, useValue: ['de-DE'] },
         {
           provide: DEBUG_LOG_CONFIG,
           useValue: { debugLogging: false, debugLoggingOverride: false },

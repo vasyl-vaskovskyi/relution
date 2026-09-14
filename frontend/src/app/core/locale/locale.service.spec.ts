@@ -1,57 +1,28 @@
 import { TestBed } from '@angular/core/testing';
 import { DEBUG_LOG_CONFIG } from '../debug/debug-log.service';
-import {
-  BROWSER_LANGUAGES,
-  LocaleService,
-  prefillFromLanguages,
-  servedLanguageDiffers,
-} from './locale.service';
-
-describe('prefillFromLanguages', () => {
-  it('takes cc and l from a tag with a region', () => {
-    expect(prefillFromLanguages(['de-DE'])).toEqual({ cc: 'de', l: 'de' });
-  });
-
-  it('uses cc=us and the language when no entry has a region', () => {
-    expect(prefillFromLanguages(['en'])).toEqual({ cc: 'us', l: 'en' });
-  });
-
-  it('lets the first entry with a region win', () => {
-    expect(prefillFromLanguages(['en', 'fr-CA', 'de-DE'])).toEqual({ cc: 'ca', l: 'fr' });
-  });
-
-  it('takes the language from the first entry when none has a region', () => {
-    expect(prefillFromLanguages(['fr', 'de'])).toEqual({ cc: 'us', l: 'fr' });
-  });
-
-  it('skips script subtags and numeric regions', () => {
-    expect(prefillFromLanguages(['zh-Hans-CN'])).toEqual({ cc: 'cn', l: 'zh' });
-    expect(prefillFromLanguages(['es-419', 'pt-BR'])).toEqual({ cc: 'br', l: 'pt' });
-  });
-
-  it('accepts underscores and normalizes to lower case', () => {
-    expect(prefillFromLanguages(['de_AT'])).toEqual({ cc: 'at', l: 'de' });
-  });
-
-  it('falls back to us/en without usable languages', () => {
-    expect(prefillFromLanguages([])).toEqual({ cc: 'us', l: 'en' });
-    expect(prefillFromLanguages(['', 'fil'])).toEqual({ cc: 'us', l: 'en' });
-  });
-});
+import { LocaleService, servedLanguageDiffers } from './locale.service';
 
 describe('LocaleService', () => {
-  it('pre-fills from the browser languages', () => {
+  beforeEach(() => {
     TestBed.configureTestingModule({
       providers: [
-        { provide: BROWSER_LANGUAGES, useValue: ['en-US', 'de-DE'] },
         {
           provide: DEBUG_LOG_CONFIG,
           useValue: { debugLogging: false, debugLoggingOverride: false },
         },
       ],
     });
+  });
 
-    expect(TestBed.inject(LocaleService).prefill()).toEqual({ cc: 'us', l: 'en' });
+  it('pre-fills the German storefront', () => {
+    expect(TestBed.inject(LocaleService).prefill()).toEqual({ cc: 'de', l: 'de' });
+  });
+
+  it('returns a copy, so callers cannot change the default', () => {
+    const service = TestBed.inject(LocaleService);
+    service.prefill().cc = 'us';
+
+    expect(service.prefill()).toEqual({ cc: 'de', l: 'de' });
   });
 });
 

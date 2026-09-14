@@ -1,6 +1,6 @@
 # ADR-0023: Frontend scope and tests
 
-- **Status:** Accepted; amended by [ADR-0029](0029-domain-terms-in-public-api.md) (errors mapped by problem type)
+- **Status:** Accepted; amended by [ADR-0029](0029-domain-terms-in-public-api.md) (errors mapped by problem type) and [ADR-0053](0053-pre-fill-the-german-storefront.md) (`de`/`de` pre-fill instead of the browser locale)
 - **Date:** 2026-09-13 (prep)
 
 - **Decision:**
