@@ -25,7 +25,8 @@ See [ADR-0030](../adr/0030-details-cache-and-bounded-retry.md).
 ```
 
 - **Verified in the kickoff spike** (Spring Framework 7.0.9): the attribute names, `${…}` placeholders, and ISO durations such as `PT8S` in `timeoutString`.
-- **Enabling:** `@EnableResilientMethods` on a configuration class.
+- **Enabling:** `@EnableResilientMethods` on `AppleResilienceConfiguration`.
+- **Tests:** `AppleRetryTest` goes through the real Spring proxy and counts attempts with a request interceptor: 3 for a refused connection (both clients), 1 for a read timeout.
 - **Proxy limit:** `@Retryable` works through a Spring (CGLIB) proxy, so it goes on the public methods of `ItunesSearchClient` and `MzLookupClient`, and those methods are called from the gateway adapters, never from inside the client class itself. Tests read state through methods, not fields, because a proxy's fields are not the target's.
 - **Only connection failures are retried.** Read timeouts, Apple 5xx, 4xx, 429 and malformed payloads are not.
 - **Hidden retry in the JDK client:** `java.net.http.HttpClient` retries an idempotent request (all our Apple calls are GETs) once on a new connection when a connection closes before any response byte arrives. `@Retryable` never sees that attempt, and it isn't a separate metric sample. `ItunesSearchClientTest` pins the behavior (the server sees exactly 2 connections); each attempt is still bounded by the timeouts.
@@ -51,7 +52,12 @@ See [ADR-0045](../adr/0045-search-budget-is-configuration-and-the-outbound-limit
 - **Where:** around the actual HTTP call, inside the retry, so every attempt takes a permit. Cache hits and single-flight followers never reach it.
 - **When exhausted:** `UpstreamRateLimitedException` with the time until the next permit. The client gets 503 `upstream-unavailable` with `Retry-After`, and Apple is not called.
 - **Scope:** per instance and Search only (details lookups have no known limit).
-- **Implementation:** Resilience4j `RateLimiter` or a small token bucket, approved at the start of the caching and resilience block. The metric outcome tag and its alert are defined in the same block ([`../operations/observability.md`](../operations/observability.md)).
+- **Implementation:** `SearchBudget` in `integration.apple`, a small token bucket chosen by the maintainer over Resilience4j (no new dependency).
+  - The capacity is one minute's budget, refilled continuously (with 20: one permit every 3 s, bursts of up to 20).
+  - `Retry-After` is the time until the next permit, rounded up to whole seconds (at least 1).
+  - The exception carries `Reason.BUDGET`, so an exhausted budget never starts the 429 short-circuit.
+- **Metric and alert:** outcome `budget_exhausted` (WARN), counted by the `AppleSearchRateLimited` alert ([`../operations/observability.md`](../operations/observability.md)).
+- **Tests:** `SearchBudgetTest` (burst, refill, wait) and `AppleRetryTest` (a retry attempt takes its own permit, and an empty budget ends the retries).
 
 ## Caches
 
@@ -63,7 +69,8 @@ The caches are native Caffeine `AsyncCache`s (`buildAsync()`, `recordStats()`), 
 | `app-details` | `(id, cc, normalized l, platform)` | `LookupResult`: `Found` 15 min (= Apple `max-age=900`), `NotFound` 60 s, via `Caffeine.expireAfter(Expiry)` | 5 000 |
 
 - **Single-flight:** concurrent identical requests share one in-flight future, so one upstream call. That includes lookups of unknown ids.
-- **Failures are never cached:** Caffeine removes a future that completes exceptionally.
+- **Failures are never cached:** Caffeine removes a future that completes exceptionally, but it does so asynchronously, after waiting callers have already been woken. `CacheSupport.getOrLoad` therefore removes exactly that failed future before rethrowing, so the next caller always reaches the upstream (a test repeats failure-then-success 25 times on the real loader executor).
+- **Tests with a fake ticker:** Caffeine records an entry's write time when the load completes, on the loader thread. TTL tests load on the calling thread, so the fake ticker only moves after that bookkeeping.
 - **Search term:** Apple receives the **trimmed original** term. Only the cache key is lower-cased, because Apple's search is case-insensitive. Observed on 2026-09-14: `WhatsApp`, `whatsapp`, `WHATSAPP` and `wHaTsApP` returned identical results ([`../integrations/apple-api-behavior.md`](../integrations/apple-api-behavior.md#13-edge-cases-observed)).
 - **Language normalization:** before `l` becomes part of the key, it is lower-cased and `_` becomes `-` (`de_DE`, `de-DE` → `de-de`).
 - **Loader executor** (verified in the kickoff spike):
