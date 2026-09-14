@@ -1,6 +1,6 @@
 # App Store Search Service
 
-> **Work in progress.** The service works end to end today: search, details, caching, resilience, JWT authentication, OpenAPI, metrics, the Docker image and `scripts/smoke.sh`. The web client and its compose service are still being built; the places that depend on them say so.
+> **Status:** search, details, caching, resilience (retry, outbound budget, 429 short-circuit, circuit breaker), JWT authentication, OpenAPI, metrics, the Angular web client, the Docker images and `scripts/smoke.sh` all work end to end.
 
 A Spring Boot service with two JSON endpoints: **search apps** in the Apple App Store and **look up app details**. It comes with an **Angular web client** that demonstrates both.
 

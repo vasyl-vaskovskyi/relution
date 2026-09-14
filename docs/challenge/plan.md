@@ -62,10 +62,13 @@ All pull requests were rebase-merged after green CI (`backend`, `frontend`, `ima
 | #11 | OpenAPI and `scripts/smoke.sh` | background agent |
 | #12 | Auth | this session |
 | #13 | Docs updated after auth | this session |
+| #14 | Frontend UI: login, search, details, nginx image with CSP (ADR-0046) | background agent |
+| #15 | Challenge progress and presentation examples | this session |
+| #16 | Stretch goal: circuit breaker per Apple API (ADR-0047) | this session |
 
 - **Order change:** caching and resilience ran before errors and auth (ADR-0045).
-- **End-to-end check:** `scripts/smoke.sh` passes all 13 checks against the jar and against `docker compose up --build`.
-- **Still open:** the frontend UI PR; stretch goals only with Vasyl's go-ahead.
+- **End-to-end check:** `scripts/smoke.sh` passes all 13 checks against the jar and against `docker compose up --build`, including the web client behind nginx.
+- **Stretch goals:** Vasyl approved both. The circuit breaker is merged; Level 2 observability runs as a background agent.
 
 ## Kickoff checklist
 
