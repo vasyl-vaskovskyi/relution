@@ -43,7 +43,11 @@
         <a
           mat-list-item
           [routerLink]="['/apps', item.id]"
-          [queryParams]="{ cc: current.criteria.cc, l: form.controls.l.value }"
+          [queryParams]="{
+            cc: current.criteria.cc,
+            l: form.controls.l.value,
+            platform: platformFor(item.kind),
+          }"
         >
           @if (item.iconUrl) {
             <img matListItemAvatar [src]="item.iconUrl" [alt]="item.name" />
