@@ -62,6 +62,7 @@ None. [ADR-0026](0026-hybrid-routing-angular-client-calls-apple-search-directly-
 | [0048](0048-level-2-observability-trace-id-rule-and-no-log-export.md) | Level 2 observability: trace id only with export, no OTLP log export | Accepted; amends ADR-0027; amended by ADR-0051 |
 | [0050](0050-alert-rule-unit-tests-with-promtool.md) | Unit-test the alert rules with promtool in CI | Accepted; amends ADR-0038 |
 | [0051](0051-export-application-logs-over-otlp.md) | Export application logs over OTLP in the Level 2 stack | Accepted; amends ADR-0048 |
+| [0052](0052-generate-frontend-api-types-from-the-openapi-contract.md) | Generate the frontend API types from the OpenAPI contract | Accepted |
 | [0053](0053-pre-fill-the-german-storefront.md) | Pre-fill the German storefront instead of the browser locale | Accepted; amends ADR-0023 |
 
 ## Writing a new ADR
