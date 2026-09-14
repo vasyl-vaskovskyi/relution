@@ -77,6 +77,7 @@ Messages are chosen by **problem type** first ([ADR-0029](../adr/0029-domain-ter
 | `upstream-unavailable` | "Too many requests, try again in {Retry-After} s." |
 | `upstream-timeout`, `upstream-error` | "The App Store is currently unavailable." |
 | `unauthorized` | From `/auth/token`: "Invalid client id or secret." Otherwise the interceptor redirects to login. |
+| `too-many-requests` | From `/auth/token`: "Too many failed login attempts, try again in {Retry-After} s." ([ADR-0049](../adr/0049-rate-limit-failed-token-requests-per-client-address.md)). Otherwise "Too many requests, try again in {Retry-After} s." Without a usable `Retry-After`: "… try again later." |
 | `forbidden` | "You don't have access to this function." |
 | `internal` | "Something went wrong. Please try again." |
 | unknown type | Fallback by status: 4xx → "Please check your input.", 5xx → "The App Store is currently unavailable." |
