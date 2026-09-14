@@ -88,7 +88,13 @@ The caches are native Caffeine `AsyncCache`s (`buildAsync()`, `recordStats()`), 
 | The storefront allowlist is static | Staleness is detected and logged, but not fixed automatically | Runbook refresh every 6 months |
 | Browser-direct search to spread load across user IPs | Not implemented | Not for the Discovery Day; revisit after the team discussion ([ADR-0026](../adr/0026-hybrid-routing-angular-client-calls-apple-search-directly-de.md)) |
 
-## Stretch goals (only after all planned work, in this order)
+## Circuit breaker
 
-1. **Level 2 observability:** see [`../operations/observability.md`](../operations/observability.md).
-2. **Circuit breaker** (Resilience4j). Never put it on the same method as `@Retryable`.
+See [ADR-0047](../adr/0047-circuit-breaker-per-apple-api.md). Built on the day as a stretch goal, like Level 2 observability ([`../operations/observability.md`](../operations/observability.md)).
+
+- **Where:** `AppleCircuitBreakers` holds one Resilience4j breaker per API (`search`, `lookup`). The gateway adapters call it around the retried client call, so one logical call (after retries) counts once. It is never on the `@Retryable` method.
+- **Counted failures:** connection failures, read timeouts and 5xx. Rate limits (Apple 429, short-circuit, budget), contract errors and rejected storefronts don't count.
+- **Settings** (`appstore.apple.circuit.*`): count-based window of 20 calls, opens at 50 % failures after at least 10 calls, open for 30 s, then 3 test calls ([`../operations/configuration.md`](../operations/configuration.md)).
+- **While open:** `UpstreamCircuitOpenException` → 503 `upstream-unavailable` with `Retry-After` = the open duration; Apple isn't called; metric outcome `circuit_open` (DEBUG); each state transition is logged once at WARN.
+- **Order in the Search adapter:** 429 short-circuit → circuit breaker → client (retry → budget permit → HTTP).
+- **Tests:** `AppleCircuitBreakersTest` (opens, counted and ignored failures, separate breakers, recovery, metrics) and `SearchGatewayAdapterTest` (outcome, no short-circuit).

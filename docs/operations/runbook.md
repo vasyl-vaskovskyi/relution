@@ -40,6 +40,11 @@ This section also covers the `AppleMissingFields` alert.
 - **Check:** p95 by `api`, the `read_timeout` and `connect_error` rates, and Apple's status page.
 - **Action:** usually wait it out, because the timeouts bound the impact. If it lasts, consider tuning `APPSTORE_APPLE_TIMEOUT_READ`, and document the change.
 
+### `AppleCircuitOpen`
+- **Impact:** uncached requests to that Apple API get 503 with `Retry-After` immediately, without waiting for timeouts. Cached answers keep working.
+- **Check:** `resilience4j_circuitbreaker_state` and `resilience4j_circuitbreaker_failure_rate` by `name`; WARN logs `circuit breaker api=… transition=…`; the `connect_error`, `read_timeout` and `server_error` outcomes before the transition; Apple's status page.
+- **Action:** usually wait: the breaker tests Apple again after `APPSTORE_APPLE_CIRCUIT_OPEN` and closes on success. If it flaps while Apple is healthy, check egress network and timeouts before tuning the thresholds ([ADR-0047](../adr/0047-circuit-breaker-per-apple-api.md)).
+
 ### `AppstoreDown`
 - **Impact:** Prometheus can't scrape the management port: the instance is down or unreachable, and receives no traffic.
 - **Check:** `/actuator/health` on 8081 and the startup logs (a configuration fail-fast?).
