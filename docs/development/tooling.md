@@ -42,6 +42,7 @@ Versions marked *verify* were checked on 2026-09-13. Confirm them when the files
 |---|---|---|
 | Spring Boot starters: web MVC, validation, actuator, RestClient (kickoff); security, OAuth2 resource server (auth block) | Web, validation, management, HTTP client, JWT | [0003](../adr/0003-spring-boot-4-1-with-restclient.md), [0004](../adr/0004-self-issued-hs256-jwt-no-fallback.md) |
 | `com.github.ben-manes.caffeine:caffeine` (Boot-managed) | Async caches | [0030](../adr/0030-details-cache-and-bounded-retry.md) |
+| `io.micrometer:context-propagation` (Boot-managed) | MDC propagation to cache loader threads (not a transitive dependency, verified in the kickoff spike) | [0030](../adr/0030-details-cache-and-bounded-retry.md) |
 | `io.micrometer:micrometer-registry-prometheus` (Boot-managed) | Prometheus endpoint | [0032](../adr/0032-management-port-and-probes.md) |
 | `org.springdoc:springdoc-openapi-starter-webmvc-ui` 3.1.x | OpenAPI and Swagger UI | [0001](../adr/0001-server-only-scope-with-spring-boot.md) |
 | `org.wiremock.integrations:wiremock-spring-boot` 4.2.x (test) | Apple HTTP tests | [0003](../adr/0003-spring-boot-4-1-with-restclient.md) |
@@ -62,6 +63,6 @@ See [ADR-0042](../adr/0042-commit-size-and-parallel-pull-requests.md).
 
 ## Local toolchain
 
-- **Java:** a Gradle toolchain downloads Java 25; any JDK can run Gradle.
+- **Java:** a Gradle toolchain downloads Java 25; any JDK can run Gradle. The download needs the `org.gradle.toolchains.foojay-resolver-convention` plugin in `settings.gradle.kts`. Initializr doesn't add it, and without it a machine with no local JDK 25 fails (found in the kickoff spike).
 - **Node:** 24 LTS via nvm (`nvm install && nvm use` reads `.nvmrc`).
 - **Docker:** Docker with Compose v2.

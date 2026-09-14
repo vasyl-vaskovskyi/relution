@@ -33,7 +33,7 @@ The client never learns anything about the allowlist or how it is maintained. Th
 | Apple served a different language than requested | 200, `storefront.language` shows what was served | — | — | — |
 | Apple 429 | 503 + `Retry-After` | `upstream-unavailable` | no | WARN |
 | Local short-circuit while Apple's `Retry-After` runs | 503 + remaining `Retry-After` | `upstream-unavailable` | no | DEBUG |
-| Outbound rate limiter exhausted (stretch goal) | 503 + `Retry-After` | `upstream-unavailable` | no | WARN |
+| Outbound Search budget exhausted ([ADR-0045](../adr/0045-search-budget-is-configuration-and-the-outbound-limiter-is-core.md)) | 503 + `Retry-After` | `upstream-unavailable` | no | WARN |
 | Read timeout | 504 | `upstream-timeout` | no | WARN |
 | Connection failure (after retries or retry `timeout`) | 502 | `upstream-error` | yes | WARN |
 | Apple 5xx | 502 | `upstream-error` | no | WARN |

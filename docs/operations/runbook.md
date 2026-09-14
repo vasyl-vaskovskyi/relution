@@ -14,7 +14,7 @@ Every entry follows the same pattern: **signal → impact → check → action**
   1. Confirm the short-circuit is working (`short_circuited` > 0, few `rate_limited`).
   2. Look for abusive clients by grouping the upstream log lines by `clientId`.
   3. Consider raising `APPSTORE_CACHE_SEARCH_TTL`.
-  4. If this recurs, prioritize the outbound limiter or the shared cache ([`../architecture/caching-resilience.md`](../architecture/caching-resilience.md#known-limits)).
+  4. Check that `APPSTORE_APPLE_SEARCH_BUDGET` is not above what Apple allows or what was bought, and that replicas sharing one egress IP split the budget ([`../architecture/caching-resilience.md`](../architecture/caching-resilience.md#outbound-rate-limiter-on-search)). If the need is real, buy more requests and raise the budget, or plan the shared cache ([known limits](../architecture/caching-resilience.md#known-limits)).
   5. Never rotate IPs to get around the limit ([ADR-0025](../adr/0025-deal-with-the-per-ip-search-rate-limit-within-apples-rules.md)).
 
 ### `AppleContractErrors`

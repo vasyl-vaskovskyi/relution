@@ -7,7 +7,10 @@ Property names and default values: [`../operations/configuration.md`](../operati
 ## Timeouts
 
 - **Settings:** connect timeout `appstore.apple.timeout.connect` (2 s), read timeout `appstore.apple.timeout.read` (5 s), applied to both Apple `RestClient`s.
-- **Classification:** `RestClient` wraps both timeout kinds in `ResourceAccessException`, and the cause depends on the request factory (JDK client: `HttpConnectTimeoutException` vs `HttpTimeoutException`). The clients translate them into `UpstreamConnectException` and `UpstreamReadTimeoutException`. WireMock tests prove the classification.
+- **Classification** (verified in the kickoff spike with the JDK request factory):
+  - `RestClient` wraps both timeout kinds in `ResourceAccessException`.
+  - A connect timeout has the cause `java.net.http.HttpConnectTimeoutException`; a read timeout has `java.net.http.HttpTimeoutException` (message "Request cancelled").
+  - `HttpConnectTimeoutException` **extends** `HttpTimeoutException`, so the clients check for the connect type first. They translate the two into `UpstreamConnectException` and `UpstreamReadTimeoutException`. WireMock tests prove the classification.
 
 ## Retry
 
@@ -20,13 +23,13 @@ See [ADR-0030](../adr/0030-details-cache-and-bounded-retry.md).
            delay = 200, multiplier = 2, jitter = 100, timeUnit = TimeUnit.MILLISECONDS)
 ```
 
-- **Verify on the day:** the exact attribute names, and whether `timeoutString` accepts `PT8S`.
+- **Verified in the kickoff spike** (Spring Framework 7.0.9): the attribute names, `${…}` placeholders, and ISO durations such as `PT8S` in `timeoutString`.
 - **Enabling:** `@EnableResilientMethods` on a configuration class.
-- **Proxy limit:** `@Retryable` works through a Spring proxy, so it goes on the public methods of `ItunesSearchClient` and `MzLookupClient`, and those methods are called from the gateway adapters, never from inside the client class itself.
+- **Proxy limit:** `@Retryable` works through a Spring (CGLIB) proxy, so it goes on the public methods of `ItunesSearchClient` and `MzLookupClient`, and those methods are called from the gateway adapters, never from inside the client class itself. Tests read state through methods, not fields, because a proxy's fields are not the target's.
 - **Only connection failures are retried.** Read timeouts, Apple 5xx, 4xx, 429 and malformed payloads are not.
 - **Latency:**
   - A single failing call takes at most about 7 s (2 s connect + 5 s read timeout).
-  - The theoretical worst case is about 12 s: two connection failures with back-off, then a read timeout. The retry `timeout` (8 s) stops new attempts but doesn't abort one already running (*verify*).
+  - The theoretical worst case is about 12 s: two connection failures with back-off, then a read timeout. The retry `timeout` (8 s) stops new attempts but doesn't abort one already running (confirmed in the spike).
   - nginx's `proxy_read_timeout` (15 s) sits above that.
 - **Metrics and logs per logical call:** the gateway adapters wrap the retryable client and record one `appstore.apple.requests` sample and one INFO line per logical call, after retries ([`../operations/observability.md`](../operations/observability.md)).
 
@@ -37,6 +40,16 @@ See [ADR-0031](../adr/0031-rate-limit-short-circuit.md).
 - **Setting the block:** when Apple answers a Search call with 429, `SearchRateLimitGuard` stores `blockedUntil = now + Retry-After` (default 30 s, capped at `appstore.apple.retryafter.max`).
 - **While blocked:** `SearchGatewayAdapter` throws `UpstreamRateLimitedException` without calling Apple. The client gets 503 with the remaining seconds, and the metric outcome is `short_circuited`.
 - **Scope:** the guard is per instance and applies to Search only.
+
+## Outbound rate limiter on Search
+
+See [ADR-0045](../adr/0045-search-budget-is-configuration-and-the-outbound-limiter-is-core.md). The 429 short-circuit reacts after Apple has rejected a call; the limiter keeps us within the budget in the first place.
+
+- **Budget:** `appstore.apple.search.budget` calls per minute (default 20, Apple's documented limit today). More requests can be bought, so the value is configuration only; no code or test assumes 20.
+- **Where:** around the actual HTTP call, inside the retry, so every attempt takes a permit. Cache hits and single-flight followers never reach it.
+- **When exhausted:** `UpstreamRateLimitedException` with the time until the next permit. The client gets 503 `upstream-unavailable` with `Retry-After`, and Apple is not called.
+- **Scope:** per instance and Search only (details lookups have no known limit).
+- **Implementation:** Resilience4j `RateLimiter` or a small token bucket, approved at the start of the caching and resilience block. The metric outcome tag and its alert are defined in the same block ([`../operations/observability.md`](../operations/observability.md)).
 
 ## Caches
 
@@ -51,25 +64,22 @@ The caches are native Caffeine `AsyncCache`s (`buildAsync()`, `recordStats()`), 
 - **Failures are never cached:** Caffeine removes a future that completes exceptionally.
 - **Search term:** Apple receives the **trimmed original** term. Only the cache key is lower-cased, because Apple's search is case-insensitive. Observed on 2026-09-14: `WhatsApp`, `whatsapp`, `WHATSAPP` and `wHaTsApP` returned identical results ([`../integrations/apple-api-behavior.md`](../integrations/apple-api-behavior.md#13-edge-cases-observed)).
 - **Language normalization:** before `l` becomes part of the key, it is lower-cased and `_` becomes `-` (`de_DE`, `de-DE` → `de-de`).
-- **Loader executor:**
-  - Set explicitly with `Caffeine.executor(...)`: a virtual-thread-per-task executor wrapped with Micrometer context propagation (`ContextExecutorService`), so the MDC (`correlationId`, `clientId`) reaches the loader thread (*verify* the SLF4J MDC accessor on the day).
+- **Loader executor** (verified in the kickoff spike):
+  - Set explicitly with `Caffeine.executor(...)`: a virtual-thread-per-task executor wrapped with `ContextExecutorService.wrap(executor, snapshotFactory)` from `io.micrometer:context-propagation` (Boot-managed; it is not pulled in transitively).
+  - The snapshot factory uses its own `ContextRegistry` with a selective `Slf4jThreadLocalAccessor("correlationId", "clientId")`, so only those MDC keys reach the loader thread.
   - `spring.threads.virtual.enabled` covers request threads only; it doesn't configure Caffeine.
 - **Single-flight and logs:** with single-flight, the upstream log line carries the ids of the request that triggered the load.
-- **Metrics:** bound explicitly with Micrometer `CaffeineCacheMetrics` (*verify* `AsyncCache` support on the day), producing `cache.gets{cache, result}`.
+- **Metrics:** bound explicitly with Micrometer `CaffeineCacheMetrics.monitor(registry, asyncCache, name)`, which has an `AsyncCache` overload. It needs `recordStats()` and produces `cache.gets{cache, result}` (verified in the spike).
 
 ## Known limits
 
 | Limit | Consequence | Next step at scale |
 |---|---|---|
-| Caches, the 429 guard and the stretch-goal limiter are per instance | N instances behind one egress IP share Apple's budget but don't coordinate | Shared cache (e.g. Redis) and a central budget |
+| Caches, the 429 guard and the outbound limiter are per instance | N instances behind one egress IP, or sharing one bought budget, don't coordinate | Shared cache (e.g. Redis) and a central budget |
 | The storefront allowlist is static | Staleness is detected and logged, but not fixed automatically | Runbook refresh every 6 months |
 | Browser-direct search to spread load across user IPs | Not implemented | Not for the Discovery Day; revisit after the team discussion ([ADR-0026](../adr/0026-hybrid-routing-angular-client-calls-apple-search-directly-de.md)) |
 
 ## Stretch goals (only after all planned work, in this order)
 
 1. **Level 2 observability:** see [`../operations/observability.md`](../operations/observability.md).
-2. **Outbound rate limiter on Search:**
-   - Budget `appstore.apple.search.budget` (20 per minute).
-   - It wraps the actual HTTP call inside the retry, so every attempt takes a token. When exhausted, the client gets 503 + `Retry-After`.
-   - The implementation choice (Resilience4j `RateLimiter` vs a small token bucket) needs the maintainer's approval.
-3. **Circuit breaker** (Resilience4j). Never put it on the same method as `@Retryable`.
+2. **Circuit breaker** (Resilience4j). Never put it on the same method as `@Retryable`.

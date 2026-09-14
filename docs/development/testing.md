@@ -8,7 +8,7 @@
 | Storefront policy | Plain JUnit (fake Apple outcome) | All four cases of the policy table, including the logs and counters emitted | Our own logic with two maintenance signals |
 | Apple clients | WireMock (`wiremock-spring-boot`) | Happy path; empty results; 429 with `Retry-After` and the short-circuit that follows; 5xx (not retried); connect failure (retried) vs read timeout (not retried) with short test timeouts; malformed JSON; `text/javascript` content type; Search 400 `[country]`; lookup storefront fallback; served language; `outcome` metric tags | Proves error translation and retry classification against real HTTP behavior |
 | Web layer | `@WebMvcTest` + `MockMvcTester` | Validation → 400 with `errors[]`; exception → problem type; correlation id echo and validation; 401 without a token; 403 without the scope; 200 with a token | The public contract |
-| Caching | `@SpringBootTest` + WireMock | N concurrent identical searches → 1 upstream call; concurrent unknown-id lookups → 1 upstream call; `NotFound` expires after its TTL; failures aren't cached | The resilience claims must be proven, not asserted |
+| Caching and limiter | `@SpringBootTest` + WireMock | N concurrent identical searches → 1 upstream call; concurrent unknown-id lookups → 1 upstream call; `NotFound` expires after its TTL; failures aren't cached; with a small test budget, the call after the last permit gets 503 with `Retry-After` and never reaches WireMock | The resilience claims must be proven, not asserted |
 | Security | Slice/integration | Token for valid Basic credentials; 401 for invalid ones; expired token, wrong `iss` or `aud` rejected; `/actuator/env` returns 401 on port 8080 and 404 on the management port; no secret or `Bearer` value in captured logs | Security must not break silently |
 | Configuration | `ApplicationContextRunner` | A missing or short JWT secret stops the context | Fail-fast must actually fail |
 | Architecture | ArchUnit (`archunit-junit6`) | Package dependency rules ([`../architecture/overview.md`](../architecture/overview.md#dependency-rules-enforced-by-an-archunit-test)) | Boundaries don't erode |
@@ -37,6 +37,7 @@ backend/src/test/resources/wiremock/
 - **Refreshing:** replace the file here directly; there is no second copy. The procedure is in [`../operations/runbook.md`](../operations/runbook.md#refresh-captures-and-fixtures).
 - **Hand-made variants** (e.g. an artwork object with a concrete URL) are named `synthetic-<scenario>.json`, so they're never mistaken for captures.
 - **Timeouts:** tests set short `appstore.apple.timeout.*` values (e.g. `PT0.2S`) and use WireMock `fixedDelayMilliseconds`.
+- **Prometheus endpoint:** in the kickoff spike, `/actuator/prometheus` answered 404 inside `@SpringBootTest` but 200 in the running jar. Integration tests don't assert it (unless a test explicitly enables metrics export, *verify* how in Boot 4); the smoke script and the container check cover it.
 
 ## Commands
 
