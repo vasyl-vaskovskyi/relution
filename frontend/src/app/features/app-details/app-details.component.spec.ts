@@ -279,7 +279,7 @@ describe('AppDetailsComponent', () => {
     expect(back).toHaveBeenCalledTimes(1);
   });
 
-  it('shows the not-found message', async () => {
+  it('shows the not-found message for the requested platform', async () => {
     const request = await open('/apps/361309726?cc=de&l=de');
     request.flush(
       { type: 'urn:appstore:problem:app-not-found', status: 404, correlationId: 'corr-404' },
@@ -287,9 +287,24 @@ describe('AppDetailsComponent', () => {
     );
     await advance();
 
-    expect(alertMessage()).toBe('App not found in this storefront.');
+    expect(alertMessage()).toBe(
+      'App not found for iOS in this storefront. It may exist for Mac only.',
+    );
     expect(element().querySelector('[role="alert"]')?.textContent).toContain('Reference: corr-404');
     expect(element().querySelector('article')).toBeNull();
+  });
+
+  it('says an app may be iOS-only when Mac is not found', async () => {
+    const request = await open('/apps/361309726?cc=de&l=de&platform=mac');
+    request.flush(
+      { type: 'urn:appstore:problem:app-not-found', status: 404 },
+      { status: 404, statusText: 'Not Found' },
+    );
+    await advance();
+
+    expect(alertMessage()).toBe(
+      'App not found for Mac in this storefront. It may exist for iOS only.',
+    );
   });
 
   it('shows the unsupported-storefront message', async () => {

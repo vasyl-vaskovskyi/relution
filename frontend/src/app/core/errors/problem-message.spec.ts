@@ -1,5 +1,5 @@
 import { HttpErrorResponse, HttpHeaders } from '@angular/common/http';
-import { MESSAGES, problemMessage } from './problem-message';
+import { MESSAGES, detailsProblemMessage, problemMessage } from './problem-message';
 
 function problem(
   status: number,
@@ -108,5 +108,27 @@ describe('problemMessage', () => {
 
   it('handles non-HTTP errors', () => {
     expect(problemMessage(new Error('boom')).message).toBe(MESSAGES.internal);
+  });
+});
+
+describe('detailsProblemMessage', () => {
+  it('names the requested platform for app-not-found', () => {
+    const error = problem(404, 'app-not-found', { correlationId: 'c-2' });
+
+    expect(detailsProblemMessage(error, 'mac')).toEqual({
+      message: 'App not found for Mac in this storefront. It may exist for iOS only.',
+      details: [],
+      correlationId: 'c-2',
+    });
+    expect(detailsProblemMessage(error, 'ios').message).toBe(
+      'App not found for iOS in this storefront. It may exist for Mac only.',
+    );
+  });
+
+  it('keeps the general message for other problems', () => {
+    expect(detailsProblemMessage(problem(400, 'unsupported-storefront'), 'mac').message).toBe(
+      MESSAGES.unsupportedStorefront,
+    );
+    expect(detailsProblemMessage(problem(404, null), 'mac').message).toBe(MESSAGES.invalidInput);
   });
 });
