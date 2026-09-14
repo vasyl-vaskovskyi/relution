@@ -1,0 +1,30 @@
+[versions]
+spring-boot = "4.1.1"
+spring-dependency-management = "1.1.7"
+springdoc = "3.1.1"
+wiremock-spring-boot = "4.2.3"
+archunit = "1.5.0"
+
+[libraries]
+# Versions managed by the Spring Boot BOM
+boot-starter-actuator = { module = "org.springframework.boot:spring-boot-starter-actuator" }
+boot-starter-restclient = { module = "org.springframework.boot:spring-boot-starter-restclient" }
+boot-starter-validation = { module = "org.springframework.boot:spring-boot-starter-validation" }
+boot-starter-webmvc = { module = "org.springframework.boot:spring-boot-starter-webmvc" }
+boot-test-actuator = { module = "org.springframework.boot:spring-boot-starter-actuator-test" }
+boot-test-restclient = { module = "org.springframework.boot:spring-boot-starter-restclient-test" }
+boot-test-validation = { module = "org.springframework.boot:spring-boot-starter-validation-test" }
+boot-test-webmvc = { module = "org.springframework.boot:spring-boot-starter-webmvc-test" }
+caffeine = { module = "com.github.ben-manes.caffeine:caffeine" }
+micrometer-context-propagation = { module = "io.micrometer:context-propagation" }
+micrometer-registry-prometheus = { module = "io.micrometer:micrometer-registry-prometheus" }
+junit-platform-launcher = { module = "org.junit.platform:junit-platform-launcher" }
+
+# Versions pinned here
+springdoc-webmvc-ui = { module = "org.springdoc:springdoc-openapi-starter-webmvc-ui", version.ref = "springdoc" }
+wiremock-spring-boot = { module = "org.wiremock.integrations:wiremock-spring-boot", version.ref = "wiremock-spring-boot" }
+archunit-junit6 = { module = "com.tngtech.archunit:archunit-junit6", version.ref = "archunit" }
+
+[plugins]
+spring-boot = { id = "org.springframework.boot", version.ref = "spring-boot" }
+spring-dependency-management = { id = "io.spring.dependency-management", version.ref = "spring-dependency-management" }

@@ -1,7 +1,7 @@
 plugins {
 	java
-	id("org.springframework.boot") version "4.1.1"
-	id("io.spring.dependency-management") version "1.1.7"
+	alias(libs.plugins.spring.boot)
+	alias(libs.plugins.spring.dependency.management)
 }
 
 group = "com.example"
@@ -18,17 +18,26 @@ repositories {
 	mavenCentral()
 }
 
+springBoot {
+	buildInfo()
+}
+
 dependencies {
-	implementation("org.springframework.boot:spring-boot-starter-actuator")
-	implementation("org.springframework.boot:spring-boot-starter-restclient")
-	implementation("org.springframework.boot:spring-boot-starter-validation")
-	implementation("org.springframework.boot:spring-boot-starter-webmvc")
-	runtimeOnly("io.micrometer:micrometer-registry-prometheus")
-	testImplementation("org.springframework.boot:spring-boot-starter-actuator-test")
-	testImplementation("org.springframework.boot:spring-boot-starter-restclient-test")
-	testImplementation("org.springframework.boot:spring-boot-starter-validation-test")
-	testImplementation("org.springframework.boot:spring-boot-starter-webmvc-test")
-	testRuntimeOnly("org.junit.platform:junit-platform-launcher")
+	implementation(libs.boot.starter.actuator)
+	implementation(libs.boot.starter.restclient)
+	implementation(libs.boot.starter.validation)
+	implementation(libs.boot.starter.webmvc)
+	implementation(libs.caffeine)
+	implementation(libs.micrometer.context.propagation)
+	implementation(libs.springdoc.webmvc.ui)
+	runtimeOnly(libs.micrometer.registry.prometheus)
+	testImplementation(libs.boot.test.actuator)
+	testImplementation(libs.boot.test.restclient)
+	testImplementation(libs.boot.test.validation)
+	testImplementation(libs.boot.test.webmvc)
+	testImplementation(libs.wiremock.spring.boot)
+	testImplementation(libs.archunit.junit6)
+	testRuntimeOnly(libs.junit.platform.launcher)
 }
 
 tasks.withType<Test> {
