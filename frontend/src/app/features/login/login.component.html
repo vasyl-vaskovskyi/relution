@@ -1,0 +1,36 @@
+<mat-card appearance="outlined">
+  <mat-card-header>
+    <mat-card-title>Log in</mat-card-title>
+  </mat-card-header>
+  <mat-card-content>
+    <form [formGroup]="form" (ngSubmit)="submit()">
+      <mat-form-field appearance="outline">
+        <mat-label>Client id</mat-label>
+        <input matInput formControlName="clientId" autocomplete="username" required />
+        @if (form.controls.clientId.hasError('required')) {
+          <mat-error>Enter the client id.</mat-error>
+        }
+      </mat-form-field>
+      <mat-form-field appearance="outline">
+        <mat-label>Client secret</mat-label>
+        <input
+          matInput
+          type="password"
+          formControlName="clientSecret"
+          autocomplete="current-password"
+          required
+        />
+        @if (form.controls.clientSecret.hasError('required')) {
+          <mat-error>Enter the client secret.</mat-error>
+        }
+      </mat-form-field>
+      @if (problem(); as current) {
+        <p class="problem" role="alert">{{ current.message }}</p>
+      }
+      @if (submitting()) {
+        <mat-progress-bar mode="indeterminate" aria-label="Logging in" />
+      }
+      <button mat-flat-button type="submit" [disabled]="submitting()">Log in</button>
+    </form>
+  </mat-card-content>
+</mat-card>

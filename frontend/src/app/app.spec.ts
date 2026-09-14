@@ -1,24 +1,34 @@
+import { provideHttpClient } from '@angular/common/http';
+import { provideHttpClientTesting } from '@angular/common/http/testing';
 import { TestBed } from '@angular/core/testing';
+import { provideRouter } from '@angular/router';
 import { App } from './app';
+import { DEBUG_LOG_CONFIG } from './core/debug/debug-log.service';
+import { provideAppIcons } from './core/icons/app-icons';
 
 describe('App', () => {
   beforeEach(async () => {
     await TestBed.configureTestingModule({
       imports: [App],
-    })
-      .compileComponents();
+      providers: [
+        provideRouter([]),
+        provideHttpClient(),
+        provideHttpClientTesting(),
+        provideAppIcons(),
+        {
+          provide: DEBUG_LOG_CONFIG,
+          useValue: { debugLogging: false, debugLoggingOverride: false },
+        },
+      ],
+    }).compileComponents();
   });
 
-  it('should create the app', () => {
-    const fixture = TestBed.createComponent(App);
-    const app = fixture.componentInstance;
-    expect(app).toBeTruthy();
-  });
-
-  it('should render title', async () => {
+  it('renders the toolbar without a logout button before login', async () => {
     const fixture = TestBed.createComponent(App);
     await fixture.whenStable();
-    const compiled = fixture.nativeElement as HTMLElement;
-    expect(compiled.querySelector('h1')?.textContent).toContain('Hello, frontend');
+    const element = fixture.nativeElement as HTMLElement;
+
+    expect(element.querySelector('.title')?.textContent).toContain('App Store search');
+    expect(element.textContent).not.toContain('Log out');
   });
 });
