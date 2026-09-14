@@ -125,3 +125,10 @@ Template:
   - Treat "script reported success" as unverified.
 
 <!-- Discovery Day entries below -->
+
+## 9 — Spike test read a field through a CGLIB proxy (day)
+- **When:** day, H+0:30, de-risking spike (throwaway project, no commit)
+- **Suggested:** To prove that `@Retryable` accepts property placeholders, the assistant wrote a test bean `Flaky` with a public `AtomicInteger attempts` field, and the test read `flaky.attempts` directly.
+- **Problem:** Both retry tests failed with a `NullPointerException`: `this.flaky.attempts` was null. `@EnableResilientMethods` had wrapped the bean in a CGLIB subclass (`Flaky$$SpringCGLIB$$0`). The injected object is the proxy, and a proxy's own fields are never initialized; only method calls reach the target. The failure looked like "retry is broken" but was a test bug. The stack trace pointed at the field access, not at the retry.
+- **Outcome:** Corrected. The counter became private and is read through a public method, which the proxy delegates. The rerun proved the real behavior: 3 attempts for the included exception, 1 for others, and the timeout stops new attempts. The proxy rule is now written down in [`../architecture/caching-resilience.md`](../architecture/caching-resilience.md#retry).
+- **Lesson:** A red test can be wrong about the thing it tests. Read the stack trace before concluding the framework misbehaves, and never access fields on Spring-proxied beans.
