@@ -28,7 +28,7 @@ cp .env.example .env          # fill in the required values (see docs/operations
 docker compose up --build
 ```
 
-`.env` is mandatory: Compose reads it (`env_file`) and fails without it, because the compose file contains no secrets. The app refuses to start without the required values. Generate the signing secret with `openssl rand -base64 32`.
+`.env` is mandatory: Compose reads it (`env_file`) and fails without it, because the compose file contains no secrets. The app refuses to start without the required values. Generate the signing secret with `openssl rand -base64 32`. For a quick local test, uncomment the sample values under each required variable in `.env`; they are public, so never use them on a shared or deployed instance.
 
 | What | URL (bound to 127.0.0.1) |
 |---|---|
