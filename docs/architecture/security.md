@@ -72,7 +72,7 @@ See [ADR-0032](../adr/0032-management-port-and-probes.md).
   - stack traces in API responses (server-side logs only).
 - **Search terms travel in the query string**, so query strings are excluded from logs:
   - nginx access logs use a format without `$args` ([`../operations/deployment.md`](../operations/deployment.md#nginx-frontendnginxconf));
-  - when tracing is enabled, an `ObservationFilter` removes the query from the high-cardinality URL key values (*verify* the key names on the day).
+  - span attributes: `QueryStringObservationFilter` (an `ObservationFilter`) removes the query and fragment from the URL key values of the HTTP observations before the tracing handler copies them into spans. The keys (Spring Framework 7, checked 2026-09-14) are `http.url` for the default server and client conventions and `url.path` for the OpenTelemetry server convention. Only the client value (the full Apple request URI with `term=`) actually contains a query; the server values are already built from the path. `TracingIntegrationTest` asserts that no span carries the term.
 - **Correlation ids are validated** to prevent log injection ([`error-handling.md`](error-handling.md#correlation-id)).
 - **A log-capture test** (`LogSafetyIntegrationTest`) runs the whole application with ECS JSON logs and asserts that no search term, `Bearer` value or Apple response body appears in the application's log lines. The fake Apple server (WireMock) logs the requests it receives. It stands in for Apple's side, which receives the term by design, so its lines are excluded. The test authenticates for real and also asserts that the access token, the client secret and the JWT secret never appear.
 
