@@ -45,7 +45,7 @@ None. [ADR-0026](0026-hybrid-routing-angular-client-calls-apple-search-directly-
 | [0031](0031-rate-limit-short-circuit.md) | Short-circuit Search calls after Apple returns 429 | Accepted; amends ADR-0012 and ADR-0007 |
 | [0032](0032-management-port-and-probes.md) | Separate management port, probes, restricted exposure | Accepted; amended by ADR-0044 (the management chain matches the whole port) |
 | [0033](0033-configuration-namespace.md) | One configuration namespace `appstore.*` | Accepted; amends ADR-0006, ADR-0018 and ADR-0027 |
-| [0034](0034-security-and-privacy-hardening.md) | Security and privacy hardening | Accepted; amends ADR-0004, ADR-0006, ADR-0019, ADR-0020 and ADR-0027 |
+| [0034](0034-security-and-privacy-hardening.md) | Security and privacy hardening | Accepted; amends ADR-0004, ADR-0006, ADR-0019, ADR-0020 and ADR-0027; amended by ADR-0049 (failed token requests rate-limited) |
 | [0035](0035-continuous-integration.md) | Continuous integration with GitHub Actions | Accepted; amends ADR-0007 (CI is merge hygiene, not a Part 3 topic) |
 | [0036](0036-formatting-version-catalog-and-updates.md) | Formatter, version catalog, wrapper checksum, dependency updates | Accepted; supersedes ADR-0016 for the backend; amended by ADR-0042 (`open-pull-requests-limit: 0` during the Discovery Day) |
 | [0037](0037-legacy-api-drift-detection.md) | Detect drift of the Legacy Apple APIs | Accepted |
@@ -60,6 +60,7 @@ None. [ADR-0026](0026-hybrid-routing-angular-client-calls-apple-search-directly-
 | [0046](0046-frontend-assets-stay-same-origin-no-cdn-fonts-or-icons.md) | Frontend assets stay same-origin: no CDN fonts or icons | Accepted |
 | [0047](0047-circuit-breaker-per-apple-api.md) | A circuit breaker per Apple API | Accepted; amends ADR-0030 |
 | [0048](0048-level-2-observability-trace-id-rule-and-no-log-export.md) | Level 2 observability: trace id only with export, no OTLP log export | Accepted; amends ADR-0027; amended by ADR-0051 |
+| [0049](0049-rate-limit-failed-token-requests-per-client-address.md) | Rate-limit failed token requests per client address | Accepted; amends ADR-0034 |
 | [0050](0050-alert-rule-unit-tests-with-promtool.md) | Unit-test the alert rules with promtool in CI | Accepted; amends ADR-0038 |
 | [0051](0051-export-application-logs-over-otlp.md) | Export application logs over OTLP in the Level 2 stack | Accepted; amends ADR-0048 |
 | [0052](0052-generate-frontend-api-types-from-the-openapi-contract.md) | Generate the frontend API types from the OpenAPI contract | Accepted |

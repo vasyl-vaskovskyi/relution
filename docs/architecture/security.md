@@ -8,6 +8,12 @@ See [ADR-0004](../adr/0004-self-issued-hs256-jwt-no-fallback.md) and [ADR-0034](
 - The client authenticates with HTTP Basic, using `appstore.auth.client.id` and `appstore.auth.client.secret`.
 - The secret is compared in constant time (`MessageDigest.isEqual`).
 - Failed attempts are logged without credentials.
+- **Failed attempts are rate-limited per client address** ([ADR-0049](../adr/0049-rate-limit-failed-token-requests-per-client-address.md)):
+  - `TokenRequestLimiter` keeps a token bucket per address (IPv4 as is, IPv6 by /64) in a Caffeine cache bounded by `appstore.auth.limit.keys`. The limits are in [`../operations/configuration.md`](../operations/configuration.md).
+  - Every request takes a permit **before** the credentials are compared; a successful request gives it back, so only failures count.
+  - Without a permit, every request from that address gets 429 `too-many-requests` with `Retry-After`, valid credentials included.
+  - The key is `getRemoteAddr()`. `X-Forwarded-For` is not trusted, because port 8080 is also reachable directly from networks Tomcat would treat as internal proxies. Behind the bundled nginx, all browser logins therefore share one bucket.
+  - The 429 is logged at DEBUG, without the address; the signal is the metric `appstore.auth.token.requests{outcome=rate_limited}` ([`../operations/observability.md`](../operations/observability.md#metrics)).
 
 **Tokens:** HS256 JWTs signed with `appstore.auth.jwt.secret`. Property details are in [`../operations/configuration.md`](../operations/configuration.md).
 
@@ -112,7 +118,7 @@ server_tokens off;
 
 | Gap | Mitigation now | Proper fix |
 |---|---|---|
-| No rate limit or lockout on `/auth/token` | Constant-time comparison; failed attempts logged; limit at the ingress | Identity provider, or a per-IP limiter |
+| `/auth/token` limit is per instance and per address; behind nginx all browsers share one bucket | Failure-only token bucket per address ([ADR-0049](../adr/0049-rate-limit-failed-token-requests-per-client-address.md)); constant-time comparison; limit at the ingress | Identity provider; a trusted-proxy list or an ingress limit for real client addresses |
 | Shared HS256 secret, no key rotation | Short token TTL, runbook rotation | Asymmetric keys with `kid` via an identity provider |
 | Web users log in with the API client credentials | Token kept in memory only | Per-user OIDC login |
 | `style-src 'unsafe-inline'` | Strict `default-src`, no `[innerHTML]` | Nonce-based CSP with server-side rendering of `index.html` |

@@ -1,6 +1,6 @@
 # ADR-0034: Security and privacy hardening
 
-- **Status:** Accepted; amends [ADR-0004](0004-self-issued-hs256-jwt-no-fallback.md), [ADR-0006](0006-docker-with-no-default-secrets.md), [ADR-0019](0019-serve-the-frontend-from-an-nginx-container-same-origin.md), [ADR-0020](0020-central-debug-logging-in-the-frontend.md) and [ADR-0027](0027-observability-logs-and-metrics-in-the-app-opentelemetry-graf.md)
+- **Status:** Accepted; amends [ADR-0004](0004-self-issued-hs256-jwt-no-fallback.md), [ADR-0006](0006-docker-with-no-default-secrets.md), [ADR-0019](0019-serve-the-frontend-from-an-nginx-container-same-origin.md), [ADR-0020](0020-central-debug-logging-in-the-frontend.md) and [ADR-0027](0027-observability-logs-and-metrics-in-the-app-opentelemetry-graf.md); amended by [ADR-0049](0049-rate-limit-failed-token-requests-per-client-address.md) (failed token requests are rate-limited per client address)
 - **Date:** 2026-09-13 (prep)
 
 - **Context:**
