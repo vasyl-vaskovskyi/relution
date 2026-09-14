@@ -1,6 +1,6 @@
 # App Store Search Service
 
-> **Draft.** This README describes the planned service. Its commands will be checked once the code exists, and then this notice will be removed.
+> **Work in progress.** Search, details, caching, resilience, metrics and the Docker image for the service work today. Authentication (`POST /auth/token`, JWT), the web client and its compose service, and `scripts/smoke.sh` are still being built; the places that depend on them say so.
 
 A Spring Boot service with two JSON endpoints: **search apps** in the Apple App Store and **look up app details**. It comes with an **Angular web client** that demonstrates both.
 
@@ -28,11 +28,11 @@ cp .env.example .env          # fill in the required values (see docs/operations
 docker compose up --build
 ```
 
-`.env` is mandatory. The compose file contains no secrets, and the app refuses to start without them. Generate the signing secret with `openssl rand -base64 32`.
+`.env` is mandatory: Compose reads it (`env_file`) and fails without it, because the compose file contains no secrets. Once authentication lands, the app refuses to start without the required values. Generate the signing secret with `openssl rand -base64 32`.
 
 | What | URL (bound to 127.0.0.1) |
 |---|---|
-| Web client | http://localhost:4200. Log in with `APPSTORE_AUTH_CLIENT_ID` / `APPSTORE_AUTH_CLIENT_SECRET` from `.env` |
+| Web client (arrives with the frontend PR) | http://localhost:4200. Log in with `APPSTORE_AUTH_CLIENT_ID` / `APPSTORE_AUTH_CLIENT_SECRET` from `.env` |
 | API | http://localhost:8080 |
 | Readiness | http://localhost:8080/readyz |
 | Management (health, metrics, Prometheus) | http://localhost:8081/actuator |
@@ -65,6 +65,8 @@ curl -s -H "Authorization: Bearer $TOKEN" 'localhost:8080/api/v1/apps?term=relut
 curl -s -H "Authorization: Bearer $TOKEN" 'localhost:8080/api/v1/apps/361309726?cc=de&l=de&platform=mac' | jq
 ```
 
+Until the auth PR lands, the endpoints are open: skip the token request and the `Authorization` header.
+
 Parameters, response fields and error types are documented in [`docs/api/README.md`](docs/api/README.md).
 
 ## Tests
@@ -72,19 +74,19 @@ Parameters, response fields and error types are documented in [`docs/api/README.
 ```bash
 # from the repository root
 (cd backend && ./gradlew check)                   # formatting, unit, WireMock, web and architecture tests (no live Apple calls)
-(cd backend && ./gradlew liveTest)                # a few real Apple calls to detect API drift (nightly in CI)
+(cd backend && ./gradlew liveTest)                # at most 3 real Apple calls to detect API drift (nightly in CI)
 (cd frontend && npm test -- --watch=false)        # focused unit tests
-scripts/smoke.sh                                  # end-to-end checks against a running instance
+scripts/smoke.sh                                  # end-to-end checks against a running instance (not built yet)
 ```
 
-CI runs `check`, the frontend tests and both image builds on every push. `liveTest` runs nightly, and `smoke.sh` is run manually. See [`docs/development/tooling.md`](docs/development/tooling.md).
+CI runs `check`, the frontend tests and build, and the image builds on every pull request and every push to `main`. `liveTest` runs nightly, and `smoke.sh` will be run manually. See [`docs/development/tooling.md`](docs/development/tooling.md).
 
 ## Troubleshooting
 
-- **The app exits at startup with a configuration error.** A required `APPSTORE_*` variable is missing, or the JWT secret is shorter than 32 bytes after decoding.
+- **The app exits at startup with a configuration error.** An `APPSTORE_*` value is invalid (for example a search budget of 0). Once authentication lands, also: a required variable is missing, or the JWT secret is shorter than 32 bytes after decoding.
 - **A port is already in use.** Change the host side of the port mapping in `docker-compose.yml`.
 - **`npm ci` or `ng` complains about the Node version.** Run `nvm use`. Angular 22 does not support Node 25.
-- **Searches return 503.** Apple's rate limit was hit (about 20 calls/min per IP). The service stops calling Apple until `Retry-After` expires; cached searches keep working.
+- **Searches return 503.** The outbound Search budget (`APPSTORE_APPLE_SEARCH_BUDGET`, default 20 calls/min) is used up, or Apple's per-IP rate limit was hit. The service doesn't call Apple until `Retry-After` expires; cached searches keep working.
 - **The web client shows the login page again.** The token is kept in memory only and expires after 15 minutes. Reloading the page also clears it.
 
 More in [`docs/operations/runbook.md`](docs/operations/runbook.md).
