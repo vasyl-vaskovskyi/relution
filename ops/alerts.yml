@@ -5,16 +5,17 @@ groups:
   - name: appstore
     rules:
       - alert: AppleSearchRateLimited
-        expr: sum(rate(appstore_apple_requests_seconds_count{api="search",outcome=~"rate_limited|short_circuited"}[5m])) > 0.1
+        expr: sum(rate(appstore_apple_requests_seconds_count{api="search",outcome=~"rate_limited|short_circuited|budget_exhausted"}[5m])) > 0.1
         for: 10m
         labels:
           severity: warning
         annotations:
           summary: Apple Search is rate limiting the service
           description: >-
-            Apple Search calls ending as rate_limited or short_circuited run at
-            {{ $value | humanize }}/s over 5 minutes. Uncached searches return 503
-            while Apple's Retry-After window runs.
+            Apple Search calls ending as rate_limited, short_circuited or
+            budget_exhausted run at {{ $value | humanize }}/s over 5 minutes.
+            Uncached searches return 503 while Apple's Retry-After window runs or
+            the outbound budget refills.
           runbook_url: https://github.com/vasyl-vaskovskyi/relution/blob/main/docs/operations/runbook.md#applesearchratelimited
 
       - alert: AppleContractErrors
