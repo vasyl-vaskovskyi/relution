@@ -5,7 +5,7 @@
 | Image | Build | Runtime |
 |---|---|---|
 | `backend/Dockerfile` | `eclipse-temurin:25.0.4_7-jdk-resolute` (Ubuntu 26.04) runs `./gradlew bootJar`, then extracts the layers with `java -Djarmode=tools -jar … extract --layers --launcher` | `eclipse-temurin:25.0.4_7-jre-resolute` (**Ubuntu-based, not `-alpine`**: the healthcheck needs bash), system user `appstore` (uid 999), layered jar started by `JarLauncher`, `EXPOSE 8080 8081`, `JAVA_TOOL_OPTIONS=-XX:MaxRAMPercentage=75 -XX:+ExitOnOutOfMemoryError` |
-| `frontend/Dockerfile` | `node:24-alpine` (pinned) runs `npm ci && npm run build -- --configuration ${ANGULAR_CONFIGURATION}` (default `production`) | `nginxinc/nginx-unprivileged` stable alpine (pinned, e.g. `1.30.4-alpine`), listens on 8080, uses `frontend/nginx.conf` |
+| `frontend/Dockerfile` | `node:24.21.0-alpine3.24` runs `npm ci && npm run build -- --configuration ${ANGULAR_CONFIGURATION}` (default `production`) | `nginxinc/nginx-unprivileged:1.30.4-alpine3.24` (stable line, user `nginx`, uid 101), listens on 8080, uses `frontend/nginx.conf` as `conf.d/default.conf` |
 
 Dependabot updates the pinned tags. Nothing is pushed from CI.
 
@@ -31,8 +31,8 @@ Dependabot updates the pinned tags. Nothing is pushed from CI.
 
 ## nginx (`frontend/nginx.conf`)
 
-- **Single-page app:** `try_files $uri /index.html`.
-- **Proxy:** `location /api/` and `location /auth/` proxy to `http://app:8080`, forwarding `X-Correlation-Id` and `traceparent`.
+- **Single-page app:** `try_files $uri /index.html`; `index.html` is sent with `Cache-Control: no-cache`, the hashed bundles are cacheable.
+- **Proxy:** `location /api/` and `location /auth/` proxy to `http://app:8080`, forwarding `X-Correlation-Id` and `traceparent`. nginx resolves `app` at startup, so the image starts only next to the `app` service (compose); to check the file alone, run `docker run --rm --add-host app:127.0.0.1 <image> nginx -t`.
 - **Timeouts:** `proxy_read_timeout 15s`, above the backend's theoretical worst case of about 12 s ([`../architecture/caching-resilience.md`](../architecture/caching-resilience.md#retry)).
 - **Access log without query strings**, because search terms must not be logged ([`../architecture/security.md`](../architecture/security.md#logging-and-privacy)):
   ```nginx
