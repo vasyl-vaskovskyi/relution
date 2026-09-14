@@ -3,6 +3,8 @@
 This document is the contract until the service exists. After that, the generated OpenAPI document is authoritative, and this file only describes the policies that OpenAPI can't express.
 
 - **OpenAPI:** [`/v3/api-docs`](http://localhost:8080/v3/api-docs); **Swagger UI:** [`/swagger-ui.html`](http://localhost:8080/swagger-ui.html). Get a token from `POST /auth/token`, then use **Authorize** (bearer JWT). Both are disabled in the `prod` profile ([`../operations/configuration.md`](../operations/configuration.md#profiles)).
+- **Contract snapshot:** [`openapi.json`](openapi.json) is the committed, normalized copy of the generated document. A backend test fails when they differ, so API changes show up in pull request diffs. The update command is in [`../development/testing.md`](../development/testing.md#update-the-openapi-contract-snapshot).
+
 ## Conventions
 
 - **Base path:** `/api/v1`. **Media type:** `application/json`; errors use `application/problem+json`.

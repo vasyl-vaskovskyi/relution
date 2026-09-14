@@ -61,6 +61,21 @@ tasks.withType<Test> {
 	useJUnitPlatform()
 }
 
+// OpenAPI contract snapshot (docs/development/testing.md): -PupdateOpenApiSnapshot rewrites it instead of comparing
+val openApiSnapshot = layout.projectDirectory.file("../docs/api/openapi.json")
+val updateOpenApiSnapshot = providers.gradleProperty("updateOpenApiSnapshot").isPresent
+
+tasks.test {
+	systemProperty("openapi.snapshot.path", openApiSnapshot.asFile.absolutePath)
+	if (updateOpenApiSnapshot) {
+		systemProperty("openapi.snapshot.update", "true")
+		outputs.upToDateWhen { false }
+	} else {
+		// a hand-edited or reverted snapshot re-runs the comparison
+		inputs.files(openApiSnapshot).withPropertyName("openApiSnapshot").withPathSensitivity(PathSensitivity.RELATIVE).optional()
+	}
+}
+
 // Apple drift detection (ADR-0037): real Apple calls, run by the nightly apple-drift workflow and never by check
 val liveTest = sourceSets.create("liveTest") {
 	compileClasspath += sourceSets.main.get().output
