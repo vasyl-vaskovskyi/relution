@@ -18,6 +18,7 @@ public final class MetricNames {
     public static final String TAG_API = "api";
     public static final String TAG_OUTCOME = "outcome";
     public static final String TAG_DIRECTION = "direction";
+    public static final String TAG_FIELD = "field";
 
     private MetricNames() {}
 }

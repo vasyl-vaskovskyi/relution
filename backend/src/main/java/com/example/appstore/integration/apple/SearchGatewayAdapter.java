@@ -28,11 +28,13 @@ public class SearchGatewayAdapter implements AppSearchGateway {
     private final ItunesSearchClient client;
     private final SearchRateLimitGuard guard;
     private final AppleCallRecorder recorder;
+    private final AppleMissingFieldDetector missingFields;
 
     public SearchGatewayAdapter(ItunesSearchClient client, SearchRateLimitGuard guard, MeterRegistry registry) {
         this.client = client;
         this.guard = guard;
         this.recorder = new AppleCallRecorder(registry, "search");
+        this.missingFields = new AppleMissingFieldDetector(registry);
     }
 
     @Override
@@ -47,6 +49,7 @@ public class SearchGatewayAdapter implements AppSearchGateway {
         long start = System.nanoTime();
         try {
             ItunesSearchResponse response = client.search(query.term(), query.countryCode(), query.limit());
+            missingFields.inspect(response);
             List<AppSummary> items = ItunesSearchMapper.toSummaries(response);
             int rows = response.results() == null ? 0 : response.results().size();
             if (rows > items.size()) {

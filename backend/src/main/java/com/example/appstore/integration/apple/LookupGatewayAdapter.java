@@ -18,10 +18,12 @@ public class LookupGatewayAdapter implements AppDetailsGateway {
 
     private final MzLookupClient client;
     private final AppleCallRecorder recorder;
+    private final AppleMissingFieldDetector missingFields;
 
     public LookupGatewayAdapter(MzLookupClient client, MeterRegistry registry) {
         this.client = client;
         this.recorder = new AppleCallRecorder(registry, "lookup");
+        this.missingFields = new AppleMissingFieldDetector(registry);
     }
 
     @Override
@@ -30,6 +32,7 @@ public class LookupGatewayAdapter implements AppDetailsGateway {
         try {
             MzLookupResponse response =
                     client.lookup(query.id(), query.countryCode(), query.languageTag(), query.platform());
+            missingFields.inspect(response);
             LookupResult result = MzLookupMapper.toResult(response, query);
             String outcome = result instanceof LookupResult.Found ? "success" : "not_found";
             recorder.record(outcome, 200, elapsed(start), Level.INFO, "id", query.id());
