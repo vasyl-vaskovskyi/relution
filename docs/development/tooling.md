@@ -11,6 +11,15 @@ Versions marked *verify* were checked on 2026-09-13. Confirm them when the files
 | `backend` | `actions/setup-java` (v6, Temurin 25) → `gradle/actions/setup-gradle` (v6) → `./gradlew check` |
 | `frontend` | `actions/setup-node` (v7, `node-version-file: .nvmrc`, npm cache keyed on `frontend/package-lock.json`) → `npm ci` → `npm test -- --watch=false` → `npm run build` |
 | `images` | `docker build backend` → `docker build frontend` (no push) |
+| `alerts` | `docker build -t promtool ops/promtool` → `promtool check rules /ops/alerts.yml` → `promtool test rules /ops/alerts.test.yml`, both via `docker run` with `ops/` mounted read-only ([ADR-0050](../adr/0050-alert-rule-unit-tests-with-promtool.md)) |
+
+**promtool image:** `ops/promtool/Dockerfile` pins `prom/prometheus` by exact tag and digest (`v3.14.0`, checked on Docker Hub and the GitHub release on 2026-09-14) and sets `promtool` as the entrypoint. Dependabot's `docker` ecosystem updates it. Run the same checks locally from the repository root:
+
+```bash
+docker build -t promtool ops/promtool
+docker run --rm -v "$PWD/ops:/ops:ro" promtool check rules /ops/alerts.yml
+docker run --rm -v "$PWD/ops:/ops:ro" promtool test rules /ops/alerts.test.yml
+```
 
 **`.github/workflows/apple-drift.yml`** runs nightly and on demand: `./gradlew liveTest` ([ADR-0037](../adr/0037-legacy-api-drift-detection.md)). It never blocks pull requests.
 
@@ -26,13 +35,13 @@ Versions marked *verify* were checked on 2026-09-13. Confirm them when the files
 
 - **Version catalog:** `backend/gradle/libs.versions.toml` holds every backend library and plugin version.
 - **Gradle wrapper:** pinned `distributionSha256Sum` in `backend/gradle/wrapper/gradle-wrapper.properties`.
-- **Dependabot** (`.github/dependabot.yml`), weekly, with minor and patch updates grouped. Add each ecosystem once its directory exists (kickoff: `gradle`, `github-actions`; Docker block: `docker` for `/backend`, `docker-compose`; frontend block: `npm`, `docker` for `/frontend`). During the Discovery Day every entry sets `open-pull-requests-limit: 0`, so update PRs don't compete with the day's reviews; raise the limit (e.g. to 5) afterwards:
+- **Dependabot** (`.github/dependabot.yml`), weekly, with minor and patch updates grouped. Add each ecosystem once its directory exists (kickoff: `gradle`, `github-actions`; Docker block: `docker` for `/backend`, `docker-compose`; frontend block: `npm`, `docker` for `/frontend`; alert rule tests: `docker` for `/ops/promtool`). During the Discovery Day every entry sets `open-pull-requests-limit: 0`, so update PRs don't compete with the day's reviews; raise the limit (e.g. to 5) afterwards:
 
 | `package-ecosystem` | `directory` |
 |---|---|
 | `gradle` | `/backend` |
 | `npm` | `/frontend` |
-| `docker` | `/backend`, `/frontend` |
+| `docker` | `/backend`, `/frontend`, `/ops/promtool` |
 | `docker-compose` | `/` |
 | `github-actions` | `/` |
 

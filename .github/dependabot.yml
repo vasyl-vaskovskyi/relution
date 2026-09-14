@@ -39,6 +39,16 @@ updates:
       minor-and-patch:
         update-types: [minor, patch]
 
+  # The Prometheus image whose promtool the CI "alerts" job uses (ADR-0050)
+  - package-ecosystem: docker
+    directory: /ops/promtool
+    schedule:
+      interval: weekly
+    open-pull-requests-limit: 0
+    groups:
+      minor-and-patch:
+        update-types: [minor, patch]
+
   - package-ecosystem: docker-compose
     directory: /
     schedule:
