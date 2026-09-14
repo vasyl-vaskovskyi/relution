@@ -5,22 +5,24 @@ Every entry follows the same pattern: **signal → impact → check → action**
 ## Alerts
 
 ### `AppleSearchRateLimited`
-- **Impact:** searches return 503 for uncached terms while Apple's `Retry-After` window runs. Cached searches and details keep working.
+- **Impact:** searches return 503 for uncached terms while Apple's `Retry-After` window runs or the outbound Search budget refills. Cached searches and details keep working.
 - **Check:**
-  - `appstore_apple_requests_seconds_count{api="search"}` grouped by `outcome`;
+  - `appstore_apple_requests_seconds_count{api="search"}` grouped by `outcome` (`rate_limited`, `short_circuited`, `budget_exhausted`);
   - the number of replicas sharing the egress IP;
-  - traffic spikes on `http_server_requests` for `/api/v1/apps`.
+  - traffic spikes on `http_server_requests_seconds_count{uri="/api/v1/apps"}`.
 - **Action:**
-  1. Confirm the short-circuit is working (`short_circuited` > 0, few `rate_limited`).
-  2. Look for abusive clients by grouping the upstream log lines by `clientId`.
+  1. Confirm the short-circuit is working (`short_circuited` > 0, few `rate_limited`). Mostly `budget_exhausted` means the local limiter holds the traffic back before Apple sees it.
+  2. Look for abusive clients by grouping the `apple call` log lines by `clientId` (set once authentication lands).
   3. Consider raising `APPSTORE_CACHE_SEARCH_TTL`.
   4. Check that `APPSTORE_APPLE_SEARCH_BUDGET` is not above what Apple allows or what was bought, and that replicas sharing one egress IP split the budget ([`../architecture/caching-resilience.md`](../architecture/caching-resilience.md#outbound-rate-limiter-on-search)). If the need is real, buy more requests and raise the budget, or plan the shared cache ([known limits](../architecture/caching-resilience.md#known-limits)).
   5. Never rotate IPs to get around the limit ([ADR-0025](../adr/0025-deal-with-the-per-ip-search-rate-limit-within-apples-rules.md)).
 
 ### `AppleContractErrors`
+This section also covers the `AppleMissingFields` alert.
+
 - **Impact:** Apple changed a response (Legacy API drift). Fields may be missing, or requests may return 502.
 - **Check:**
-  - ERROR logs with `outcome=contract_error`;
+  - ERROR `apple call` log lines with `outcome=contract_error`;
   - `appstore_apple_mapping_missing_field_total` by `field`;
   - the latest nightly `apple-drift` workflow run.
 - **Action:**
@@ -30,7 +32,7 @@ Every entry follows the same pattern: **signal → impact → check → action**
 
 ### `StorefrontAllowlistOutdated`
 - **Impact:** requests for that storefront get 400, although the code is on the allowlist.
-- **Check:** ERROR logs containing `storefront allowlist outdated` (the code is in the message).
+- **Check:** ERROR logs `storefront allowlist outdated: <code>` and the counter `appstore_storefront_allowlist_mismatch_total{direction="outdated"}`.
 - **Action:** refresh the allowlist (see below).
 
 ### `AppleLatencyHigh`
@@ -49,10 +51,12 @@ Every entry follows the same pattern: **signal → impact → check → action**
 1. Open [App Store localizations](https://developer.apple.com/help/app-store-connect/reference/app-information/app-store-localizations/) and extract the ISO alpha-3 column.
 2. Convert the codes to alpha-2 (`Locale.getISO3Country()` mapping; Kosovo `XKS` → `xk`).
 3. Diff the result against `SupportedStorefronts`, and spot-check added or removed codes against both Apple APIs.
-4. Update the constant, its source and date comment, and [`../integrations/apple-api-behavior.md`](../integrations/apple-api-behavior.md#4-app-store-storefront-allowlist) in one change.
-5. Also review the WARN logs `storefront missing from allowlist` (counter `direction=missing`). Requests for these codes are rejected without calling Apple, so a new Apple storefront shows up only there ([ADR-0043](../adr/0043-reject-unlisted-storefront-codes-locally.md)).
+4. Update `SupportedStorefronts.CODES`, its source and date comment, and [`../integrations/apple-api-behavior.md`](../integrations/apple-api-behavior.md#4-app-store-storefront-allowlist) in one change.
+5. Also review the WARN logs `storefront missing from allowlist, verify the list: <code>` (counter `direction=missing`). Requests for these codes are rejected without calling Apple, so a new Apple storefront shows up only there ([ADR-0043](../adr/0043-reject-unlisted-storefront-codes-locally.md)).
 
 ### Rotate the JWT signing secret
+This and the next procedure apply once authentication lands.
+
 1. Generate a new secret with `openssl rand -base64 32`.
 2. Deploy it as `APPSTORE_AUTH_JWT_SECRET`.
 3. Every issued token becomes invalid. Clients get 401 and request a new token; the TTL is at most 1 h.
@@ -67,5 +71,7 @@ Set new `APPSTORE_AUTH_CLIENT_ID` and `APPSTORE_AUTH_CLIENT_SECRET` values, depl
 3. Run the mapper and client tests. If Apple's behavior changed, update the assertions and record the change in [`../integrations/apple-api-behavior.md`](../integrations/apple-api-behavior.md).
 
 ### Nightly `apple-drift` workflow failed
-1. Re-run it once, because Apple may have been unavailable or rate-limiting.
+The workflow is "Apple drift" (`.github/workflows/apple-drift.yml`); it runs `./gradlew liveTest`.
+
+1. Re-run it once (`gh workflow run apple-drift.yml`), because Apple may have been unavailable or rate-limiting.
 2. If it fails again, follow `AppleContractErrors`.
