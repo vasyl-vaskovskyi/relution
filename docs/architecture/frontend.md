@@ -87,6 +87,7 @@ Messages are chosen by **problem type** first ([ADR-0029](../adr/0029-domain-ter
   | `production` | false | no |
 
   `demo` = production optimizations (no source maps) with `debugLogging: true`; the runtime switch accepts `localStorage.setItem('appstore.debug', 'true' | 'false')`.
+  In `src/environments/`, the two columns are the flags `debugLogging` and `debugLoggingOverride`. Build or serve with `ng build --configuration demo` / `ng serve --configuration demo`.
 
 - **Per request,** `debug-log.interceptor.ts` logs one `console.groupCollapsed` titled `[appstore] GET /api/v1/apps 200 143ms`, containing:
   - the parameters, without the term value (only its length);
