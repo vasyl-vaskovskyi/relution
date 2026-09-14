@@ -17,7 +17,9 @@ frontend/src/app/
 │   ├── auth/       auth.service.ts (token signal, in memory only), auth.interceptor.ts, auth.guard.ts
 │   ├── debug/      debug-log.service.ts, debug-log.interceptor.ts
 │   ├── locale/     locale.service.ts (browser locale → cc/l)
-│   └── errors/     problem-message.ts (problem type → user message)
+│   ├── errors/     problem-message.ts (problem type → user message)
+│   └── icons/      app-icons.ts (inline SVG icons, ADR-0046)
+├── shared/          state-panels.component.ts (loading and error panels for search and details)
 ├── features/
 │   ├── login/       login.component
 │   ├── search/      search.component (field, result list, states)
@@ -43,7 +45,8 @@ frontend/src/app/
 
 ### Search
 - Debounced input (400 ms, minimum 2 characters), sent with `switchMap` so outdated requests are cancelled. This also protects Apple's rate budget.
-- `term` and `cc` are kept in the URL query parameters.
+- `term`, `cc` and `l` are kept in the URL query parameters; `l` is passed on to the details view.
+- A search starts only when `cc` (2 letters) and `l` are valid; `limit` is 10, 25 (default) or 50.
 - Each result shows the icon (`alt` = app name), the name and the developer.
 
 ### States (search and details)
