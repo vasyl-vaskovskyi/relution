@@ -49,7 +49,7 @@ None. [ADR-0026](0026-hybrid-routing-angular-client-calls-apple-search-directly-
 | [0035](0035-continuous-integration.md) | Continuous integration with GitHub Actions | Accepted; amends ADR-0007 (CI is merge hygiene, not a Part 3 topic) |
 | [0036](0036-formatting-version-catalog-and-updates.md) | Formatter, version catalog, wrapper checksum, dependency updates | Accepted; supersedes ADR-0016 for the backend; amended by ADR-0042 (`open-pull-requests-limit: 0` during the Discovery Day) |
 | [0037](0037-legacy-api-drift-detection.md) | Detect drift of the Legacy Apple APIs | Accepted |
-| [0038](0038-alert-rules.md) | Committed alert rules | Accepted; amends ADR-0027 |
+| [0038](0038-alert-rules.md) | Committed alert rules | Accepted; amends ADR-0027; amended by ADR-0050 (promtool unit tests in CI) |
 | [0039](0039-documentation-structure.md) | Documentation structure, ADR format and conventions | Accepted |
 | [0040](0040-capture-archive-and-test-fixtures.md) | Capture archive vs. test fixtures | Superseded by ADR-0041 (`stubs/` is moved into WireMock test resources on the day and then deleted) |
 | [0041](0041-move-captures-into-wiremock-and-remove-stubs.md) | Move the captures into WireMock test resources and remove `stubs/` | Accepted; supersedes ADR-0040 |
@@ -60,6 +60,7 @@ None. [ADR-0026](0026-hybrid-routing-angular-client-calls-apple-search-directly-
 | [0046](0046-frontend-assets-stay-same-origin-no-cdn-fonts-or-icons.md) | Frontend assets stay same-origin: no CDN fonts or icons | Accepted |
 | [0047](0047-circuit-breaker-per-apple-api.md) | A circuit breaker per Apple API | Accepted; amends ADR-0030 |
 | [0048](0048-level-2-observability-trace-id-rule-and-no-log-export.md) | Level 2 observability: trace id only with export, no OTLP log export | Accepted; amends ADR-0027 |
+| [0050](0050-alert-rule-unit-tests-with-promtool.md) | Unit-test the alert rules with promtool in CI | Accepted; amends ADR-0038 |
 
 ## Writing a new ADR
 

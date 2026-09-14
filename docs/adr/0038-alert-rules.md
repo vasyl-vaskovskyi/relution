@@ -1,6 +1,6 @@
 # ADR-0038: Committed alert rules
 
-- **Status:** Accepted; amends [ADR-0027](0027-observability-logs-and-metrics-in-the-app-opentelemetry-graf.md)
+- **Status:** Accepted; amends [ADR-0027](0027-observability-logs-and-metrics-in-the-app-opentelemetry-graf.md); amended by [ADR-0050](0050-alert-rule-unit-tests-with-promtool.md) (the rules are unit-tested with promtool in CI)
 - **Date:** 2026-09-13 (prep)
 
 - **Context:** Metrics without alerts are only visible when someone looks.
