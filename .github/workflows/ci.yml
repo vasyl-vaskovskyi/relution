@@ -51,3 +51,12 @@ jobs:
       # Build only, nothing is pushed
       - run: docker build backend
       - run: docker build frontend
+
+  alerts:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7.0.1
+      # promtool from the Prometheus image pinned in ops/promtool/Dockerfile (ADR-0050)
+      - run: docker build -t promtool ops/promtool
+      - run: docker run --rm -v "$GITHUB_WORKSPACE/ops:/ops:ro" promtool check rules /ops/alerts.yml
+      - run: docker run --rm -v "$GITHUB_WORKSPACE/ops:/ops:ro" promtool test rules /ops/alerts.test.yml
