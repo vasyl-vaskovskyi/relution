@@ -14,7 +14,8 @@ There are two levels ([ADR-0027](../adr/0027-observability-logs-and-metrics-in-t
   - `traceId` and `spanId` when tracing is enabled.
   - The MDC is propagated to cache loader threads ([`../architecture/caching-resilience.md`](../architecture/caching-resilience.md#caches)).
 - **Per logical upstream call:** one INFO line from the gateway adapter, after retries, with `api`, `outcome`, `status`, `durationMs`, and `termLength` (search) or `id` (lookup).
-- **WARN:** a storefront missing from the allowlist, Apple 429, timeouts, Apple 5xx.
+- **WARN:** a storefront missing from the allowlist, Apple 429, an exhausted outbound budget, timeouts, Apple 5xx.
+- **INFO and DEBUG in the upstream line:** a storefront Apple rejected is INFO (the policy logs the ERROR); the 429 short-circuit is DEBUG, because the WARN was already logged when Apple answered 429.
 - **ERROR:** an outdated allowlist, contract errors, unexpected exceptions.
 - **What is never logged** is defined in [`../architecture/security.md`](../architecture/security.md#logging-and-privacy).
 
