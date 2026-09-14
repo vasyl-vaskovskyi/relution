@@ -19,8 +19,8 @@ curl/Bruno ────▶ │  ▲                         ▲ gateways (ports)
 backend/     Spring Boot service (Gradle Kotlin DSL, version catalog)
 frontend/    Angular 22 + Angular Material
 docs/        architecture, api, integrations, operations, development, adr, glossary
-ops/         alert rules (alerts.yml)
-scripts/     smoke.sh
+ops/         alert rules (alerts.yml), Grafana dashboards and their provisioning (grafana/)
+scripts/     smoke.sh, demo-traffic.sh
 .github/     CI workflows, Dependabot, pull request template
 docker-compose.yml, compose.observability.yml, .env.example, .env.observability.example, .nvmrc
 README.md, CONTRIBUTING.md, CLAUDE.md

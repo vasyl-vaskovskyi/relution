@@ -52,6 +52,7 @@ docker compose --env-file .env.observability -f docker-compose.yml -f compose.ob
 
 `compose.observability.yml`:
 - adds `otel-lgtm` (`grafana/otel-lgtm:0.33.0`), publishing only `127.0.0.1:3000` (Grafana). The app reaches the collector at `otel-lgtm:4318` (OTLP over HTTP) on the compose network;
+- mounts `ops/grafana/provisioning/dashboards.yaml` and `ops/grafana/dashboards/` read-only into `otel-lgtm`, so Grafana provisions the committed dashboards and opens on "App Store service" ([`observability.md`](observability.md#dashboard));
 - sets the OTLP variables on `app` ([`configuration.md`](configuration.md#set-by-the-compose-files-not-secrets-not-in-env)) and starts `app` after `otel-lgtm`;
 - takes the Grafana password from `APPSTORE_GRAFANA_ADMIN_PASSWORD` in `.env.observability`, passed with `--env-file`. Compose uses that file only for interpolation, so the `app` container doesn't receive the password. Compose refuses to start without the file or the value ([`configuration.md`](configuration.md#only-used-by-the-observability-stack-envobservability-not-env)). Log in to Grafana as `admin` with that password.
 

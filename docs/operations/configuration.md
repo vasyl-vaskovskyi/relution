@@ -57,6 +57,7 @@ If one of these is missing or invalid, the application refuses to start. An `App
 | `MANAGEMENT_OTLP_METRICS_EXPORT_ENABLED`, `MANAGEMENT_OTLP_METRICS_EXPORT_URL` | `true`, `http://otel-lgtm:4318/v1/metrics` | `compose.observability.yml` |
 | `MANAGEMENT_TRACING_EXPORT_ENABLED`, `MANAGEMENT_OPENTELEMETRY_TRACING_EXPORT_OTLP_ENDPOINT`, `MANAGEMENT_TRACING_SAMPLING_PROBABILITY` | `true`, `http://otel-lgtm:4318/v1/traces`, `1.0` | `compose.observability.yml` |
 | `MANAGEMENT_LOGGING_EXPORT_ENABLED`, `MANAGEMENT_OPENTELEMETRY_LOGGING_EXPORT_OTLP_ENDPOINT` | `true`, `http://otel-lgtm:4318/v1/logs` | `compose.observability.yml` |
+| `GF_DASHBOARDS_DEFAULT_HOME_DASHBOARD_PATH` | `/otel-lgtm/grafana/conf/provisioning/dashboards/custom/appstore-service.json` | `compose.observability.yml` (on `otel-lgtm`): Grafana opens on the "App Store service" dashboard ([`observability.md`](observability.md#dashboard)) |
 
 - **Property names:** checked against the configuration metadata of Spring Boot 4.1.1 on 2026-09-14.
 - **Defaults:** `application.yml` disables every OTLP export (`management.otlp.metrics.export.enabled`, `management.tracing.export.enabled` and `management.logging.export.enabled` are `false`) and sets `management.tracing.sampling.probability` to `0.1`. Each can be overridden with its canonical environment variable.

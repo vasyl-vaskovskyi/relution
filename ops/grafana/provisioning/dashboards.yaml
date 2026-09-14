@@ -1,0 +1,15 @@
+# Grafana dashboard provider for the optional observability stack (compose.observability.yml).
+# Mounted read-only at /otel-lgtm/grafana/conf/provisioning/dashboards/custom.yaml; the JSON files in
+# ops/grafana/dashboards are mounted at the path below. Description: docs/operations/observability.md.
+apiVersion: 1
+
+providers:
+  - name: appstore
+    type: file
+    # Edits in the Grafana UI are not saved back to the file; export the JSON and commit it instead
+    allowUiUpdates: false
+    disableDeletion: true
+    updateIntervalSeconds: 30
+    options:
+      path: /otel-lgtm/grafana/conf/provisioning/dashboards/custom
+      foldersFromFilesStructure: false

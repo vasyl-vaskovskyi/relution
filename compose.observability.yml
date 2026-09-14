@@ -24,6 +24,12 @@ services:
     image: grafana/otel-lgtm:0.33.0
     environment:
       GF_SECURITY_ADMIN_PASSWORD: ${APPSTORE_GRAFANA_ADMIN_PASSWORD:?set APPSTORE_GRAFANA_ADMIN_PASSWORD in .env.observability and pass --env-file .env.observability}
+      # the provisioned "App Store service" dashboard opens as the Grafana home page
+      GF_DASHBOARDS_DEFAULT_HOME_DASHBOARD_PATH: /otel-lgtm/grafana/conf/provisioning/dashboards/custom/appstore-service.json
+    volumes:
+      # committed dashboards (ops/grafana), read-only; the image's own RED and JVM dashboards stay
+      - ./ops/grafana/provisioning/dashboards.yaml:/otel-lgtm/grafana/conf/provisioning/dashboards/custom.yaml:ro
+      - ./ops/grafana/dashboards:/otel-lgtm/grafana/conf/provisioning/dashboards/custom:ro
     ports:
       # only Grafana is published; the app reaches the collector on the compose network
       - "127.0.0.1:3000:3000"
