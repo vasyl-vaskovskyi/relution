@@ -1,0 +1,103 @@
+@if (view(); as current) {
+  <div class="bar">
+    <button mat-button type="button" (click)="back()">
+      <mat-icon svgIcon="arrow-back" />
+      Back
+    </button>
+    <mat-button-toggle-group
+      [value]="current.platform"
+      (change)="setPlatform($event.value)"
+      aria-label="Platform"
+      hideSingleSelectionIndicator
+    >
+      <mat-button-toggle value="ios"><mat-icon svgIcon="iphone" /> iOS</mat-button-toggle>
+      <mat-button-toggle value="mac"><mat-icon svgIcon="mac" /> Mac</mat-button-toggle>
+    </mat-button-toggle-group>
+  </div>
+
+  @let state = current.state;
+  @if (state.status === 'loading') {
+    <app-loading-panel [slow]="state.slow" />
+  } @else if (state.status === 'error') {
+    <app-problem-panel [message]="problem(state.error)" (retry)="retry()" />
+  } @else {
+    @let app = state.value;
+    <article>
+      <header>
+        @if (app.iconUrl) {
+          <img [src]="app.iconUrl" [alt]="app.name" />
+        }
+        <div>
+          <h1>{{ app.name }}</h1>
+          @if (app.subtitle) {
+            <p class="muted">{{ app.subtitle }}</p>
+          }
+          <p class="muted">{{ app.developer }}</p>
+          @if (languageDiffers(current.l, app.storefront.language)) {
+            <span class="chip"
+              >Requested {{ current.l }} · served {{ app.storefront.language }}</span
+            >
+          }
+        </div>
+      </header>
+
+      <!-- Apple texts are interpolated as text, never bound via innerHTML (security.md) -->
+      <dl>
+        <dt>Bundle id</dt>
+        <dd>{{ app.bundleId ?? '–' }}</dd>
+        <dt>Version</dt>
+        <dd>{{ app.version ?? '–' }}</dd>
+        <dt>Price</dt>
+        <dd>{{ app.price?.formatted ?? app.price?.amount ?? '–' }}</dd>
+        <dt>Platforms</dt>
+        <dd>{{ app.platforms.length > 0 ? app.platforms.join(', ') : '–' }}</dd>
+        <dt>Minimum OS</dt>
+        <dd>{{ app.minimumOsVersion ?? '–' }}</dd>
+        <dt>First release</dt>
+        <dd>{{ app.firstReleaseDate ?? '–' }}</dd>
+        @if (app.genres.length > 0) {
+          <dt>Genres</dt>
+          <dd>{{ app.genres.join(', ') }}</dd>
+        }
+        @if (app.rating?.average != null) {
+          <dt>Rating</dt>
+          <dd>
+            {{ app.rating?.average | number: '1.1-1' }} ({{ app.rating?.count ?? 0 }} ratings)
+          </dd>
+        }
+        <dt>Storefront</dt>
+        <dd>
+          {{ app.storefront.cc }} · {{ app.storefront.language ?? '–' }} ·
+          {{ app.storefront.platform ?? current.platform }}
+        </dd>
+      </dl>
+
+      @if (app.description) {
+        <h2>Description</h2>
+        <p class="apple-text">{{ app.description }}</p>
+      }
+      @if (app.whatsNew) {
+        <h2>What's new</h2>
+        <p class="apple-text">{{ app.whatsNew }}</p>
+      }
+
+      <div class="links">
+        @if (safeLink(app.links?.store); as store) {
+          <a mat-stroked-button [href]="store" target="_blank" rel="noopener noreferrer">
+            <mat-icon svgIcon="open-in-new" /> App Store
+          </a>
+        }
+        @if (safeLink(app.links?.support); as support) {
+          <a mat-stroked-button [href]="support" target="_blank" rel="noopener noreferrer">
+            <mat-icon svgIcon="open-in-new" /> Support
+          </a>
+        }
+        @if (safeLink(app.links?.privacyPolicy); as privacy) {
+          <a mat-stroked-button [href]="privacy" target="_blank" rel="noopener noreferrer">
+            <mat-icon svgIcon="open-in-new" /> Privacy policy
+          </a>
+        }
+      </div>
+    </article>
+  }
+}
