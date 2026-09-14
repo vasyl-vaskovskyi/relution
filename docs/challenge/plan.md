@@ -21,7 +21,7 @@ The working agreement and plan for the day. The durable engineering rules are in
 See [ADR-0042](../adr/0042-commit-size-and-parallel-pull-requests.md) and [`../../CONTRIBUTING.md`](../../CONTRIBUTING.md#branches-and-pull-requests).
 
 - **Commits:** at most 10 changed files each. Exceptions (generated, pure move, lockfile, formatting) are named in the commit body. The AI checks `git diff --cached --name-only | wc -l` before each commit.
-- **Pull requests:** one per block on GitHub, rebase-merged after green CI and Vasyl's approval. At most two PRs wait for review at once.
+- **Pull requests:** one per block on GitHub, rebase-merged after green CI and Vasyl's approval. At most two PRs wait for review at once; for the Discovery Day, Vasyl raised this to four so more tracks can run in parallel (the durable rule in ADR-0042 is unchanged).
 
 | Track | Pull requests (in order) | Starts when | Notes |
 |---|---|---|---|

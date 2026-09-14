@@ -52,7 +52,7 @@ See [ADR-0038](../adr/0038-alert-rules.md). The rules live in `ops/alerts.yml`, 
 
 | Alert | Condition (sketch) | Severity |
 |---|---|---|
-| `AppleSearchRateLimited` | `sum(rate(appstore_apple_requests_seconds_count{api="search",outcome=~"rate_limited\|short_circuited"}[5m])) > 0.1` for 10 m | Warning |
+| `AppleSearchRateLimited` | `sum(rate(appstore_apple_requests_seconds_count{api="search",outcome=~"rate_limited\|short_circuited\|budget_exhausted"}[5m])) > 0.1` for 10 m | Warning |
 | `AppleContractErrors` | `increase(appstore_apple_requests_seconds_count{outcome="contract_error"}[15m]) > 0` | Critical |
 | `AppleMissingFields` | `increase(appstore_apple_mapping_missing_field_total[1h]) > 0` | Warning |
 | `StorefrontAllowlistOutdated` | `increase(appstore_storefront_allowlist_mismatch_total{direction="outdated"}[1h]) > 0` | Warning |
