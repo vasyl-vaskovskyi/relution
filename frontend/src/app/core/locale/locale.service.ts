@@ -1,4 +1,4 @@
-import { Injectable, InjectionToken, inject } from '@angular/core';
+import { Injectable, inject } from '@angular/core';
 import { DebugLogService } from '../debug/debug-log.service';
 
 export interface LocalePrefill {
@@ -6,42 +6,11 @@ export interface LocalePrefill {
   l: string;
 }
 
-export const FALLBACK_CC = 'us';
-export const FALLBACK_LANGUAGE = 'en';
-
-export const BROWSER_LANGUAGES = new InjectionToken<readonly string[]>('BROWSER_LANGUAGES', {
-  providedIn: 'root',
-  factory: () => {
-    if (typeof navigator === 'undefined') {
-      return [];
-    }
-    return navigator.languages?.length ? navigator.languages : [navigator.language];
-  },
-});
-
-const LANGUAGE = /^[a-z]{2}$/i;
-const REGION = /^[a-z]{2}$/i;
-
 /**
- * Pre-fills `cc` and `l` (docs/architecture/frontend.md#locale-pre-fill): the first entry with a region
- * wins (`de-DE` → de/de). Without any region, `l` comes from the first language and `cc` is `us`.
+ * Pre-fill for `cc` and `l` when the URL has none: the German storefront, whatever the browser language is
+ * (docs/architecture/frontend.md#locale-pre-fill, ADR-0053). Both fields stay editable.
  */
-export function prefillFromLanguages(languages: readonly string[]): LocalePrefill {
-  let firstLanguage: string | undefined;
-  for (const tag of languages) {
-    const [language, ...subtags] = (tag ?? '').split(/[-_]/);
-    if (!LANGUAGE.test(language)) {
-      continue;
-    }
-    firstLanguage ??= language.toLowerCase();
-    // Skips script subtags (zh-Hans-CN) and numeric regions (es-419)
-    const region = subtags.find((subtag) => REGION.test(subtag));
-    if (region) {
-      return { cc: region.toLowerCase(), l: language.toLowerCase() };
-    }
-  }
-  return { cc: FALLBACK_CC, l: firstLanguage ?? FALLBACK_LANGUAGE };
-}
+export const DEFAULT_PREFILL: Readonly<LocalePrefill> = { cc: 'de', l: 'de' };
 
 /**
  * True when Apple served another language than requested: `fr` vs `de-de`, or `en-gb` vs `en-us`.
@@ -58,15 +27,14 @@ export function servedLanguageDiffers(requested: string, served: string | null):
 
 @Injectable({ providedIn: 'root' })
 export class LocaleService {
-  private readonly languages = inject(BROWSER_LANGUAGES);
   private readonly log = inject(DebugLogService);
-  private cached?: LocalePrefill;
+  private logged = false;
 
   prefill(): LocalePrefill {
-    if (!this.cached) {
-      this.cached = prefillFromLanguages(this.languages);
-      this.log.log('locale pre-fill', { ...this.cached, browserLanguages: [...this.languages] });
+    if (!this.logged) {
+      this.logged = true;
+      this.log.log('locale pre-fill', { ...DEFAULT_PREFILL });
     }
-    return this.cached;
+    return { ...DEFAULT_PREFILL };
   }
 }

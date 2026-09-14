@@ -12,7 +12,6 @@ import { AppDetails } from '../../core/api/api.types';
 import { SLOW_HINT_MS } from '../../core/api/load-state';
 import { DEBUG_LOG_CONFIG } from '../../core/debug/debug-log.service';
 import { provideAppIcons } from '../../core/icons/app-icons';
-import { BROWSER_LANGUAGES } from '../../core/locale/locale.service';
 import { AppDetailsComponent } from './app-details.component';
 
 const PAGES_PATH = '/api/v1/apps/361309726';
@@ -60,7 +59,6 @@ describe('AppDetailsComponent', () => {
         provideHttpClientTesting(),
         provideAppIcons(),
         provideRouter([{ path: 'apps/:id', component: AppDetailsComponent }]),
-        { provide: BROWSER_LANGUAGES, useValue: ['en-US'] },
         {
           provide: DEBUG_LOG_CONFIG,
           useValue: { debugLogging: false, debugLoggingOverride: false },
@@ -123,13 +121,13 @@ describe('AppDetailsComponent', () => {
     request.flush(details());
   });
 
-  it('falls back to the browser locale and iOS when the URL has no parameters', async () => {
+  it('falls back to the German storefront and iOS when the URL has no parameters', async () => {
     const request = await open('/apps/361309726');
 
-    expect(request.request.params.get('cc')).toBe('us');
-    expect(request.request.params.get('l')).toBe('en');
+    expect(request.request.params.get('cc')).toBe('de');
+    expect(request.request.params.get('l')).toBe('de');
     expect(request.request.params.get('platform')).toBe('ios');
-    request.flush(details({ storefront: { cc: 'us', language: 'en-us', platform: 'ios' } }));
+    request.flush(details());
   });
 
   it('shows a loading state, then the slow hint after 3 s', async () => {

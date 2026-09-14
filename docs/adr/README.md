@@ -34,7 +34,7 @@ None. [ADR-0026](0026-hybrid-routing-angular-client-calls-apple-search-directly-
 | [0020](0020-central-debug-logging-in-the-frontend.md) | Central debug logging in the frontend | Accepted; amended by ADR-0034 (debug override only in a demo build) |
 | [0021](0021-node-24-lts-via-nvm.md) | Node 24 LTS via nvm | Accepted |
 | [0022](0022-scaffold-the-angular-project-on-the-day-prep-holds-docs-only.md) | Scaffold the Angular project on the day; prep holds docs only | Accepted; amended by ADR-0040 and ADR-0041 (`stubs/` moves into WireMock test resources on the day, then is deleted) |
-| [0023](0023-frontend-scope-and-tests.md) | Frontend scope and tests | Accepted; amended by ADR-0029 (errors mapped by problem type) |
+| [0023](0023-frontend-scope-and-tests.md) | Frontend scope and tests | Accepted; amended by ADR-0029 (errors mapped by problem type) and ADR-0053 (`de`/`de` pre-fill) |
 | [0024](0024-keep-real-apple-captures-as-trimmed-consistently-named-fixtu.md) | Keep real Apple captures as trimmed, consistently named fixtures | Accepted; amended by ADR-0040 and ADR-0041 (captures move into WireMock test resources; `stubs/` removed on the day) |
 | [0025](0025-deal-with-the-per-ip-search-rate-limit-within-apples-rules.md) | Deal with the per-IP Search rate limit within Apple's rules | Accepted; amended by ADR-0045 (more requests can be bought; outbound limiter is core) |
 | [0026](0026-hybrid-routing-angular-client-calls-apple-search-directly-de.md) | Hybrid routing: Angular client calls Apple Search directly, details via our server | Rejected for the Discovery Day; revisit after the team discussion |
@@ -61,6 +61,7 @@ None. [ADR-0026](0026-hybrid-routing-angular-client-calls-apple-search-directly-
 | [0047](0047-circuit-breaker-per-apple-api.md) | A circuit breaker per Apple API | Accepted; amends ADR-0030 |
 | [0048](0048-level-2-observability-trace-id-rule-and-no-log-export.md) | Level 2 observability: trace id only with export, no OTLP log export | Accepted; amends ADR-0027 |
 | [0050](0050-alert-rule-unit-tests-with-promtool.md) | Unit-test the alert rules with promtool in CI | Accepted; amends ADR-0038 |
+| [0053](0053-pre-fill-the-german-storefront.md) | Pre-fill the German storefront instead of the browser locale | Accepted; amends ADR-0023 |
 
 ## Writing a new ADR
 

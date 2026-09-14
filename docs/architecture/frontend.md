@@ -16,7 +16,7 @@ frontend/src/app/
 │   ├── api/        api.types.ts (mirrors docs/api/README.md DTOs + ProblemDetail), apps-api.service.ts
 │   ├── auth/       auth.service.ts (token signal, in memory only), auth.interceptor.ts, auth.guard.ts
 │   ├── debug/      debug-log.service.ts, debug-log.interceptor.ts
-│   ├── locale/     locale.service.ts (browser locale → cc/l)
+│   ├── locale/     locale.service.ts (de/de pre-fill, served-language check)
 │   ├── errors/     problem-message.ts (problem type → user message)
 │   └── icons/      app-icons.ts (inline SVG icons, ADR-0046)
 ├── shared/          state-panels.component.ts (loading and error panels for search and details)
@@ -39,8 +39,7 @@ frontend/src/app/
 - **A 401 from `/auth/token`** keeps the user on the form and shows "Invalid client id or secret."
 
 ### Locale pre-fill (`LocaleService`)
-- Take the first `navigator.languages` entry that has a region: `de-DE` gives `cc=de`, `l=de`.
-- If no entry has a region, set `l` from the language and use `cc=us`.
+- Without `cc` and `l` in the URL, the search and details views use `cc=de`, `l=de`, whatever the browser language is ([ADR-0053](../adr/0053-pre-fill-the-german-storefront.md)).
 - Both values are editable, and the pre-fill result is logged.
 
 ### Search
@@ -57,7 +56,8 @@ frontend/src/app/
 ### Details
 - Shows the icon, name, developer, bundle id, version, price, platforms, minimum OS, description, what's new and links.
 - Apple texts are rendered as text, never via `[innerHTML]`.
-- **Platform toggle:** iOS / Mac, sent as `platform=ios|mac`.
+- **Platform toggle:** iOS / Mac, sent as `platform=ios|mac`. A search result opens on the platform of its `kind` (`MAC_APP` → Mac, everything else → iOS).
+- **App missing for the chosen platform:** Apple answers `app-not-found` when an app exists only for the other platform, so the details view names the platform: "App not found for Mac in this storefront. It may exist for iOS only." (and the iOS counterpart).
 - When `storefront.language` differs from the requested `l`, a chip shows "Requested fr · served de-de".
 
 ### Error messages (`problem-message.ts`)
@@ -68,7 +68,7 @@ Messages are chosen by **problem type** first ([ADR-0029](../adr/0029-domain-ter
 |---|---|
 | `invalid-request` | "Please check your input." plus field messages from `errors[]` |
 | `unsupported-storefront` | "The App Store is not available in this country." |
-| `app-not-found` | "App not found in this storefront." |
+| `app-not-found` | "App not found in this storefront." The details view names the platform instead ([Details](#details)). |
 | `upstream-unavailable` | "Too many requests, try again in {Retry-After} s." |
 | `upstream-timeout`, `upstream-error` | "The App Store is currently unavailable." |
 | `unauthorized` | From `/auth/token`: "Invalid client id or secret." Otherwise the interceptor redirects to login. |
