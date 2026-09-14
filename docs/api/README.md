@@ -26,7 +26,10 @@ HTTP Basic authentication with the client id and secret.
 ```
 200 { "accessToken": "eyJ...", "tokenType": "Bearer", "expiresIn": 900 }
 401 application/problem+json  (type urn:appstore:problem:unauthorized)
+429 application/problem+json  (type urn:appstore:problem:too-many-requests) + Retry-After
 ```
+
+- **Failed attempts are limited per client address** ([ADR-0049](../adr/0049-rate-limit-failed-token-requests-per-client-address.md)). Successful requests don't count. Over the limit, every request from that address gets 429, valid credentials included, until `Retry-After` seconds have passed. The limits are configuration ([`../operations/configuration.md`](../operations/configuration.md)).
 
 ## `GET /api/v1/apps`: search
 
@@ -107,6 +110,7 @@ Every error is an RFC 9457 ProblemDetail with a `correlationId` member.
 | `app-not-found` | 404 | The app doesn't exist, isn't available in this storefront, or isn't accessible | Don't retry immediately |
 | `unauthorized` | 401 | Token missing, invalid or expired, or bad client credentials | Get a new token |
 | `forbidden` | 403 | Token lacks the required scope | — |
+| `too-many-requests` | 429 | Too many failed `POST /auth/token` attempts from this client address; `Retry-After` is set | Check the credentials, then retry after the given seconds |
 | `upstream-unavailable` | 503 | Apple rate limit reached; `Retry-After` is set | Retry after the given seconds |
 | `upstream-timeout` | 504 | Apple didn't answer in time | Retry later |
 | `upstream-error` | 502 | Apple failed or returned an unexpected response | Retry later |

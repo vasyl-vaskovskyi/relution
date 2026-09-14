@@ -13,6 +13,7 @@ public enum ProblemType {
     APP_NOT_FOUND("app-not-found", "App not found", HttpStatus.NOT_FOUND),
     UNAUTHORIZED("unauthorized", "Unauthorized", HttpStatus.UNAUTHORIZED),
     FORBIDDEN("forbidden", "Forbidden", HttpStatus.FORBIDDEN),
+    TOO_MANY_REQUESTS("too-many-requests", "Too many requests", HttpStatus.TOO_MANY_REQUESTS),
     UPSTREAM_UNAVAILABLE("upstream-unavailable", "Upstream unavailable", HttpStatus.SERVICE_UNAVAILABLE),
     UPSTREAM_TIMEOUT("upstream-timeout", "Upstream timeout", HttpStatus.GATEWAY_TIMEOUT),
     UPSTREAM_ERROR("upstream-error", "Upstream error", HttpStatus.BAD_GATEWAY),

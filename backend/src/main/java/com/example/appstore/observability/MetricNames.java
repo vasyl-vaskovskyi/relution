@@ -15,6 +15,9 @@ public final class MetricNames {
     /** Counter for allowlist maintenance signals; tag {@code direction=missing|outdated}. */
     public static final String STOREFRONT_ALLOWLIST_MISMATCH = "appstore.storefront.allowlist.mismatch";
 
+    /** Counter, one per {@code POST /auth/token} that reached the controller; tag {@code outcome}. */
+    public static final String AUTH_TOKEN_REQUESTS = "appstore.auth.token.requests";
+
     public static final String TAG_API = "api";
     public static final String TAG_OUTCOME = "outcome";
     public static final String TAG_DIRECTION = "direction";

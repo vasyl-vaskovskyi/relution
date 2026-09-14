@@ -41,6 +41,7 @@ The client never learns anything about the allowlist or how it is maintained. Th
 | Other Apple 4xx (e.g. 400 `status:7011`, 403) | 502 | `upstream-error` | no | ERROR (our integration bug) |
 | Malformed or unexpected payload | 502 | `upstream-error` | no | ERROR |
 | Missing, invalid or expired token; bad client credentials on `/auth/token` | 401 | `unauthorized` | — | INFO (no credentials) |
+| Too many failed attempts on `/auth/token` from one client address, checked before the credentials ([ADR-0049](../adr/0049-rate-limit-failed-token-requests-per-client-address.md)) | 429 + `Retry-After` | `too-many-requests` | — | DEBUG (no address, no credentials) |
 | Valid token without the required scope | 403 | `forbidden` | — | INFO |
 | Any other path on port 8080 (e.g. `/actuator/env`): catch-all `denyAll` | 401 without a token, 403 with one | `unauthorized` / `forbidden` | — | DEBUG |
 | Unexpected exception | 500 | `internal` | — | ERROR with stack trace (server side only) |

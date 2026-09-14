@@ -38,9 +38,10 @@ Exposed on `8081/actuator/metrics` and `8081/actuator/prometheus`.
 | `appstore.apple.requests` | Timer with percentiles histogram | `api=search\|lookup`, `outcome=success\|empty\|not_found\|storefront_rejected\|rate_limited\|short_circuited\|budget_exhausted\|circuit_open\|connect_error\|read_timeout\|server_error\|contract_error` | One sample per logical upstream call, short-circuit or exhausted budget, recorded after retries |
 | `appstore.apple.mapping.missing_field` | Counter | `api`, `field` | Drift signal ([ADR-0037](../adr/0037-legacy-api-drift-detection.md)) |
 | `appstore.storefront.allowlist.mismatch` | Counter | `direction=missing\|outdated` | Allowlist maintenance signal |
+| `appstore.auth.token.requests` | Counter | `outcome=issued\|rejected\|rate_limited` | `POST /auth/token` requests that reached the controller; `rate_limited` is the failed-attempt limit ([ADR-0049](../adr/0049-rate-limit-failed-token-requests-per-client-address.md)) |
 | `cache.gets` (and the other Caffeine cache metrics) | Counter | `cache=app-search\|app-details`, `result=hit\|miss` | Cache effectiveness |
 
-- **Prometheus names:** `appstore_apple_requests_seconds_count`, `appstore_apple_requests_seconds_bucket` and so on.
+- **Prometheus names:** `appstore_apple_requests_seconds_count`, `appstore_apple_requests_seconds_bucket`, `appstore_auth_token_requests_total` and so on.
 - **Cardinality rules:** never use `term`, `cc`, `id`, client ids or free text as tag values. Every tag listed above has a fixed, small set of values.
 - **Tests:**
   - WireMock client tests assert the `outcome` tag (one sample per logical call), using `SimpleMeterRegistry`.

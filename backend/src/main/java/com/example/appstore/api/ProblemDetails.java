@@ -51,6 +51,12 @@ public final class ProblemDetails {
         return of(ProblemType.FORBIDDEN, "The access token doesn't allow this request.", path);
     }
 
+    /** Too many failed token requests from this client address; the caller sets {@code Retry-After} (ADR-0049). */
+    public static ProblemDetail tooManyRequests(String path) {
+        return of(
+                ProblemType.TOO_MANY_REQUESTS, "Too many failed attempts. Retry after the time in Retry-After.", path);
+    }
+
     /**
      * The problem as a flat map (standard members plus properties), for writers outside Spring MVC's message converters,
      * such as security handlers.
