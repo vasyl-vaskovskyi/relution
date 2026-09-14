@@ -141,6 +141,11 @@ class ApiExceptionHandlerTest {
                 Arguments.of(new UpstreamConnectException("Apple body", null), 502, "upstream-error"),
                 Arguments.of(new UpstreamServerErrorException(503, "Apple body", null), 502, "upstream-error"),
                 Arguments.of(new UpstreamContractException(403, "Apple body", null), 502, "upstream-error"),
+                Arguments.of(
+                        new com.example.appstore.catalog.UpstreamCircuitOpenException(
+                                java.time.Duration.ofSeconds(30), "Apple body"),
+                        503,
+                        "upstream-unavailable"),
                 Arguments.of(new IllegalStateException("Apple body"), 500, "internal"));
     }
 

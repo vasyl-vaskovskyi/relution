@@ -24,7 +24,8 @@ class LookupGatewayAdapterTest {
 
     private final SimpleMeterRegistry registry = new SimpleMeterRegistry();
     private final MzLookupClient client = mock(MzLookupClient.class);
-    private final LookupGatewayAdapter adapter = new LookupGatewayAdapter(client, registry);
+    private final LookupGatewayAdapter adapter = new LookupGatewayAdapter(
+            client, new AppleCircuitBreakers(AppleCircuitBreakersTest.SMALL, registry), registry);
 
     @Test
     void foundAppIsRecordedAsSuccess(CapturedOutput output) throws IOException {

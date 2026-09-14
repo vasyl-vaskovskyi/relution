@@ -10,18 +10,21 @@ import org.slf4j.event.Level;
 import org.springframework.stereotype.Component;
 
 /**
- * Implements {@link AppDetailsGateway} with the MZStorePlatform lookup API. Records one {@code appstore.apple.requests}
- * sample and one log line per logical call; the lookup API has no known rate limit, so there is no short-circuit.
+ * Implements {@link AppDetailsGateway} with the MZStorePlatform lookup API. Applies the circuit breaker around the
+ * retried client call and records one {@code appstore.apple.requests} sample and one log line per logical call; the
+ * lookup API has no known rate limit, so there is no 429 short-circuit.
  */
 @Component
 public class LookupGatewayAdapter implements AppDetailsGateway {
 
     private final MzLookupClient client;
+    private final AppleCircuitBreakers breakers;
     private final AppleCallRecorder recorder;
     private final AppleMissingFieldDetector missingFields;
 
-    public LookupGatewayAdapter(MzLookupClient client, MeterRegistry registry) {
+    public LookupGatewayAdapter(MzLookupClient client, AppleCircuitBreakers breakers, MeterRegistry registry) {
         this.client = client;
+        this.breakers = breakers;
         this.recorder = new AppleCallRecorder(registry, "lookup");
         this.missingFields = new AppleMissingFieldDetector(registry);
     }
@@ -30,8 +33,9 @@ public class LookupGatewayAdapter implements AppDetailsGateway {
     public LookupResult lookup(DetailsQuery query) {
         long start = System.nanoTime();
         try {
-            MzLookupResponse response =
-                    client.lookup(query.id(), query.countryCode(), query.languageTag(), query.platform());
+            MzLookupResponse response = breakers.call(
+                    AppleCircuitBreakers.LOOKUP,
+                    () -> client.lookup(query.id(), query.countryCode(), query.languageTag(), query.platform()));
             missingFields.inspect(response);
             LookupResult result = MzLookupMapper.toResult(response, query);
             String outcome = result instanceof LookupResult.Found ? "success" : "not_found";
