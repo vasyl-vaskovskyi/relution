@@ -56,6 +56,12 @@ appstore:
       timeout: PT8S
     retryafter:
       max: PT5M
+    circuit:
+      failurerate: 50
+      window: 20
+      minimumcalls: 10
+      open: PT30S
+      halfopencalls: 3
   cache:
     search:
       ttl: PT10M

@@ -53,6 +53,13 @@ class ApiExceptionHandler extends ResponseEntityExceptionHandler {
                                 ProblemType.UPSTREAM_UNAVAILABLE,
                                 "The upstream service is rate limited. Retry after the time in the Retry-After header.",
                                 request));
+            case com.example.appstore.catalog.UpstreamCircuitOpenException open ->
+                ResponseEntity.status(ProblemType.UPSTREAM_UNAVAILABLE.status())
+                        .header(HttpHeaders.RETRY_AFTER, String.valueOf(retryAfterSeconds(open.retryAfter())))
+                        .body(problem(
+                                ProblemType.UPSTREAM_UNAVAILABLE,
+                                "The upstream service is unavailable. Retry after the time in the Retry-After header.",
+                                request));
             case UpstreamReadTimeoutException ignored ->
                 respond(ProblemType.UPSTREAM_TIMEOUT, "The upstream service did not answer in time.", request);
             case UpstreamConnectException ignored -> upstreamError(request);
