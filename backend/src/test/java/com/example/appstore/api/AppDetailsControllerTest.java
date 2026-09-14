@@ -25,10 +25,13 @@ import org.junit.jupiter.params.provider.CsvSource;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.webmvc.test.autoconfigure.WebMvcTest;
 import org.springframework.http.HttpStatus;
+import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.assertj.MockMvcTester;
 
+/** Web layer only; authentication and authorization are covered by the auth package's SecurityIntegrationTest. */
 @WebMvcTest(AppDetailsController.class)
+@WithMockUser(authorities = "SCOPE_apps:read")
 class AppDetailsControllerTest {
 
     @Autowired

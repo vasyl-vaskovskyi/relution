@@ -33,6 +33,12 @@ logging:
         name: appstore
 
 appstore:
+  auth:
+    # secret, client.id and client.secret have no defaults: set APPSTORE_AUTH_* or the app refuses to start
+    jwt:
+      issuer: appstore
+      audience: appstore-api
+      ttl: PT15M
   apple:
     search:
       url: https://itunes.apple.com
