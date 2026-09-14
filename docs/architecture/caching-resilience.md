@@ -75,7 +75,8 @@ The caches are native Caffeine `AsyncCache`s (`buildAsync()`, `recordStats()`), 
 - **Language normalization:** before `l` becomes part of the key, it is lower-cased and `_` becomes `-` (`de_DE`, `de-DE` → `de-de`).
 - **Loader executor** (verified in the kickoff spike):
   - Set explicitly with `Caffeine.executor(...)`: a virtual-thread-per-task executor wrapped with `ContextExecutorService.wrap(executor, snapshotFactory)` from `io.micrometer:context-propagation` (Boot-managed; it is not pulled in transitively).
-  - The snapshot factory uses its own `ContextRegistry` with a selective `Slf4jThreadLocalAccessor("correlationId", "clientId")`, so only those MDC keys reach the loader thread.
+  - The snapshot factory uses its own `ContextRegistry` with a selective `Slf4jThreadLocalAccessor("correlationId", "clientCorrelationId", "clientId")`, so only those MDC keys reach the loader thread.
+  - The same registry holds Micrometer's `ObservationThreadLocalAccessor`, so the current observation reaches the loader too. With tracing, the Apple client span is then a child of the request's server span instead of a new trace ([`../operations/observability.md`](../operations/observability.md#level-2-opentelemetry--grafana-lgtm-stretch-goal)).
   - `spring.threads.virtual.enabled` covers request threads only; it doesn't configure Caffeine.
 - **Single-flight and logs:** with single-flight, the upstream log line carries the ids of the request that triggered the load.
 - **Metrics:** bound explicitly with Micrometer `CaffeineCacheMetrics.monitor(registry, asyncCache, name)`, which has an `AsyncCache` overload. It needs `recordStats()` and produces `cache.gets{cache, result}` (verified in the spike).
