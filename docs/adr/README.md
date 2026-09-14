@@ -57,6 +57,7 @@ None. [ADR-0026](0026-hybrid-routing-angular-client-calls-apple-search-directly-
 | [0043](0043-reject-unlisted-storefront-codes-locally.md) | Reject unlisted storefront codes locally | Accepted; amends ADR-0008 and ADR-0030 |
 | [0044](0044-secure-the-management-port-as-a-whole.md) | Secure the management port as a whole | Accepted; amends ADR-0032 |
 | [0045](0045-search-budget-is-configuration-and-the-outbound-limiter-is-core.md) | The Search budget is configuration, and the outbound limiter is core | Accepted; amends ADR-0007, ADR-0017 and ADR-0025 |
+| [0046](0046-frontend-assets-stay-same-origin-no-cdn-fonts-or-icons.md) | Frontend assets stay same-origin: no CDN fonts or icons | Accepted |
 
 ## Writing a new ADR
 

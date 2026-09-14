@@ -6,6 +6,7 @@
 - **Tests:** Vitest via `ng test` (`npm test -- --watch=false` for a single run).
 - **Node:** 24 LTS, pinned in `.nvmrc`.
 - **No extra npm dependencies** without the maintainer's approval (no NgRx, no UI kits besides Material).
+- **Same-origin assets** ([ADR-0046](../adr/0046-frontend-assets-stay-same-origin-no-cdn-fonts-or-icons.md)): no Google Fonts or icon fonts. Text uses a system font stack set in the Material theme (`styles.scss`); icons are inline SVGs registered once in `core/icons/app-icons.ts` and used as `<mat-icon svgIcon="…">`.
 
 ## Structure
 
