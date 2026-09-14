@@ -101,7 +101,8 @@ Referrer-Policy: strict-origin-when-cross-origin
 server_tokens off;
 ```
 
-- **`style-src 'unsafe-inline'`** stays, because Angular and Material styles need it when nginx serves static files without per-request nonces. On the day, *verify* whether the production build emits inline scripts.
+- **`style-src 'unsafe-inline'`** stays, because Angular and Material styles need it when nginx serves static files without per-request nonces.
+- **No inline scripts** (checked on 2026-09-14): the production and `demo` builds emit only `<script src="main-….js" type="module">`. Angular's critical-CSS inlining is switched off in both configurations (`optimization.styles.inlineCritical: false` in `angular.json`), because it loads the stylesheet with an inline `onload="this.media='all'"` handler, which `default-src 'self'` blocks, so the page would stay unstyled.
 - **No third-party origins besides Apple's icons** ([ADR-0046](../adr/0046-frontend-assets-stay-same-origin-no-cdn-fonts-or-icons.md)): fonts and icons are served same-origin (system fonts, inline SVG), so the CSP needs no font or style CDN, and no visitor IP address reaches Google.
 - **Apple texts** (description, what's new) are rendered as text, never via `[innerHTML]`.
 - **Browser console:** tokens, the `Authorization` header, credentials and search terms are never logged. The runtime debug switch exists only in the `demo` build configuration ([`frontend.md`](frontend.md#debug-logging)).
