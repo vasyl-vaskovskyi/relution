@@ -60,5 +60,6 @@ A Spring Boot 4 service (Java 25) with two endpoints: it searches apps via the A
 (cd backend && ./gradlew spotlessApply)              # format Java
 (cd backend && ./gradlew liveTest)                   # real Apple calls (drift check), not part of check
 nvm use && (cd frontend && npm ci && npm test -- --watch=false && npm run build)
-cp .env.example .env && docker compose up --build    # API :8080, management :8081 (127.0.0.1); web :4200 arrives with the frontend PR
+cp .env.example .env && docker compose up --build    # web :4200, API :8080, management :8081 (all 127.0.0.1)
+scripts/smoke.sh                                     # 13 end-to-end checks against the running stack
 ```

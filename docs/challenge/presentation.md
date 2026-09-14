@@ -41,7 +41,7 @@ Present three decisions properly, and keep everything else for Q&A.
 - pagination (Apple ignores `offset`);
 - books;
 - browser-direct search (a scaling option, not for the day, ADR-0026);
-- the stretch goals: Level 2 observability, circuit breaker.
+- nothing from the stretch list: the circuit breaker was built (ADR-0047) and Level 2 observability was started on the day (status in [`plan.md`](plan.md#progress-on-the-day-2026-09-14)).
 
 ## 3. Working with AI (2–3 min)
 
