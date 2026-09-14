@@ -17,3 +17,4 @@
     - locale → `cc`/`l` pre-fill;
     - ProblemDetail → user message mapping.
 - **Consequences:** No component tests. The justification is that the logic most likely to break silently is covered, while the templates are checked by the demo.
+- **Amendment (day):** component tests were added at the maintainer's request (Discovery Day track "frontend component tests"). They go through the DOM with the real router and mocked HTTP; the cases are listed in [`../development/testing.md`](../development/testing.md#strategy). The decision on screens, states and the focused logic tests above is unchanged.
