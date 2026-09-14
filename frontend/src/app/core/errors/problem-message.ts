@@ -24,6 +24,9 @@ export const MESSAGES = {
       : 'App not found for iOS in this storefront. It may exist for Mac only.',
   tooManyRequests: (seconds: number) => `Too many requests, try again in ${seconds} s.`,
   tooManyRequestsLater: 'Too many requests, try again later.',
+  tooManyLoginAttempts: (seconds: number) =>
+    `Too many failed login attempts, try again in ${seconds} s.`,
+  tooManyLoginAttemptsLater: 'Too many failed login attempts, try again later.',
   unavailable: 'The App Store is currently unavailable.',
   invalidCredentials: 'Invalid client id or secret.',
   sessionExpired: 'Your session has expired. Please log in again.',
@@ -60,6 +63,19 @@ export function problemMessage(error: unknown, context: ProblemContext = 'api'):
       return result(MESSAGES.appNotFound);
     case 'upstream-unavailable': {
       const seconds = retryAfterSeconds(error.headers.get('Retry-After'));
+      return result(
+        seconds === null ? MESSAGES.tooManyRequestsLater : MESSAGES.tooManyRequests(seconds),
+      );
+    }
+    case 'too-many-requests': {
+      const seconds = retryAfterSeconds(error.headers.get('Retry-After'));
+      if (context === 'token') {
+        return result(
+          seconds === null
+            ? MESSAGES.tooManyLoginAttemptsLater
+            : MESSAGES.tooManyLoginAttempts(seconds),
+        );
+      }
       return result(
         seconds === null ? MESSAGES.tooManyRequestsLater : MESSAGES.tooManyRequests(seconds),
       );

@@ -52,6 +52,23 @@ describe('problemMessage', () => {
     expect(problemMessage(httpDate).message).toBe(MESSAGES.tooManyRequestsLater);
   });
 
+  it('reports too many failed login attempts with Retry-After from the token endpoint', () => {
+    const error = problem(429, 'too-many-requests', {}, { 'Retry-After': '30' });
+
+    expect(problemMessage(error, 'token').message).toBe(
+      'Too many failed login attempts, try again in 30 s.',
+    );
+    expect(problemMessage(problem(429, 'too-many-requests'), 'token').message).toBe(
+      MESSAGES.tooManyLoginAttemptsLater,
+    );
+  });
+
+  it('reports too many requests for too-many-requests outside the token endpoint', () => {
+    const error = problem(429, 'too-many-requests', {}, { 'Retry-After': '5' });
+
+    expect(problemMessage(error).message).toBe('Too many requests, try again in 5 s.');
+  });
+
   it('reports invalid credentials for unauthorized from the token endpoint', () => {
     expect(problemMessage(problem(401, 'unauthorized'), 'token').message).toBe(
       MESSAGES.invalidCredentials,
