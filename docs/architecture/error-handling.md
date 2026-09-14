@@ -60,6 +60,8 @@ This section is the single home for the correlation-id rules.
 - **Validation:** an incoming `X-Correlation-Id` is used only if it matches `^[A-Za-z0-9._-]{1,64}$`. Otherwise it is ignored.
 - **Tracing disabled (Level 1):** the correlation id is the valid incoming id, or a new UUID.
 - **Tracing enabled (Level 2):** the correlation id is the trace id (W3C `traceparent`). A valid incoming `X-Correlation-Id` is kept in the MDC as `clientCorrelationId`, so it can still be searched.
+  - "Enabled" means `management.tracing.export.enabled=true` and a current span with a valid trace id. Spring Boot creates spans even while that property is `false`, but it neither exports nor propagates them, so their ids are not used.
+  - `CorrelationIdFilter` runs right after Boot's `ServerHttpObservationFilter`, which opens the server span, and before Spring Security.
 - **Where it appears:**
   - the MDC as `correlationId`, propagated to cache loader threads ([`caching-resilience.md`](caching-resilience.md#caches));
   - the `X-Correlation-Id` response header;
