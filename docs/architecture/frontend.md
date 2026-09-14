@@ -13,7 +13,7 @@
 ```
 frontend/src/app/
 ├── core/
-│   ├── api/        api.types.ts (mirrors docs/api/README.md DTOs + ProblemDetail), apps-api.service.ts
+│   ├── api/        generated/openapi.ts (generated), api.types.ts (client types derived from it), apps-api.service.ts
 │   ├── auth/       auth.service.ts (token signal, in memory only), auth.interceptor.ts, auth.guard.ts
 │   ├── debug/      debug-log.service.ts, debug-log.interceptor.ts
 │   ├── locale/     locale.service.ts (de/de pre-fill, served-language check)
@@ -27,7 +27,12 @@ frontend/src/app/
 └── app.routes.ts    /login, /search, /apps/:id  (guard redirects to /login when there is no token)
 ```
 
-`api.types.ts` is written by hand. Keeping it in sync with the API contract is a known maintenance risk; generating it from OpenAPI would remove that risk.
+### API types ([ADR-0052](../adr/0052-generate-frontend-api-types-from-the-openapi-contract.md))
+
+- **`core/api/generated/openapi.ts`** is generated from the contract snapshot [`docs/api/openapi.json`](../api/openapi.json) with `openapi-typescript` (`npm run generate:api`) and committed. It is never edited by hand; the command and the CI check are in [`../development/testing.md`](../development/testing.md#regenerate-the-frontend-api-types).
+- **`api.types.ts`** keeps the names the app uses (`SearchResponse`, `AppDetails`, `ProblemDetail`, …) as aliases derived from the generated schemas and operations, so a renamed or removed field breaks the build.
+  - The contract marks no field as required or nullable, so `api.types.ts` makes every field present and applies the nullability rules of [`docs/api/README.md`](../api/README.md#conventions).
+  - Still written by hand, because the contract doesn't describe them yet: `TokenResponse`, and the problem members `correlationId` and `errors[]` (the contract shows Spring's `properties` map instead).
 
 ## Behavior
 
