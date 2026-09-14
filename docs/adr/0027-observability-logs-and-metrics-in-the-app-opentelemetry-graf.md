@@ -1,6 +1,6 @@
 # ADR-0027: Observability: logs and metrics in the app, OpenTelemetry + Grafana LGTM as a stretch goal
 
-- **Status:** Accepted; amended by [ADR-0033](0033-configuration-namespace.md) (Boot-native OTLP properties, variable names), [ADR-0034](0034-security-and-privacy-hardening.md) (trace id as correlation id) and [ADR-0038](0038-alert-rules.md) (alert rules, `appstore.` metric prefix)
+- **Status:** Accepted; amended by [ADR-0033](0033-configuration-namespace.md) (Boot-native OTLP properties, variable names), [ADR-0034](0034-security-and-privacy-hardening.md) (trace id as correlation id) [ADR-0038](0038-alert-rules.md) (alert rules, `appstore.` metric prefix) and [ADR-0048](0048-level-2-observability-trace-id-rule-and-no-log-export.md) (trace id only with export, no log export)
 - **Date:** 2026-09-13 (prep)
 
 - **Context:**

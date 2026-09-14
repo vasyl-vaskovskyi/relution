@@ -38,7 +38,7 @@ None. [ADR-0026](0026-hybrid-routing-angular-client-calls-apple-search-directly-
 | [0024](0024-keep-real-apple-captures-as-trimmed-consistently-named-fixtu.md) | Keep real Apple captures as trimmed, consistently named fixtures | Accepted; amended by ADR-0040 and ADR-0041 (captures move into WireMock test resources; `stubs/` removed on the day) |
 | [0025](0025-deal-with-the-per-ip-search-rate-limit-within-apples-rules.md) | Deal with the per-IP Search rate limit within Apple's rules | Accepted; amended by ADR-0045 (more requests can be bought; outbound limiter is core) |
 | [0026](0026-hybrid-routing-angular-client-calls-apple-search-directly-de.md) | Hybrid routing: Angular client calls Apple Search directly, details via our server | Rejected for the Discovery Day; revisit after the team discussion |
-| [0027](0027-observability-logs-and-metrics-in-the-app-opentelemetry-graf.md) | Observability: logs and metrics in the app, OpenTelemetry + Grafana LGTM as a stretch goal | Accepted; amended by ADR-0033 (Boot-native OTLP properties, variable names), ADR-0034 (trace id as correlation id) and ADR-0038 (alert rules, `appstore.` metric prefix) |
+| [0027](0027-observability-logs-and-metrics-in-the-app-opentelemetry-graf.md) | Observability: logs and metrics in the app, OpenTelemetry + Grafana LGTM as a stretch goal | Accepted; amended by ADR-0033 (Boot-native OTLP properties, variable names), ADR-0034 (trace id as correlation id) and ADR-0038 (alert rules, `appstore.` metric prefix) and ADR-0048 (trace id only with export, no log export) |
 | [0028](0028-package-boundaries-and-ports.md) | Package boundaries, ports and ArchUnit enforcement | Accepted; renames sub-packages of ADR-0015 |
 | [0029](0029-domain-terms-in-public-api.md) | Domain terms in the public API, decimal money, extensible contract | Accepted; supersedes ADR-0014; amends ADR-0023 |
 | [0030](0030-details-cache-and-bounded-retry.md) | Native async caches, one lookup-result cache, bounded retry | Accepted; supersedes ADR-0011; amends ADR-0012; amended by ADR-0043 (`storefront-verdict` cache removed) and ADR-0047 (circuit breaker) |
@@ -59,6 +59,7 @@ None. [ADR-0026](0026-hybrid-routing-angular-client-calls-apple-search-directly-
 | [0045](0045-search-budget-is-configuration-and-the-outbound-limiter-is-core.md) | The Search budget is configuration, and the outbound limiter is core | Accepted; amends ADR-0007, ADR-0017 and ADR-0025 |
 | [0046](0046-frontend-assets-stay-same-origin-no-cdn-fonts-or-icons.md) | Frontend assets stay same-origin: no CDN fonts or icons | Accepted |
 | [0047](0047-circuit-breaker-per-apple-api.md) | A circuit breaker per Apple API | Accepted; amends ADR-0030 |
+| [0048](0048-level-2-observability-trace-id-rule-and-no-log-export.md) | Level 2 observability: trace id only with export, no OTLP log export | Accepted; amends ADR-0027 |
 
 ## Writing a new ADR
 

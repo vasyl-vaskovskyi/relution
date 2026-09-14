@@ -68,7 +68,7 @@ All pull requests were rebase-merged after green CI (`backend`, `frontend`, `ima
 
 - **Order change:** caching and resilience ran before errors and auth (ADR-0045).
 - **End-to-end check:** `scripts/smoke.sh` passes all 13 checks against the jar and against `docker compose up --build`, including the web client behind nginx.
-- **Stretch goals:** Vasyl approved both. The circuit breaker is merged; Level 2 observability runs as a background agent.
+- **Stretch goals:** Vasyl approved both; both are merged: the circuit breaker (#16, ADR-0047) and Level 2 observability (#18, ADR-0048, built by a background agent).
 
 ## Kickoff checklist
 
