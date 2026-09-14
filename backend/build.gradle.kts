@@ -63,9 +63,15 @@ tasks.withType<Test> {
 
 // OpenAPI contract snapshot (docs/development/testing.md): -PupdateOpenApiSnapshot rewrites it instead of comparing
 val openApiSnapshot = layout.projectDirectory.file("../docs/api/openapi.json")
-val updateOpenApiSnapshot = providers.gradleProperty("updateOpenApiSnapshot").isPresent
+val updateOpenApiSnapshot = providers.gradleProperty("updateOpenApiSnapshot").map { it != "false" }.getOrElse(false)
+if (updateOpenApiSnapshot && providers.environmentVariable("CI").isPresent) {
+	// CI must compare: an update there would rewrite the snapshot and pass silently
+	throw GradleException("updateOpenApiSnapshot must not be set in CI (the CI environment variable is present)")
+}
 
 tasks.test {
+	// show assertion messages in the console, so a snapshot mismatch prints its diff and update command in CI logs
+	testLogging.exceptionFormat = org.gradle.api.tasks.testing.logging.TestExceptionFormat.FULL
 	systemProperty("openapi.snapshot.path", openApiSnapshot.asFile.absolutePath)
 	if (updateOpenApiSnapshot) {
 		systemProperty("openapi.snapshot.update", "true")
