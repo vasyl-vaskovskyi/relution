@@ -11,6 +11,7 @@ Property names and default values: [`../operations/configuration.md`](../operati
   - `RestClient` wraps both timeout kinds in `ResourceAccessException`.
   - A connect timeout has the cause `java.net.http.HttpConnectTimeoutException`; a read timeout has `java.net.http.HttpTimeoutException` (message "Request cancelled").
   - `HttpConnectTimeoutException` **extends** `HttpTimeoutException`, so the clients check for the connect type first. They translate the two into `UpstreamConnectException` and `UpstreamReadTimeoutException`. WireMock tests prove the classification.
+  - Connection refused, no route to host and unknown host are also `UpstreamConnectException`. Any other I/O failure after the connection was established (e.g. a reset) becomes `UpstreamServerErrorException` with status `0` and is not retried.
 
 ## Retry
 
@@ -27,6 +28,7 @@ See [ADR-0030](../adr/0030-details-cache-and-bounded-retry.md).
 - **Enabling:** `@EnableResilientMethods` on a configuration class.
 - **Proxy limit:** `@Retryable` works through a Spring (CGLIB) proxy, so it goes on the public methods of `ItunesSearchClient` and `MzLookupClient`, and those methods are called from the gateway adapters, never from inside the client class itself. Tests read state through methods, not fields, because a proxy's fields are not the target's.
 - **Only connection failures are retried.** Read timeouts, Apple 5xx, 4xx, 429 and malformed payloads are not.
+- **Hidden retry in the JDK client:** `java.net.http.HttpClient` retries an idempotent request (all our Apple calls are GETs) once on a new connection when a connection closes before any response byte arrives. `@Retryable` never sees that attempt, and it isn't a separate metric sample. `ItunesSearchClientTest` pins the behavior (the server sees exactly 2 connections); each attempt is still bounded by the timeouts.
 - **Latency:**
   - A single failing call takes at most about 7 s (2 s connect + 5 s read timeout).
   - The theoretical worst case is about 12 s: two connection failures with back-off, then a read timeout. The retry `timeout` (8 s) stops new attempts but doesn't abort one already running (confirmed in the spike).
