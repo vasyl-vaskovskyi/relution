@@ -4,7 +4,7 @@ Versions marked *verify* were checked on 2026-09-13. Confirm them when the files
 
 ## Continuous integration ([ADR-0035](../adr/0035-continuous-integration.md))
 
-**`.github/workflows/ci.yml`** runs on every push and pull request:
+**`.github/workflows/ci.yml`** runs on pushes to `main` and on every pull request. Actions are pinned to exact release tags, and Dependabot updates them:
 
 | Job | Steps |
 |---|---|
