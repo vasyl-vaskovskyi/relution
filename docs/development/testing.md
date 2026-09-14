@@ -12,7 +12,7 @@
 | Security | Slice/integration | Token for valid Basic credentials; 401 for invalid ones; expired token, wrong `iss` or `aud` rejected; `/actuator/env` returns 401 on port 8080 and 404 on the management port; no secret or `Bearer` value in captured logs | Security must not break silently |
 | Configuration | `ApplicationContextRunner` | A missing or short JWT secret stops the context | Fail-fast must actually fail |
 | Architecture | ArchUnit (`archunit-junit6`) | Package dependency rules ([`../architecture/overview.md`](../architecture/overview.md#dependency-rules-enforced-by-an-archunit-test)) | Boundaries don't erode |
-| Apple drift | `liveTest` source set, tag `live` | At most 3 real calls; the required-key list (the same as the `missing_field` counter) is present, plus known values for the pinned apps | Frozen fixtures can't detect Legacy API changes ([ADR-0037](../adr/0037-legacy-api-drift-detection.md)) |
+| Apple drift | `liveTest` source set, tag `live`, plain JUnit without a Spring context | Exactly 3 real calls on `cc=de`: one Search (`pages`), a lookup of Pages (`361309726`, iOS) and one of Final Cut Pro (`424389933`, Mac). They use the production clients, mappers, `AppleMissingFieldDetector` and the URLs and timeouts from `application.yml`. No `missing_field` counter increments (the same required-key list), plus known values (`kind`, `bundleId`, `deviceFamilies`, offer version). The unit test `AppleMissingFieldDetectorTest` proves that the captures produce no signal | Frozen fixtures can't detect Legacy API changes ([ADR-0037](../adr/0037-legacy-api-drift-detection.md)) |
 | Frontend | Vitest | Auth interceptor, locale pre-fill, problem-type → message ([`../architecture/frontend.md`](../architecture/frontend.md#tests)) | The client logic most likely to break silently |
 
 **Deliberately not tested:**
@@ -42,7 +42,7 @@ backend/src/test/resources/wiremock/
 ## Commands
 
 ```bash
-(cd backend && ./gradlew check)       # Spotless check + all tests except live
-(cd backend && ./gradlew liveTest)    # real Apple calls; not part of check
+(cd backend && ./gradlew check)       # Spotless check + all tests except live; compiles the live tests without running them
+(cd backend && ./gradlew liveTest)    # real Apple calls; not part of check (nightly: .github/workflows/apple-drift.yml)
 (cd frontend && npm test -- --watch=false)
 ```

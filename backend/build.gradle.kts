@@ -53,3 +53,29 @@ dependencies {
 tasks.withType<Test> {
 	useJUnitPlatform()
 }
+
+// Apple drift detection (ADR-0037): real Apple calls, run by the nightly apple-drift workflow and never by check
+val liveTest = sourceSets.create("liveTest") {
+	compileClasspath += sourceSets.main.get().output
+	runtimeClasspath += sourceSets.main.get().output
+}
+
+configurations[liveTest.implementationConfigurationName].extendsFrom(configurations.testImplementation.get())
+configurations[liveTest.runtimeOnlyConfigurationName].extendsFrom(configurations.testRuntimeOnly.get())
+
+tasks.register<Test>("liveTest") {
+	description = "Runs the live Apple drift tests (at most 3 real Apple calls)."
+	group = LifecycleBasePlugin.VERIFICATION_GROUP
+	testClassesDirs = liveTest.output.classesDirs
+	classpath = liveTest.runtimeClasspath
+	useJUnitPlatform {
+		includeTags("live")
+	}
+	// the result depends on Apple, not on our inputs
+	outputs.upToDateWhen { false }
+}
+
+// check compiles the live tests without running them, so a refactoring can't silently break the nightly job
+tasks.check {
+	dependsOn(tasks.named(liveTest.classesTaskName))
+}
