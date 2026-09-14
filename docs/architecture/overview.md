@@ -69,7 +69,7 @@ com.example.appstore
 | `UpstreamContractException` | Unexpected 4xx or malformed payload |
 | `StorefrontNotServedException` | Apple rejects or silently replaces the storefront |
 
-All six extend the sealed `UpstreamException`. `AppNotFoundException` is separate: it means an empty lookup result, not an upstream failure. How each one maps to an HTTP response is in [`error-handling.md`](error-handling.md).
+All six extend the sealed `UpstreamException`. `AppNotFoundException` is separate: it means an empty lookup result, not an upstream failure. `catalog.storefront` adds two input errors thrown before any Apple call: `InvalidCountryCodeException` (not a country code) and `UnsupportedStorefrontException` (a country without an App Store storefront). How each one maps to an HTTP response is in [`error-handling.md`](error-handling.md).
 
 ## Request flow
 
