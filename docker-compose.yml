@@ -1,0 +1,19 @@
+# Local stack: docs/operations/deployment.md. Run `cp .env.example .env` first;
+# this file holds no secrets and no secret defaults (ADR-0006).
+services:
+  app:
+    build: backend
+    env_file: .env
+    environment:
+      LOGGING_STRUCTURED_FORMAT_CONSOLE: ecs
+      LOGGING_STRUCTURED_ECS_SERVICE_ENVIRONMENT: local
+    ports:
+      - "127.0.0.1:8080:8080"
+      - "127.0.0.1:8081:8081"
+    healthcheck:
+      # The Temurin JRE image has no curl or wget, so bash's /dev/tcp asks the management port
+      test: ["CMD", "bash", "-c", "exec 3<>/dev/tcp/127.0.0.1/8081 && printf 'GET /actuator/health/readiness HTTP/1.0\\r\\nHost: localhost\\r\\n\\r\\n' >&3 && grep -q '\"UP\"' <&3"]
+      interval: 10s
+      timeout: 3s
+      start_period: 30s
+      retries: 3
