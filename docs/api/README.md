@@ -1,7 +1,8 @@
 # API contract (v1)
 
-This document is the contract until the service exists. After that, the generated OpenAPI document (`/v3/api-docs`, disabled in the `prod` profile) is authoritative, and this file only describes the policies that OpenAPI can't express.
+This document is the contract until the service exists. After that, the generated OpenAPI document is authoritative, and this file only describes the policies that OpenAPI can't express.
 
+- **OpenAPI:** [`/v3/api-docs`](http://localhost:8080/v3/api-docs); **Swagger UI:** [`/swagger-ui.html`](http://localhost:8080/swagger-ui.html). Get a token from `POST /auth/token`, then use **Authorize** (bearer JWT). Both are disabled in the `prod` profile ([`../operations/configuration.md`](../operations/configuration.md#profiles)).
 ## Conventions
 
 - **Base path:** `/api/v1`. **Media type:** `application/json`; errors use `application/problem+json`.
