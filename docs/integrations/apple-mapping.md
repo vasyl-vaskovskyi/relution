@@ -78,6 +78,6 @@ Never emit a URL that contains `{` or `}`. No usable artwork → `iconUrl = null
 
 ## Drift signals ([ADR-0037](../adr/0037-legacy-api-drift-detection.md))
 
-When a field that is present in every capture is missing from a live response, the mapper increments `appstore.apple.mapping.missing_field{api, field}`. The monitored fields:
+When a field that is present in every capture is missing from a live response, `appstore.apple.mapping.missing_field{api, field}` is incremented. The check lives in `AppleMissingFieldDetector`, which the gateway adapters call with the raw response before mapping, so the mappers stay pure. The monitored fields:
 - Search: `trackId`, `trackName`
-- Lookup, for app kinds: `name`, `kind`, `artwork`. `offers` is excluded, because it can legitimately be missing for unavailable items.
+- Lookup, for app kinds: `name`, `kind`, `artwork`. `offers` is excluded, because it can legitimately be missing for unavailable items. A missing `kind` is counted for every item, because such an item can't be classified.

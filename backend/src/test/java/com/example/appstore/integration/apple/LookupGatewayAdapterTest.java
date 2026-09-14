@@ -77,6 +77,11 @@ class LookupGatewayAdapterTest {
         assertThatThrownBy(() -> adapter.lookup(new DetailsQuery("4", "de", "de", Platform.IOS)))
                 .isInstanceOf(com.example.appstore.catalog.UpstreamContractException.class);
         assertThat(samples("contract_error")).isEqualTo(1);
+        assertThat(registry.get(MetricNames.APPLE_MAPPING_MISSING_FIELD)
+                        .tag(MetricNames.TAG_FIELD, "name")
+                        .counter()
+                        .count())
+                .isEqualTo(1);
     }
 
     private double samples(String outcome) {
