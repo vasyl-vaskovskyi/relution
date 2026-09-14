@@ -1,0 +1,78 @@
+# Prometheus alerting rules for the appstore service.
+# Conditions and severities: docs/operations/observability.md#alert-rules (ADR-0038).
+# Every rule links to its section in docs/operations/runbook.md.
+groups:
+  - name: appstore
+    rules:
+      - alert: AppleSearchRateLimited
+        expr: sum(rate(appstore_apple_requests_seconds_count{api="search",outcome=~"rate_limited|short_circuited"}[5m])) > 0.1
+        for: 10m
+        labels:
+          severity: warning
+        annotations:
+          summary: Apple Search is rate limiting the service
+          description: >-
+            Apple Search calls ending as rate_limited or short_circuited run at
+            {{ $value | humanize }}/s over 5 minutes. Uncached searches return 503
+            while Apple's Retry-After window runs.
+          runbook_url: https://github.com/vasyl-vaskovskyi/relution/blob/main/docs/operations/runbook.md#applesearchratelimited
+
+      - alert: AppleContractErrors
+        expr: increase(appstore_apple_requests_seconds_count{outcome="contract_error"}[15m]) > 0
+        labels:
+          severity: critical
+        annotations:
+          summary: Apple responses no longer match the expected contract
+          description: >-
+            The {{ $labels.api }} API returned responses that could not be mapped
+            (outcome contract_error) in the last 15 minutes. Apple may have changed
+            its response format.
+          runbook_url: https://github.com/vasyl-vaskovskyi/relution/blob/main/docs/operations/runbook.md#applecontracterrors
+
+      - alert: AppleMissingFields
+        expr: increase(appstore_apple_mapping_missing_field_total[1h]) > 0
+        labels:
+          severity: warning
+        annotations:
+          summary: Apple responses are missing expected fields
+          description: >-
+            Field {{ $labels.field }} was missing from Apple responses in the last
+            hour. This alert has no runbook section of its own; follow the
+            AppleContractErrors section.
+          runbook_url: https://github.com/vasyl-vaskovskyi/relution/blob/main/docs/operations/runbook.md#applecontracterrors
+
+      - alert: StorefrontAllowlistOutdated
+        expr: increase(appstore_storefront_allowlist_mismatch_total{direction="outdated"}[1h]) > 0
+        labels:
+          severity: warning
+        annotations:
+          summary: The storefront allowlist is outdated
+          description: >-
+            Apple rejected a storefront code that is on the allowlist in the last
+            hour. Requests for that storefront get 400; the code is in the ERROR log.
+          runbook_url: https://github.com/vasyl-vaskovskyi/relution/blob/main/docs/operations/runbook.md#storefrontallowlistoutdated
+
+      - alert: AppleLatencyHigh
+        expr: histogram_quantile(0.95, sum by (le, api) (rate(appstore_apple_requests_seconds_bucket[5m]))) > 3
+        for: 10m
+        labels:
+          severity: warning
+        annotations:
+          summary: Apple API latency is high
+          description: >-
+            The p95 latency of the {{ $labels.api }} API is
+            {{ $value | humanizeDuration }} over 5 minutes (threshold 3s). Some
+            requests may end in 504.
+          runbook_url: https://github.com/vasyl-vaskovskyi/relution/blob/main/docs/operations/runbook.md#applelatencyhigh
+
+      - alert: AppstoreDown
+        expr: up{job="appstore-management"} == 0
+        for: 5m
+        labels:
+          severity: critical
+        annotations:
+          summary: The appstore management port cannot be scraped
+          description: >-
+            Prometheus cannot scrape {{ $labels.instance }} of job
+            appstore-management. The instance is down or unreachable.
+          runbook_url: https://github.com/vasyl-vaskovskyi/relution/blob/main/docs/operations/runbook.md#appstoredown
