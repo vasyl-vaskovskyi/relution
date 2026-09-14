@@ -58,7 +58,7 @@ See [ADR-0042](docs/adr/0042-commit-size-and-parallel-pull-requests.md).
 
 ## Security and privacy
 
-- Never commit secrets. `.env` is git-ignored; `.env.example` holds placeholders only.
+- Never commit secrets. `.env` and `.env.observability` are git-ignored; `.env.example` and `.env.observability.example` hold placeholders only.
 - Follow the logging and privacy rules in [`docs/architecture/security.md`](docs/architecture/security.md#logging-and-privacy).
 - Report security issues to the maintainers privately, not in public issues.
 

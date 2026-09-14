@@ -22,7 +22,7 @@ docs/        architecture, api, integrations, operations, development, adr, glos
 ops/         alert rules (alerts.yml)
 scripts/     smoke.sh
 .github/     CI workflows, Dependabot, pull request template
-docker-compose.yml, compose.observability.yml, .env.example, .nvmrc
+docker-compose.yml, compose.observability.yml, .env.example, .env.observability.example, .nvmrc
 README.md, CONTRIBUTING.md, CLAUDE.md
 ```
 
