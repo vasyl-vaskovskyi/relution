@@ -1,0 +1,58 @@
+# Property names, environment variables and defaults: docs/operations/configuration.md
+
+spring:
+  application:
+    name: appstore
+  threads:
+    virtual:
+      enabled: true
+
+server:
+  port: 8080
+
+management:
+  server:
+    port: 8081
+  endpoints:
+    web:
+      exposure:
+        include: health,info,metrics,prometheus
+  endpoint:
+    health:
+      probes:
+        add-additional-paths: true
+  metrics:
+    distribution:
+      percentiles-histogram:
+        "[appstore.apple.requests]": true
+
+logging:
+  structured:
+    ecs:
+      service:
+        name: appstore
+
+appstore:
+  apple:
+    search:
+      url: https://itunes.apple.com
+      budget: 20
+    lookup:
+      url: https://uclient-api.itunes.apple.com
+    timeout:
+      connect: PT2S
+      read: PT5S
+    retry:
+      max: 2
+      timeout: PT8S
+    retryafter:
+      max: PT5M
+  cache:
+    search:
+      ttl: PT10M
+      size: 1000
+    details:
+      ttl: PT15M
+      size: 5000
+    notfound:
+      ttl: PT60S
