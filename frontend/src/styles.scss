@@ -5,6 +5,10 @@
 // custom components at https://material.angular.dev/guide/theming
 @use '@angular/material' as mat;
 
+// System fonts only: nothing is downloaded from a third-party origin (ADR-0046)
+$system-font-stack: system-ui, -apple-system, 'Segoe UI', Roboto, 'Helvetica Neue', Arial,
+  sans-serif;
+
 html {
   height: 100%;
   @include mat.theme(
@@ -13,7 +17,10 @@ html {
         primary: mat.$azure-palette,
         tertiary: mat.$blue-palette,
       ),
-      typography: Roboto,
+      typography: (
+        plain-family: $system-font-stack,
+        brand-family: $system-font-stack,
+      ),
       density: 0,
     )
   );
