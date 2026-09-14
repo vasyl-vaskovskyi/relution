@@ -58,6 +58,7 @@ docker run --rm -v "$PWD/ops:/ops:ro" promtool test rules /ops/alerts.test.yml
 | `org.wiremock.integrations:wiremock-spring-boot` 4.2.x (test) | Apple HTTP tests | [0003](../adr/0003-spring-boot-4-1-with-restclient.md) |
 | `com.tngtech.archunit:archunit-junit6` 1.5.x (test) | Architecture rules | [0028](../adr/0028-package-boundaries-and-ports.md) |
 | `org.springframework.boot:spring-boot-starter-opentelemetry` (stretch goal) | OTLP export | [0027](../adr/0027-observability-logs-and-metrics-in-the-app-opentelemetry-graf.md) |
+| `io.opentelemetry.instrumentation:opentelemetry-logback-appender-1.0` 2.28.x-alpha (not Boot-managed) | Feeds Logback events to Boot's OTLP log exporter. Stay on the release built against the `opentelemetry-api` version Boot manages; a newer appender needs a newer Boot | [0051](../adr/0051-export-application-logs-over-otlp.md) |
 
 ## GitHub repository
 
