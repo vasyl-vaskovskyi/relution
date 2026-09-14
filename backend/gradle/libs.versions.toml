@@ -4,6 +4,8 @@ spring-dependency-management = "1.1.7"
 springdoc = "3.1.1"
 wiremock-spring-boot = "4.2.3"
 archunit = "1.5.0"
+spotless = "8.10.2"
+palantir-java-format = "2.98.0"
 
 [libraries]
 # Versions managed by the Spring Boot BOM
@@ -28,3 +30,4 @@ archunit-junit6 = { module = "com.tngtech.archunit:archunit-junit6", version.ref
 [plugins]
 spring-boot = { id = "org.springframework.boot", version.ref = "spring-boot" }
 spring-dependency-management = { id = "io.spring.dependency-management", version.ref = "spring-dependency-management" }
+spotless = { id = "com.diffplug.spotless", version.ref = "spotless" }
