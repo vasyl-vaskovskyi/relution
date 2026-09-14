@@ -27,7 +27,23 @@ class AuthConfigurationTest {
                     "appstore.auth.jwt.audience=appstore-api",
                     "appstore.auth.jwt.ttl=PT15M",
                     "appstore.auth.client.id=client",
-                    "appstore.auth.client.secret=client-secret");
+                    "appstore.auth.client.secret=client-secret",
+                    "appstore.auth.limit.failures=10",
+                    "appstore.auth.limit.window=PT5M",
+                    "appstore.auth.limit.keys=10000");
+
+    @Test
+    void invalidTokenRequestLimitsStopTheContext() {
+        for (String invalid : new String[] {
+            "appstore.auth.limit.failures=0",
+            "appstore.auth.limit.window=PT0S",
+            "appstore.auth.limit.window=P2D",
+            "appstore.auth.limit.keys=0"
+        }) {
+            runner.withPropertyValues("appstore.auth.jwt.secret=" + VALID_SECRET, invalid)
+                    .run(context -> assertThat(context).as(invalid).hasFailed());
+        }
+    }
 
     @Test
     void validSettingsCreateTheEncoderAndDecoder() {

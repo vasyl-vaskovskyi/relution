@@ -55,6 +55,11 @@ appstore:
       issuer: appstore
       audience: appstore-api
       ttl: PT15M
+    # failed POST /auth/token attempts per client address (ADR-0049)
+    limit:
+      failures: 10
+      window: PT5M
+      keys: 10000
   apple:
     search:
       url: https://itunes.apple.com

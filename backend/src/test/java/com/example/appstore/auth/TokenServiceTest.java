@@ -18,7 +18,8 @@ class TokenServiceTest {
                     "appstore",
                     "appstore-api",
                     Duration.ofMinutes(15)),
-            new AuthProperties.Client("client", "client-secret"));
+            new AuthProperties.Client("client", "client-secret"),
+            new AuthProperties.Limit(10, Duration.ofMinutes(5), 10_000));
 
     private final JwtConfiguration configuration = new JwtConfiguration();
     private final TokenService service = new TokenService(configuration.jwtEncoder(PROPERTIES), PROPERTIES);
