@@ -28,9 +28,15 @@ class AppSearchController {
 
     @GetMapping
     AppSearchResponse search(
-            @RequestParam @NotBlank @Size(max = SearchQuery.MAX_TERM_LENGTH) String term,
-            @RequestParam @Pattern(regexp = "[A-Za-z]{2}") String cc,
-            @RequestParam(defaultValue = "25") @Min(1) @Max(SearchQuery.MAX_LIMIT) int limit) {
+            @RequestParam
+                    @NotBlank(message = "must not be blank")
+                    @Size(max = SearchQuery.MAX_TERM_LENGTH, message = "must be at most 100 characters")
+                    String term,
+            @RequestParam @Pattern(regexp = "[A-Za-z]{2}", message = "must be a two-letter country code") String cc,
+            @RequestParam(defaultValue = "25")
+                    @Min(value = 1, message = "must be between 1 and 50")
+                    @Max(value = SearchQuery.MAX_LIMIT, message = "must be between 1 and 50")
+                    int limit) {
         return AppSearchResponse.from(searchService.search(term, cc, limit));
     }
 }

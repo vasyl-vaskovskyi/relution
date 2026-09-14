@@ -44,7 +44,12 @@ The client never learns anything about the allowlist or how it is maintained. Th
 | Any other path on port 8080 (e.g. `/actuator/env`): catch-all `denyAll` | 401 without a token, 403 with one | `unauthorized` / `forbidden` | — | DEBUG |
 | Unexpected exception | 500 | `internal` | — | ERROR with stack trace (server side only) |
 
-- **Implementation:** a `@RestControllerAdvice` extending `ResponseEntityExceptionHandler`, with an exhaustive `switch` over the sealed `UpstreamException`. The `ProblemType` enum is the only place problem-type URNs and titles are defined.
+- **Implementation:** `ApiExceptionHandler`, a `@RestControllerAdvice` extending `ResponseEntityExceptionHandler`, with an exhaustive `switch` over the sealed `UpstreamException`. The `ProblemType` enum is the only place problem-type URNs and titles are defined, and `ProblemDetails` builds every body.
+  - **`detail`** is a fixed text per type. `instance` is the request path without the query string.
+  - **`errors[]`** names the public parameter (`cc`, `limit`, `id`, ...), with messages that don't reveal patterns.
+  - **`Retry-After`** is whole seconds, at least 1.
+  - **Spring's own problems** (unknown path, wrong method) keep Spring's type and get the `correlationId`.
+  - **Logging:** upstream outcomes are logged once by the gateway adapters. The advice logs only unexpected exceptions, with the stack trace server-side.
 - **Security errors:** the Spring Security entry point and access-denied handler write the same format via the `api` package's `ProblemDetails` factory. This is the only allowed `auth → api` dependency ([`overview.md`](overview.md#dependency-rules-enforced-by-an-archunit-test)).
 
 ## Correlation id
