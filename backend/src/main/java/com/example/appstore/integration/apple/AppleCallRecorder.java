@@ -1,6 +1,7 @@
 package com.example.appstore.integration.apple;
 
 import com.example.appstore.catalog.StorefrontNotServedException;
+import com.example.appstore.catalog.UpstreamCircuitOpenException;
 import com.example.appstore.catalog.UpstreamConnectException;
 import com.example.appstore.catalog.UpstreamContractException;
 import com.example.appstore.catalog.UpstreamException;
@@ -69,6 +70,7 @@ final class AppleCallRecorder {
                     case SHORT_CIRCUIT -> "short_circuited";
                     case BUDGET -> "budget_exhausted";
                 };
+            case UpstreamCircuitOpenException ignored -> "circuit_open";
             case UpstreamContractException ignored -> "contract_error";
             case StorefrontNotServedException ignored -> "storefront_rejected";
         };
@@ -83,16 +85,19 @@ final class AppleCallRecorder {
             case StorefrontNotServedException ignored -> 400;
             case UpstreamConnectException ignored -> 0;
             case UpstreamReadTimeoutException ignored -> 0;
+            case UpstreamCircuitOpenException ignored -> 0;
         };
     }
 
     /**
-     * WARN for 429, an exhausted budget, timeouts and 5xx; DEBUG for the short-circuit; ERROR for contract errors (our
-     * bug or drift); INFO for a rejected storefront ({@code docs/architecture/error-handling.md}).
+     * WARN for 429, an exhausted budget, timeouts and 5xx; DEBUG for local rejections that repeat an earlier signal (the
+     * 429 short-circuit, an open circuit breaker, whose transition is logged at WARN once); ERROR for contract errors
+     * (our bug or drift); INFO for a rejected storefront ({@code docs/architecture/error-handling.md}).
      */
     static Level levelOf(UpstreamException e) {
         return switch (e) {
             case UpstreamRateLimitedException limited when limited.reason() == Reason.SHORT_CIRCUIT -> Level.DEBUG;
+            case UpstreamCircuitOpenException ignored -> Level.DEBUG;
             case UpstreamContractException ignored -> Level.ERROR;
             case StorefrontNotServedException ignored -> Level.INFO;
             default -> Level.WARN;

@@ -11,6 +11,7 @@ public abstract sealed class UpstreamException extends RuntimeException
                 UpstreamReadTimeoutException,
                 UpstreamServerErrorException,
                 UpstreamRateLimitedException,
+                UpstreamCircuitOpenException,
                 UpstreamContractException,
                 StorefrontNotServedException {
 
