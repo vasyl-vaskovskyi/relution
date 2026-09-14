@@ -12,7 +12,7 @@ See [ADR-0004](../adr/0004-self-issued-hs256-jwt-no-fallback.md) and [ADR-0034](
   - `TokenRequestLimiter` keeps a token bucket per address (IPv4 as is, IPv6 by /64) in a Caffeine cache bounded by `appstore.auth.limit.keys`. The limits are in [`../operations/configuration.md`](../operations/configuration.md).
   - Every request takes a permit **before** the credentials are compared; a successful request gives it back, so only failures count.
   - Without a permit, every request from that address gets 429 `too-many-requests` with `Retry-After`, valid credentials included.
-  - The key is `getRemoteAddr()`. `X-Forwarded-For` is not trusted, because port 8080 is also reachable directly from networks Tomcat would treat as internal proxies. Behind the bundled nginx, all browser logins therefore share one bucket.
+  - The key is `getRemoteAddr()`. `X-Forwarded-For` is not trusted (`server.forward-headers-strategy: none`, also on cloud platforms), because port 8080 is also reachable directly from networks Tomcat would treat as internal proxies. Behind the bundled nginx, all browser logins therefore share one bucket.
   - The 429 is logged at DEBUG, without the address; the signal is the metric `appstore.auth.token.requests{outcome=rate_limited}` ([`../operations/observability.md`](../operations/observability.md#metrics)).
 
 **Tokens:** HS256 JWTs signed with `appstore.auth.jwt.secret`. Property details are in [`../operations/configuration.md`](../operations/configuration.md).

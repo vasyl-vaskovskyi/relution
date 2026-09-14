@@ -9,6 +9,8 @@ spring:
 
 server:
   port: 8080
+  # never trust X-Forwarded-For, also on cloud platforms where Boot would default to NATIVE (ADR-0049)
+  forward-headers-strategy: none
 
 management:
   server:
