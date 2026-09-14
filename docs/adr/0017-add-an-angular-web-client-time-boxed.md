@@ -1,6 +1,6 @@
 # ADR-0017: Add an Angular web client, time-boxed
 
-- **Status:** Accepted; amended by [ADR-0027](0027-observability-logs-and-metrics-in-the-app-opentelemetry-graf.md) and [ADR-0031](0031-rate-limit-short-circuit.md) (429 short-circuit)
+- **Status:** Accepted; amended by [ADR-0027](0027-observability-logs-and-metrics-in-the-app-opentelemetry-graf.md) [ADR-0031](0031-rate-limit-short-circuit.md) (429 short-circuit) and [ADR-0045](0045-search-budget-is-configuration-and-the-outbound-limiter-is-core.md) (outbound limiter is core again)
 - **Date:** 2026-09-13 (prep)
 
 - **Context:** The maintainer wants a frontend that demonstrates the required functionality and prints debug information to the browser console. For a backend position the client is optional, and the task says it "must not come at the expense of the server part". The task prescribes Angular with Angular Material for web clients.

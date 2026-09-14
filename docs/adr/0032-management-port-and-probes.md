@@ -1,6 +1,6 @@
 # ADR-0032: Separate management port, probes, restricted exposure
 
-- **Status:** Accepted
+- **Status:** Accepted; amended by [ADR-0044](0044-secure-the-management-port-as-a-whole.md) (the management chain matches the whole port)
 - **Date:** 2026-09-13 (prep)
 
 - **Context:** Actuator and Swagger UI shared the public port. Nothing restricted endpoints such as `env` or `heapdump`, and a heap dump would expose the JWT secret. `/actuator/metrics` JSON is not scrapeable by Prometheus.

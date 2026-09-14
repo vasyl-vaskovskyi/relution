@@ -1,6 +1,6 @@
 # ADR-0025: Deal with the per-IP Search rate limit within Apple's rules
 
-- **Status:** Accepted
+- **Status:** Accepted; amended by [ADR-0045](0045-search-budget-is-configuration-and-the-outbound-limiter-is-core.md) (more requests can be bought; outbound limiter is core)
 - **Date:** 2026-09-13 (prep)
 
 - **Context:**
