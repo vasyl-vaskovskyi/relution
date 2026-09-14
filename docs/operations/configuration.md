@@ -80,6 +80,7 @@ If one of these is missing or invalid, the application refuses to start. An `App
 | Setting | Value | Why |
 |---|---|---|
 | `server.port` | `8080` | Public API |
+| `server.forward-headers-strategy` | `none` | `X-Forwarded-*` is never trusted, also on cloud platforms where Boot would default to `native`; the failed-attempt limit keys on the TCP peer ([ADR-0049](../adr/0049-rate-limit-failed-token-requests-per-client-address.md)) |
 | `management.server.port` | `8081` | Management port ([ADR-0032](../adr/0032-management-port-and-probes.md)) |
 | `management.endpoints.web.exposure.include` | `health,info,metrics,prometheus` | The only exposed endpoints |
 | `management.endpoint.health.probes.add-additional-paths` | `true` | `/livez` and `/readyz` on 8080 |
