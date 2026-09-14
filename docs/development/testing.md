@@ -61,6 +61,7 @@ When a backend change alters the public API on purpose, regenerate `docs/api/ope
 git diff docs/api/openapi.json    # review the contract change
 ```
 
-- `-PupdateOpenApiSnapshot` makes the test write the normalized document instead of comparing it. Without the property (as in `check` and CI) the test only compares.
+- `-PupdateOpenApiSnapshot` makes the test write the normalized document instead of comparing it. Without the property, or with the value `false`, the test only compares, as in `check` and CI. When the `CI` environment variable is set, the build refuses to start with the property enabled, so CI can't overwrite the snapshot and pass.
+- The `test` task prints full assertion messages, so a mismatch shows its diff excerpt and the update command in the console and in CI logs.
 - The Gradle `test` task passes the snapshot's absolute path as the system property `openapi.snapshot.path`. A test started from an IDE without it resolves `../docs/api/openapi.json` from `backend/`.
 - Breaking changes still follow the [compatibility rules](../api/README.md#compatibility-rules).
