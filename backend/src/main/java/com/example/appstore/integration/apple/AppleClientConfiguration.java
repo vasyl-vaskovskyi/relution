@@ -17,12 +17,22 @@ import org.springframework.web.client.RestClient;
 class AppleClientConfiguration {
 
     static final String SEARCH_REST_CLIENT = "itunesSearchRestClient";
+    static final String LOOKUP_REST_CLIENT = "mzLookupRestClient";
 
     @Bean
     @Qualifier(SEARCH_REST_CLIENT)
     RestClient itunesSearchRestClient(RestClient.Builder builder, AppleProperties properties) {
         return builder.clone()
                 .baseUrl(properties.search().url().toString())
+                .requestFactory(requestFactory(properties))
+                .build();
+    }
+
+    @Bean
+    @Qualifier(LOOKUP_REST_CLIENT)
+    RestClient mzLookupRestClient(RestClient.Builder builder, AppleProperties properties) {
+        return builder.clone()
+                .baseUrl(properties.lookup().url().toString())
                 .requestFactory(requestFactory(properties))
                 .build();
     }
