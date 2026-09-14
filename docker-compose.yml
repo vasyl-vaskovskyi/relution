@@ -17,3 +17,22 @@ services:
       timeout: 3s
       start_period: 30s
       retries: 3
+
+  frontend:
+    build:
+      context: frontend
+      args:
+        # Debug logging with the runtime override (docs/architecture/frontend.md#debug-logging)
+        ANGULAR_CONFIGURATION: demo
+    ports:
+      - "127.0.0.1:4200:8080"
+    depends_on:
+      app:
+        condition: service_healthy
+    healthcheck:
+      # BusyBox wget from the alpine image
+      test: ["CMD", "wget", "-q", "-O", "/dev/null", "http://127.0.0.1:8080/"]
+      interval: 10s
+      timeout: 3s
+      start_period: 5s
+      retries: 3
