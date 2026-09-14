@@ -1,20 +1,24 @@
 import { Routes } from '@angular/router';
 import { authGuard } from './core/auth/auth.guard';
-import { LoginComponent } from './features/login/login.component';
-import { SearchComponent } from './features/search/search.component';
-import { AppDetailsComponent } from './features/app-details/app-details.component';
 
+// Every view is a lazy chunk, so the initial bundle holds only the shell and stays within its budget
 export const routes: Routes = [
-  { path: 'login', component: LoginComponent, title: 'Log in · App Store search' },
+  {
+    path: 'login',
+    loadComponent: () => import('./features/login/login.component').then((m) => m.LoginComponent),
+    title: 'Log in · App Store search',
+  },
   {
     path: 'search',
-    component: SearchComponent,
+    loadComponent: () =>
+      import('./features/search/search.component').then((m) => m.SearchComponent),
     canActivate: [authGuard],
     title: 'App Store search',
   },
   {
     path: 'apps/:id',
-    component: AppDetailsComponent,
+    loadComponent: () =>
+      import('./features/app-details/app-details.component').then((m) => m.AppDetailsComponent),
     canActivate: [authGuard],
     title: 'App details · App Store search',
   },
