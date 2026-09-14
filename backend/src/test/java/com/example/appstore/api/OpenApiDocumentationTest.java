@@ -49,6 +49,17 @@ class OpenApiDocumentationTest {
                     .asMap()
                     .containsKey("404");
         }
+
+        @Test
+        void documentsTheTokenEndpointWithItsRateLimit() {
+            var document =
+                    assertThat(mvc.get().uri("/v3/api-docs")).hasStatusOk().bodyJson();
+
+            String responses = "$.paths['/auth/token'].post.responses";
+            document.extractingPath(responses).asMap().containsKeys("200", "401", "429");
+            document.extractingPath(responses + "['429'].content").asMap().containsKey("application/problem+json");
+            document.extractingPath(responses + "['429'].headers").asMap().containsKey("Retry-After");
+        }
     }
 
     @Nested
