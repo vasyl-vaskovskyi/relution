@@ -82,7 +82,7 @@ Circuit breaker metrics come from Resilience4j's Micrometer binding: `resilience
   - Only Grafana is published, on `127.0.0.1:3000`.
   - The admin password comes from `.env.observability`, which the app container never receives ([`deployment.md`](deployment.md#optional-observability-stack)).
   - Grafana describes the image as intended for **development, demo and testing**. In production, point the OTLP properties at a real backend; no code change is needed.
-- **Scope:** no committed dashboards (use Grafana Explore). Tests cover the privacy filter and the trace id as correlation id with an in-memory span exporter, and the exported log records with an in-memory log record exporter, not the compose stack ([`../development/testing.md`](../development/testing.md)).
+- **Scope:** one committed dashboard ([below](#dashboard)); everything else through Grafana Explore. Tests cover the privacy filter and the trace id as correlation id with an in-memory span exporter, and the exported log records with an in-memory log record exporter, not the compose stack ([`../development/testing.md`](../development/testing.md)).
 - **Demo:**
   1. Search in the UI.
   2. In Tempo, show the server span and the outgoing `RestClient` span.
@@ -93,3 +93,39 @@ Circuit breaker metrics come from Resilience4j's Micrometer binding: `resilience
   - Loki's only label is `service_name`; `trace_id`, `span_id`, `scope_name` and `severity_text` are structured metadata.
   - `{service_name="appstore"} | trace_id="<id>"` returned the search's upstream line (`apple call api=search … termLength=17`), and the rejected token request was exported as well.
   - No record contained the search term, the client secret, `Bearer` or a JWT, and no record carried an MDC key.
+
+### Dashboard
+
+The stack provisions one dashboard, **App Store service** (uid `appstore-service`), and Grafana opens on it. Grafana's own "RED Metrics" and "JVM Overview (OpenTelemetry)" dashboards stay available.
+
+- **Files:** `ops/grafana/dashboards/appstore-service.json` and the provider `ops/grafana/provisioning/dashboards.yaml`, mounted read-only by `compose.observability.yml` ([`deployment.md`](deployment.md#optional-observability-stack)). UI edits aren't saved: change the dashboard in Grafana, export its JSON (Share → Export), replace the file and commit it. Grafana rereads the directory every 30 s.
+- **Open it:** http://localhost:3000, logged in as `admin` with the password from `.env.observability`.
+- **Panels and the OTLP metric names they use** (confirmed in the running stack on 2026-09-14; every panel returned data after one run of `scripts/demo-traffic.sh`):
+
+| Row | Panels | Metrics |
+|---|---|---|
+| API | Requests by URI and status, error ratio, requests in range by status, mean and max latency by URI | `http_server_requests_milliseconds_count`, `_sum`, `http_server_requests_max_milliseconds` |
+| API | Latency p50 and p95 | `traces_spanmetrics_latency_bucket{service="appstore", span_kind="SPAN_KIND_SERVER"}` (Tempo span metrics, seconds). The OTLP `http_server_requests_milliseconds_bucket` has only `le="+Inf"`, because the timer publishes no percentile histogram |
+| Apple upstream | Calls by API and outcome, calls in range, rejected or failed calls, latency p50 and p95 by API | `appstore_apple_requests_milliseconds_count`, `appstore_apple_requests_milliseconds_bucket` |
+| Apple upstream | Circuit breaker state (closed, half open, open) | `resilience4j_circuitbreaker_state{name, state}` |
+| Caches and storefronts | Cache hit ratio over time and in range | `cache_gets_total{cache="app-search\|app-details", result}` |
+| Caches and storefronts | Storefront allowlist mismatches in range | `appstore_storefront_allowlist_mismatch_total{direction}` |
+| Traces | Recent server traces of `appstore` | Tempo, TraceQL `{resource.service.name="appstore" && kind=server}` |
+| Logs | Log lines by level, application logs (newest first) | Loki, `sum by (severity_text) (count_over_time({service_name="appstore"} [$__auto]))` and `{service_name="appstore"}` |
+
+- **One request's logs:** the logs panel shows all records; filter by trace in Explore as described in the demo above.
+- **Freshness:** the app pushes metrics once a minute and Prometheus' `timeInterval` is 60 s, so rate panels use `$__rate_interval` (at least 4 minutes) and a fresh stack shows data after one or two exports.
+
+### Demo traffic
+
+`scripts/demo-traffic.sh` fills every panel with a small, mixed load. It reads `APPSTORE_AUTH_CLIENT_ID` and `APPSTORE_AUTH_CLIENT_SECRET` from the environment or `.env`, like `scripts/smoke.sh`, and never prints the token or the secret.
+
+```bash
+scripts/demo-traffic.sh                                   # 2 rounds, 70 s apart, against http://localhost:8080
+ROUNDS=3 PAUSE=70 BASE_URL=http://localhost:8080 scripts/demo-traffic.sh
+```
+
+- **One round, 18 requests:** repeated searches for two terms plus one term without results (cache hits, outcomes `success` and `empty`); details for Pages (iOS and Mac), Final Cut Pro (Mac), 1234094465 (iOS; Mac gives 404) and the unknown id 1 (404, `not_found`); `cc=cu` on both endpoints (400, unsupported storefront, no Apple call), a search without `cc` (400) and one without a token (401).
+- **Why two rounds:** a series pushed over OTLP first appears with its running total, so `rate` and `increase` can't see the burst that created it. The pause spans one export, and the second round uses another storefront (`us` after `de`, then `gb`) and other terms, so it reaches Apple again and shows up in the rate panels. The "in range" panels also count series that first appeared inside the range.
+- **Apple budget:** at most 3 Search and 6 Lookup calls per round, so the default run makes 6 Search calls, far below the Search budget of 20 per minute. Rounds after the third repeat its requests and are served from the caches (search 10 minutes, details 15 minutes).
+- **Output:** one summary line with the request count per HTTP status.
