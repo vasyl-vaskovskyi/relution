@@ -1,5 +1,10 @@
 # promtool unit tests for ops/alerts.yml (ADR-0050).
 # Every rule has a firing and a non-firing case, using the metric names the rules use.
+# The cases sit close to each rule's boundaries: the firing value is just above the
+# threshold and the non-firing value just below it, a `for` rule is checked one
+# evaluation before and at the moment it fires, and an increase() rule is checked at
+# the last evaluation that still sees the change in its window and the first that no
+# longer does. Changing a threshold, window, `for` or matched label makes a test fail.
 # Run from the repository root (image pinned in ops/promtool/Dockerfile, see docs/development/tooling.md):
 #   docker build -t promtool ops/promtool
 #   docker run --rm -v "$PWD/ops:/ops:ro" promtool test rules /ops/alerts.test.yml
@@ -9,16 +14,22 @@ rule_files:
 evaluation_interval: 1m
 
 tests:
-  # AppleSearchRateLimited: firing, 1 rate-limited Search call per second for 20 minutes.
+  # AppleSearchRateLimited: firing. The three matched outcomes together run at 7/min
+  # (0.117/s, above 0.1); any two of them stay below 0.1, so each outcome is needed.
+  # The 5-minute rate reaches that value at 5m, so the alert is pending at 14m and fires at 15m.
   - interval: 1m
     input_series:
       - series: 'appstore_apple_requests_seconds_count{api="search",outcome="rate_limited"}'
-        values: '0+60x30'
+        values: '0+3x30'
+      - series: 'appstore_apple_requests_seconds_count{api="search",outcome="short_circuited"}'
+        values: '0+2x30'
+      - series: 'appstore_apple_requests_seconds_count{api="search",outcome="budget_exhausted"}'
+        values: '0+2x30'
     alert_rule_test:
-      - eval_time: 5m
+      - eval_time: 14m
         alertname: AppleSearchRateLimited
         exp_alerts: []
-      - eval_time: 20m
+      - eval_time: 15m
         alertname: AppleSearchRateLimited
         exp_alerts:
           - exp_labels:
@@ -27,16 +38,17 @@ tests:
               summary: Apple Search is rate limiting the service
               description: >-
                 Apple Search calls ending as rate_limited, short_circuited or
-                budget_exhausted run at 1/s over 5 minutes.
+                budget_exhausted run at 116.7m/s over 5 minutes.
                 Uncached searches return 503 while Apple's Retry-After window runs or
                 the outbound budget refills.
               runbook_url: https://github.com/vasyl-vaskovskyi/relution/blob/main/docs/operations/runbook.md#applesearchratelimited
 
-  # AppleSearchRateLimited: not firing, low rate (0.05/s), successes and a lookup at a high rate.
+  # AppleSearchRateLimited: not firing. Matched outcomes at 5/min (0.083/s, below 0.1),
+  # plus high rates of an unmatched outcome and of the lookup API.
   - interval: 1m
     input_series:
       - series: 'appstore_apple_requests_seconds_count{api="search",outcome="short_circuited"}'
-        values: '0+3x30'
+        values: '0+5x30'
       - series: 'appstore_apple_requests_seconds_count{api="search",outcome="success"}'
         values: '0+600x30'
       - series: 'appstore_apple_requests_seconds_count{api="lookup",outcome="rate_limited"}'
@@ -46,20 +58,21 @@ tests:
         alertname: AppleSearchRateLimited
         exp_alerts: []
 
-  # AppleContractErrors: firing after one contract error, not firing without one.
+  # AppleContractErrors: one lookup contract error between 2m and 3m. Not firing before it,
+  # firing while it is inside the 15-minute window (last at 16m), not firing from 17m.
   - interval: 1m
     input_series:
       - series: 'appstore_apple_requests_seconds_count{api="lookup",outcome="contract_error"}'
-        values: '0 0 0 1 1 1 1 1 1 1 1'
+        values: '0 0 0 1x27'
       - series: 'appstore_apple_requests_seconds_count{api="search",outcome="contract_error"}'
-        values: '0 0 0 0 0 0 0 0 0 0 0'
+        values: '0x30'
       - series: 'appstore_apple_requests_seconds_count{api="search",outcome="success"}'
-        values: '0+10x10'
+        values: '0+10x30'
     alert_rule_test:
       - eval_time: 2m
         alertname: AppleContractErrors
         exp_alerts: []
-      - eval_time: 10m
+      - eval_time: 16m
         alertname: AppleContractErrors
         exp_alerts:
           - exp_labels:
@@ -73,19 +86,23 @@ tests:
                 (outcome contract_error) in the last 15 minutes. Apple may have changed
                 its response format.
               runbook_url: https://github.com/vasyl-vaskovskyi/relution/blob/main/docs/operations/runbook.md#applecontracterrors
+      - eval_time: 17m
+        alertname: AppleContractErrors
+        exp_alerts: []
 
-  # AppleMissingFields: firing for the field that went missing, not for a stable counter.
+  # AppleMissingFields: artworkUrl512 goes missing between 1m and 2m. Firing while that is
+  # inside the 1-hour window (last at 60m), not firing from 61m or for a stable counter.
   - interval: 1m
     input_series:
       - series: 'appstore_apple_mapping_missing_field_total{field="artworkUrl512"}'
-        values: '0 0 2 2 2 2 2 2 2 2 2'
+        values: '0 0 2x70'
       - series: 'appstore_apple_mapping_missing_field_total{field="version"}'
-        values: '5 5 5 5 5 5 5 5 5 5 5'
+        values: '5x71'
     alert_rule_test:
       - eval_time: 1m
         alertname: AppleMissingFields
         exp_alerts: []
-      - eval_time: 10m
+      - eval_time: 60m
         alertname: AppleMissingFields
         exp_alerts:
           - exp_labels:
@@ -98,19 +115,23 @@ tests:
                 hour. This alert has no runbook section of its own; follow the
                 AppleContractErrors section.
               runbook_url: https://github.com/vasyl-vaskovskyi/relution/blob/main/docs/operations/runbook.md#applecontracterrors
+      - eval_time: 61m
+        alertname: AppleMissingFields
+        exp_alerts: []
 
-  # StorefrontAllowlistOutdated: firing for direction="outdated", not for direction="missing".
+  # StorefrontAllowlistOutdated: one outdated mismatch between 1m and 2m. Firing while it is
+  # inside the 1-hour window (last at 60m), not firing from 61m; direction="missing" never fires.
   - interval: 1m
     input_series:
       - series: 'appstore_storefront_allowlist_mismatch_total{direction="outdated"}'
-        values: '0 0 1 1 1 1 1 1 1 1 1'
+        values: '0 0 1x70'
       - series: 'appstore_storefront_allowlist_mismatch_total{direction="missing"}'
-        values: '0+1x10'
+        values: '0+1x71'
     alert_rule_test:
       - eval_time: 1m
         alertname: StorefrontAllowlistOutdated
         exp_alerts: []
-      - eval_time: 10m
+      - eval_time: 60m
         alertname: StorefrontAllowlistOutdated
         exp_alerts:
           - exp_labels:
@@ -122,28 +143,32 @@ tests:
                 Apple rejected a storefront code that is on the allowlist in the last
                 hour. Requests for that storefront get 400; the code is in the ERROR log.
               runbook_url: https://github.com/vasyl-vaskovskyi/relution/blob/main/docs/operations/runbook.md#storefrontallowlistoutdated
+      - eval_time: 61m
+        alertname: StorefrontAllowlistOutdated
+        exp_alerts: []
 
-  # AppleLatencyHigh: firing for lookup (every call between 1 s and 5 s, p95 4.8 s),
-  # not firing for search (every call under 1 s).
+  # AppleLatencyHigh: 40 calls per minute per API, split between the 1 s and 5 s buckets.
+  # lookup: 35 under 1 s, p95 3.4 s (above 3), pending at 10m, firing at 11m.
+  # search: 37 under 1 s, p95 2.33 s (below 3), never firing.
   - interval: 1m
     input_series:
       - series: 'appstore_apple_requests_seconds_bucket{api="lookup",outcome="success",le="1.0"}'
-        values: '0x30'
+        values: '0+35x30'
       - series: 'appstore_apple_requests_seconds_bucket{api="lookup",outcome="success",le="5.0"}'
-        values: '0+10x30'
+        values: '0+40x30'
       - series: 'appstore_apple_requests_seconds_bucket{api="lookup",outcome="success",le="+Inf"}'
-        values: '0+10x30'
+        values: '0+40x30'
       - series: 'appstore_apple_requests_seconds_bucket{api="search",outcome="success",le="1.0"}'
-        values: '0+10x30'
+        values: '0+37x30'
       - series: 'appstore_apple_requests_seconds_bucket{api="search",outcome="success",le="5.0"}'
-        values: '0+10x30'
+        values: '0+40x30'
       - series: 'appstore_apple_requests_seconds_bucket{api="search",outcome="success",le="+Inf"}'
-        values: '0+10x30'
+        values: '0+40x30'
     alert_rule_test:
-      - eval_time: 5m
+      - eval_time: 10m
         alertname: AppleLatencyHigh
         exp_alerts: []
-      - eval_time: 20m
+      - eval_time: 11m
         alertname: AppleLatencyHigh
         exp_alerts:
           - exp_labels:
@@ -153,22 +178,38 @@ tests:
               summary: Apple API latency is high
               description: >-
                 The p95 latency of the lookup API is
-                4.8s over 5 minutes (threshold 3s). Some
+                3.4s over 5 minutes (threshold 3s). Some
+                requests may end in 504.
+              runbook_url: https://github.com/vasyl-vaskovskyi/relution/blob/main/docs/operations/runbook.md#applelatencyhigh
+      - eval_time: 25m
+        alertname: AppleLatencyHigh
+        exp_alerts:
+          - exp_labels:
+              severity: warning
+              api: lookup
+            exp_annotations:
+              summary: Apple API latency is high
+              description: >-
+                The p95 latency of the lookup API is
+                3.4s over 5 minutes (threshold 3s). Some
                 requests may end in 504.
               runbook_url: https://github.com/vasyl-vaskovskyi/relution/blob/main/docs/operations/runbook.md#applelatencyhigh
 
-  # AppstoreDown: firing when the target is down for 5 minutes, not firing while it is up.
+  # AppstoreDown: app goes down at 2m, so it is pending at 6m and fires at 7m.
+  # app-2 stays up; app-3 is down for 4 minutes only and never fires.
   - interval: 1m
     input_series:
       - series: 'up{job="appstore-management",instance="app:8081"}'
-        values: '0x10'
+        values: '1 1 0x13'
       - series: 'up{job="appstore-management",instance="app-2:8081"}'
-        values: '1x10'
+        values: '1x15'
+      - series: 'up{job="appstore-management",instance="app-3:8081"}'
+        values: '0 0 0 0 1x11'
     alert_rule_test:
-      - eval_time: 3m
+      - eval_time: 6m
         alertname: AppstoreDown
         exp_alerts: []
-      - eval_time: 10m
+      - eval_time: 7m
         alertname: AppstoreDown
         exp_alerts:
           - exp_labels:
@@ -182,22 +223,23 @@ tests:
                 appstore-management. The instance is down or unreachable.
               runbook_url: https://github.com/vasyl-vaskovskyi/relution/blob/main/docs/operations/runbook.md#appstoredown
 
-  # AppleCircuitOpen: firing when the search breaker stays open, not for the closed lookup breaker.
+  # AppleCircuitOpen: the search breaker opens at 2m, so it is pending at 6m and fires at 7m.
+  # The lookup breaker stays closed.
   - interval: 1m
     input_series:
       - series: 'resilience4j_circuitbreaker_state{name="search",state="open"}'
-        values: '1x10'
+        values: '0 0 1x13'
       - series: 'resilience4j_circuitbreaker_state{name="search",state="closed"}'
-        values: '0x10'
+        values: '1 1 0x13'
       - series: 'resilience4j_circuitbreaker_state{name="lookup",state="open"}'
-        values: '0x10'
+        values: '0x15'
       - series: 'resilience4j_circuitbreaker_state{name="lookup",state="closed"}'
-        values: '1x10'
+        values: '1x15'
     alert_rule_test:
-      - eval_time: 3m
+      - eval_time: 6m
         alertname: AppleCircuitOpen
         exp_alerts: []
-      - eval_time: 10m
+      - eval_time: 7m
         alertname: AppleCircuitOpen
         exp_alerts:
           - exp_labels:
