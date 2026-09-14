@@ -10,7 +10,7 @@ import { AppDetails, DetailsCriteria, Platform } from '../../core/api/api.types'
 import { AppsApiService } from '../../core/api/apps-api.service';
 import { LoadState, withLoadState } from '../../core/api/load-state';
 import { DebugLogService } from '../../core/debug/debug-log.service';
-import { problemMessage } from '../../core/errors/problem-message';
+import { detailsProblemMessage } from '../../core/errors/problem-message';
 import { LocaleService, servedLanguageDiffers } from '../../core/locale/locale.service';
 import { LoadingPanelComponent, ProblemPanelComponent } from '../../shared/state-panels.component';
 
@@ -134,7 +134,7 @@ export class AppDetailsComponent {
     { initialValue: null },
   );
 
-  protected readonly problem = problemMessage;
+  protected readonly problem = detailsProblemMessage;
   protected readonly languageDiffers = servedLanguageDiffers;
   protected readonly safeLink = safeLink;
 

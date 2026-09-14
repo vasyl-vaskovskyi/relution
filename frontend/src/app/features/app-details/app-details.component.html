@@ -19,7 +19,7 @@
   @if (state.status === 'loading') {
     <app-loading-panel [slow]="state.slow" />
   } @else if (state.status === 'error') {
-    <app-problem-panel [message]="problem(state.error)" (retry)="retry()" />
+    <app-problem-panel [message]="problem(state.error, current.platform)" (retry)="retry()" />
   } @else {
     @let app = state.value;
     <article>

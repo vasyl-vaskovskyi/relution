@@ -1,5 +1,5 @@
 import { HttpErrorResponse } from '@angular/common/http';
-import { ProblemDetail } from '../api/api.types';
+import { Platform, ProblemDetail } from '../api/api.types';
 
 export const PROBLEM_TYPE_PREFIX = 'urn:appstore:problem:';
 
@@ -18,6 +18,10 @@ export const MESSAGES = {
   invalidInput: 'Please check your input.',
   unsupportedStorefront: 'The App Store is not available in this country.',
   appNotFound: 'App not found in this storefront.',
+  appNotFoundOnPlatform: (platform: Platform) =>
+    platform === 'mac'
+      ? 'App not found for Mac in this storefront. It may exist for iOS only.'
+      : 'App not found for iOS in this storefront. It may exist for Mac only.',
   tooManyRequests: (seconds: number) => `Too many requests, try again in ${seconds} s.`,
   tooManyRequestsLater: 'Too many requests, try again later.',
   unavailable: 'The App Store is currently unavailable.',
@@ -73,6 +77,21 @@ export function problemMessage(error: unknown, context: ProblemContext = 'api'):
       // Unknown or missing problem type: fall back by status class
       return result(error.status >= 500 ? MESSAGES.unavailable : MESSAGES.invalidInput);
   }
+}
+
+/**
+ * The details view asks for one platform. Apple answers `app-not-found` when the app exists only for the other one,
+ * so the message names the platform (docs/architecture/frontend.md#details).
+ */
+export function detailsProblemMessage(error: unknown, platform: Platform): UserMessage {
+  const result = problemMessage(error);
+  if (
+    error instanceof HttpErrorResponse &&
+    problemSlug(readProblem(error.error).type) === 'app-not-found'
+  ) {
+    return { ...result, message: MESSAGES.appNotFoundOnPlatform(platform) };
+  }
+  return result;
 }
 
 function problemSlug(type: string | undefined): string | undefined {
