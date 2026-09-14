@@ -1,0 +1,20 @@
+{
+  "name": "Search 429 rate limited (captured 2026-09-13; triggered by term=rate-limited)",
+  "request": {
+    "method": "GET",
+    "urlPath": "/search",
+    "queryParameters": {
+      "term": {
+        "equalTo": "rate-limited"
+      }
+    }
+  },
+  "response": {
+    "status": 429,
+    "headers": {
+      "Content-Type": "text/html",
+      "Retry-After": "30"
+    },
+    "body": "Rate limit has been exceeded for: itunes-apple-com|general|203.0.113.10\n"
+  }
+}

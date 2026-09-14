@@ -1,16 +1,23 @@
-# Captured Apple responses (temporary)
+# WireMock test data: captured Apple responses
 
 These are real Apple API responses, captured on **2026-09-13** from a German IP, plus two samples copied from Apple's
-documentation. **This folder is temporary.** At the start of the Search block on the Discovery Day, every file moves to
-`backend/src/test/resources/wiremock/`: bodies go to `__files/apple/{search,lookup}/`, and the 429 capture becomes a mapping.
-This README moves to `backend/src/test/resources/wiremock/README.md`, and `stubs/` is deleted
-([ADR-0041](../docs/adr/0041-move-captures-into-wiremock-and-remove-stubs.md)).
-Background: [`docs/integrations/apple-api-behavior.md`](../docs/integrations/apple-api-behavior.md).
+documentation. They are the single copy of the test data: tests own them, and there is no archive elsewhere
+([ADR-0041](../../../../../docs/adr/0041-move-captures-into-wiremock-and-remove-stubs.md)). They moved here from the
+former `stubs/` folder at the start of the Search block. Background:
+[`docs/integrations/apple-api-behavior.md`](../../../../../docs/integrations/apple-api-behavior.md).
+
+```
+wiremock/
+├── README.md               this file
+├── __files/apple/search/   response bodies
+├── __files/apple/lookup/   response bodies, incl. doc-sample-*.json
+└── mappings/apple/search/  captures whose status and headers matter (429)
+```
 
 ## Naming convention
 
 ```
-<api>/<http-status>-<scenario>[-<variant>][-<cc>].<ext>
+<api>/<http-status>-<scenario>[-<variant>][-<cc>].json
 ```
 
 - `api`: `search` (iTunes Search API) or `lookup` (MZStorePlatform lookup).
@@ -18,8 +25,9 @@ Background: [`docs/integrations/apple-api-behavior.md`](../docs/integrations/app
 - `scenario`: kebab-case description of what the file demonstrates.
 - `variant` (optional): what distinguishes it from a sibling file, e.g. the `platform` value.
 - `cc` (optional): the storefront the response was **served** from.
-- `ext`: `.json` for bodies, `.http` for full responses including headers.
+- Bodies live in `__files/`. A capture whose status and headers matter is a mapping in `mappings/` with the same name.
 - Exception: samples copied from Apple's documentation are named `doc-sample-<scenario>.json` (no HTTP status, because they were never returned by an API).
+- Hand-made variants are named `synthetic-<scenario>.json`, so they're never mistaken for captures.
 
 ## Trimming
 
@@ -27,21 +35,23 @@ Background: [`docs/integrations/apple-api-behavior.md`](../docs/integrations/app
 - Keys Apple omitted stay absent. Explicit `null`s stay `null`.
 - Texts are cut to 120 characters (search descriptions) or 160 characters (lookup descriptions and "what's new"), ending in `…`.
 - Search result lists are cut to 2 rows.
-- HTTP headers are removed from `.json` files, and gzipped bodies are decompressed.
+- HTTP headers are removed from bodies, and gzipped bodies are decompressed. Mappings keep only the headers the service reads.
 - Our source IP was replaced with `203.0.113.10`, an address range reserved for documentation.
 
-## `search/` — `GET https://itunes.apple.com/search?media=software&…`
+## Search — `GET https://itunes.apple.com/search?media=software&…`
 
 | File | Request params | Demonstrates |
 |---|---|---|
-| `200-apps-de.json` | `term=relution&entity=software&country=de&limit=5` | Normal result (2 iOS rows kept) |
-| `200-mixed-ios-mac-de.json` | `entity=software&country=de` (term not recorded) | A `mac-software` row **without** `supportedDevices`/`features` next to a `software` row that has them |
-| `200-no-results-de.json` | `term=<nonsense>&entity=software&country=de` | 200 with `resultCount: 0` and no error |
-| `400-invalid-country.json` | `country=xx` | `errorMessage: "Invalid value(s) for key(s): [country]"`. Valid ISO codes without a storefront (e.g. `cu`) get the same response |
-| `400-invalid-entity.json` | `entity=bogus` | The error names the key `[resultEntity]` |
-| `429-rate-limited.http` | burst of about 40 calls | `text/html` body, `retry-after: 30`, limited per source IP |
+| `__files/apple/search/200-apps-de.json` | `term=relution&entity=software&country=de&limit=5` | Normal result (2 iOS rows kept) |
+| `__files/apple/search/200-mixed-ios-mac-de.json` | `entity=software&country=de` (term not recorded) | A `mac-software` row **without** `supportedDevices`/`features` next to a `software` row that has them |
+| `__files/apple/search/200-no-results-de.json` | `term=<nonsense>&entity=software&country=de` | 200 with `resultCount: 0` and no error |
+| `__files/apple/search/400-invalid-country.json` | `country=xx` | `errorMessage: "Invalid value(s) for key(s): [country]"`. Valid ISO codes without a storefront (e.g. `cu`) get the same response |
+| `__files/apple/search/400-invalid-entity.json` | `entity=bogus` | The error names the key `[resultEntity]` |
+| `mappings/apple/search/429-rate-limited.json` | burst of about 40 calls | Status 429, `text/html` body, `Retry-After: 30`, limited per source IP. The mapping answers requests with `term=rate-limited`; tests can register their own stub with the same response instead |
 
-## `lookup/` — `GET https://uclient-api.itunes.apple.com/WebObjects/MZStorePlatform.woa/wa/lookup?version=2&p=mdm-lockup&caller=MDM&…`
+## Lookup — `GET https://uclient-api.itunes.apple.com/WebObjects/MZStorePlatform.woa/wa/lookup?version=2&p=mdm-lockup&caller=MDM&…`
+
+All files are in `__files/apple/lookup/`.
 
 | File | Request params | Demonstrates |
 |---|---|---|
@@ -56,4 +66,4 @@ Background: [`docs/integrations/apple-api-behavior.md`](../docs/integrations/app
 | `doc-sample-artwork-array.json` | Apple doc sample 1 | `artwork` as an **array** of sized URLs (the 216-wide entry points to `360x216bb.png`), `id` as a **number**, top-level `version: 1`, explicit `null`s |
 | `doc-sample-artwork-object-watch.json` | Apple doc sample 2 (B2B app) | `artwork` as an **object with a template URL** (same as live), `id` as a string, `watchBundleId`, explicit `null`s in `softwareInfo` |
 
-To refresh a file, follow [Refresh captures and fixtures](../docs/operations/runbook.md#refresh-captures-and-fixtures) in the runbook.
+To refresh a file, follow [Refresh captures and fixtures](../../../../../docs/operations/runbook.md#refresh-captures-and-fixtures) in the runbook.
