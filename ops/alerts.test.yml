@@ -1,0 +1,212 @@
+# promtool unit tests for ops/alerts.yml (ADR-0050).
+# Every rule has a firing and a non-firing case, using the metric names the rules use.
+# Run from the repository root (image pinned in ops/promtool/Dockerfile, see docs/development/tooling.md):
+#   docker build -t promtool ops/promtool
+#   docker run --rm -v "$PWD/ops:/ops:ro" promtool test rules /ops/alerts.test.yml
+rule_files:
+  - alerts.yml
+
+evaluation_interval: 1m
+
+tests:
+  # AppleSearchRateLimited: firing, 1 rate-limited Search call per second for 20 minutes.
+  - interval: 1m
+    input_series:
+      - series: 'appstore_apple_requests_seconds_count{api="search",outcome="rate_limited"}'
+        values: '0+60x30'
+    alert_rule_test:
+      - eval_time: 5m
+        alertname: AppleSearchRateLimited
+        exp_alerts: []
+      - eval_time: 20m
+        alertname: AppleSearchRateLimited
+        exp_alerts:
+          - exp_labels:
+              severity: warning
+            exp_annotations:
+              summary: Apple Search is rate limiting the service
+              description: >-
+                Apple Search calls ending as rate_limited, short_circuited or
+                budget_exhausted run at 1/s over 5 minutes.
+                Uncached searches return 503 while Apple's Retry-After window runs or
+                the outbound budget refills.
+              runbook_url: https://github.com/vasyl-vaskovskyi/relution/blob/main/docs/operations/runbook.md#applesearchratelimited
+
+  # AppleSearchRateLimited: not firing, low rate (0.05/s), successes and a lookup at a high rate.
+  - interval: 1m
+    input_series:
+      - series: 'appstore_apple_requests_seconds_count{api="search",outcome="short_circuited"}'
+        values: '0+3x30'
+      - series: 'appstore_apple_requests_seconds_count{api="search",outcome="success"}'
+        values: '0+600x30'
+      - series: 'appstore_apple_requests_seconds_count{api="lookup",outcome="rate_limited"}'
+        values: '0+600x30'
+    alert_rule_test:
+      - eval_time: 20m
+        alertname: AppleSearchRateLimited
+        exp_alerts: []
+
+  # AppleContractErrors: firing after one contract error, not firing without one.
+  - interval: 1m
+    input_series:
+      - series: 'appstore_apple_requests_seconds_count{api="lookup",outcome="contract_error"}'
+        values: '0 0 0 1 1 1 1 1 1 1 1'
+      - series: 'appstore_apple_requests_seconds_count{api="search",outcome="contract_error"}'
+        values: '0 0 0 0 0 0 0 0 0 0 0'
+      - series: 'appstore_apple_requests_seconds_count{api="search",outcome="success"}'
+        values: '0+10x10'
+    alert_rule_test:
+      - eval_time: 2m
+        alertname: AppleContractErrors
+        exp_alerts: []
+      - eval_time: 10m
+        alertname: AppleContractErrors
+        exp_alerts:
+          - exp_labels:
+              severity: critical
+              api: lookup
+              outcome: contract_error
+            exp_annotations:
+              summary: Apple responses no longer match the expected contract
+              description: >-
+                The lookup API returned responses that could not be mapped
+                (outcome contract_error) in the last 15 minutes. Apple may have changed
+                its response format.
+              runbook_url: https://github.com/vasyl-vaskovskyi/relution/blob/main/docs/operations/runbook.md#applecontracterrors
+
+  # AppleMissingFields: firing for the field that went missing, not for a stable counter.
+  - interval: 1m
+    input_series:
+      - series: 'appstore_apple_mapping_missing_field_total{field="artworkUrl512"}'
+        values: '0 0 2 2 2 2 2 2 2 2 2'
+      - series: 'appstore_apple_mapping_missing_field_total{field="version"}'
+        values: '5 5 5 5 5 5 5 5 5 5 5'
+    alert_rule_test:
+      - eval_time: 1m
+        alertname: AppleMissingFields
+        exp_alerts: []
+      - eval_time: 10m
+        alertname: AppleMissingFields
+        exp_alerts:
+          - exp_labels:
+              severity: warning
+              field: artworkUrl512
+            exp_annotations:
+              summary: Apple responses are missing expected fields
+              description: >-
+                Field artworkUrl512 was missing from Apple responses in the last
+                hour. This alert has no runbook section of its own; follow the
+                AppleContractErrors section.
+              runbook_url: https://github.com/vasyl-vaskovskyi/relution/blob/main/docs/operations/runbook.md#applecontracterrors
+
+  # StorefrontAllowlistOutdated: firing for direction="outdated", not for direction="missing".
+  - interval: 1m
+    input_series:
+      - series: 'appstore_storefront_allowlist_mismatch_total{direction="outdated"}'
+        values: '0 0 1 1 1 1 1 1 1 1 1'
+      - series: 'appstore_storefront_allowlist_mismatch_total{direction="missing"}'
+        values: '0+1x10'
+    alert_rule_test:
+      - eval_time: 1m
+        alertname: StorefrontAllowlistOutdated
+        exp_alerts: []
+      - eval_time: 10m
+        alertname: StorefrontAllowlistOutdated
+        exp_alerts:
+          - exp_labels:
+              severity: warning
+              direction: outdated
+            exp_annotations:
+              summary: The storefront allowlist is outdated
+              description: >-
+                Apple rejected a storefront code that is on the allowlist in the last
+                hour. Requests for that storefront get 400; the code is in the ERROR log.
+              runbook_url: https://github.com/vasyl-vaskovskyi/relution/blob/main/docs/operations/runbook.md#storefrontallowlistoutdated
+
+  # AppleLatencyHigh: firing for lookup (every call between 1 s and 5 s, p95 4.8 s),
+  # not firing for search (every call under 1 s).
+  - interval: 1m
+    input_series:
+      - series: 'appstore_apple_requests_seconds_bucket{api="lookup",outcome="success",le="1.0"}'
+        values: '0x30'
+      - series: 'appstore_apple_requests_seconds_bucket{api="lookup",outcome="success",le="5.0"}'
+        values: '0+10x30'
+      - series: 'appstore_apple_requests_seconds_bucket{api="lookup",outcome="success",le="+Inf"}'
+        values: '0+10x30'
+      - series: 'appstore_apple_requests_seconds_bucket{api="search",outcome="success",le="1.0"}'
+        values: '0+10x30'
+      - series: 'appstore_apple_requests_seconds_bucket{api="search",outcome="success",le="5.0"}'
+        values: '0+10x30'
+      - series: 'appstore_apple_requests_seconds_bucket{api="search",outcome="success",le="+Inf"}'
+        values: '0+10x30'
+    alert_rule_test:
+      - eval_time: 5m
+        alertname: AppleLatencyHigh
+        exp_alerts: []
+      - eval_time: 20m
+        alertname: AppleLatencyHigh
+        exp_alerts:
+          - exp_labels:
+              severity: warning
+              api: lookup
+            exp_annotations:
+              summary: Apple API latency is high
+              description: >-
+                The p95 latency of the lookup API is
+                4.8s over 5 minutes (threshold 3s). Some
+                requests may end in 504.
+              runbook_url: https://github.com/vasyl-vaskovskyi/relution/blob/main/docs/operations/runbook.md#applelatencyhigh
+
+  # AppstoreDown: firing when the target is down for 5 minutes, not firing while it is up.
+  - interval: 1m
+    input_series:
+      - series: 'up{job="appstore-management",instance="app:8081"}'
+        values: '0x10'
+      - series: 'up{job="appstore-management",instance="app-2:8081"}'
+        values: '1x10'
+    alert_rule_test:
+      - eval_time: 3m
+        alertname: AppstoreDown
+        exp_alerts: []
+      - eval_time: 10m
+        alertname: AppstoreDown
+        exp_alerts:
+          - exp_labels:
+              severity: critical
+              job: appstore-management
+              instance: app:8081
+            exp_annotations:
+              summary: The appstore management port cannot be scraped
+              description: >-
+                Prometheus cannot scrape app:8081 of job
+                appstore-management. The instance is down or unreachable.
+              runbook_url: https://github.com/vasyl-vaskovskyi/relution/blob/main/docs/operations/runbook.md#appstoredown
+
+  # AppleCircuitOpen: firing when the search breaker stays open, not for the closed lookup breaker.
+  - interval: 1m
+    input_series:
+      - series: 'resilience4j_circuitbreaker_state{name="search",state="open"}'
+        values: '1x10'
+      - series: 'resilience4j_circuitbreaker_state{name="search",state="closed"}'
+        values: '0x10'
+      - series: 'resilience4j_circuitbreaker_state{name="lookup",state="open"}'
+        values: '0x10'
+      - series: 'resilience4j_circuitbreaker_state{name="lookup",state="closed"}'
+        values: '1x10'
+    alert_rule_test:
+      - eval_time: 3m
+        alertname: AppleCircuitOpen
+        exp_alerts: []
+      - eval_time: 10m
+        alertname: AppleCircuitOpen
+        exp_alerts:
+          - exp_labels:
+              severity: warning
+              name: search
+            exp_annotations:
+              summary: A circuit breaker for an Apple API is open
+              description: >-
+                The search circuit breaker has been open for 5 minutes after
+                repeated connection failures, timeouts or 5xx. Uncached requests to that
+                API get 503 without calling Apple.
+              runbook_url: https://github.com/vasyl-vaskovskyi/relution/blob/main/docs/operations/runbook.md#applecircuitopen

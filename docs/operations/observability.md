@@ -62,6 +62,8 @@ See [ADR-0038](../adr/0038-alert-rules.md). The rules live in `ops/alerts.yml`, 
 | `AppstoreDown` | `up{job="appstore-management"} == 0` for 5 m (the management port can't be scraped) | Critical |
 | `AppleCircuitOpen` | `max by (name) (resilience4j_circuitbreaker_state{state="open"}) == 1` for 5 m | Warning |
 
+**Rule tests** ([ADR-0050](../adr/0050-alert-rule-unit-tests-with-promtool.md)): `ops/alerts.test.yml` holds promtool unit tests with a firing and a non-firing case for every rule above, fed with the metric names the rules use. The CI job `alerts` runs `promtool check rules` and `promtool test rules` ([`../development/tooling.md`](../development/tooling.md#continuous-integration-adr-0035)). A new or changed rule needs matching test cases in the same commit. Expected annotations are compared as rendered, so a change to a rule's text changes its test too.
+
 Circuit breaker metrics come from Resilience4j's Micrometer binding: `resilience4j_circuitbreaker_state{name, state}`, `resilience4j_circuitbreaker_calls_seconds_count{name, kind}` and `resilience4j_circuitbreaker_failure_rate{name}` ([ADR-0047](../adr/0047-circuit-breaker-per-apple-api.md)). `name` is `search` or `lookup`.
 
 ## Level 2: OpenTelemetry + Grafana LGTM (stretch goal)
