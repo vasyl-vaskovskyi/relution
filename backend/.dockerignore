@@ -1,0 +1,7 @@
+# Keep the build context to what the Dockerfile copies
+*
+!gradlew
+!settings.gradle.kts
+!build.gradle.kts
+!gradle/
+!src/main/
