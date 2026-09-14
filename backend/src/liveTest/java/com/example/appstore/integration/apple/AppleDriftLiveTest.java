@@ -39,8 +39,9 @@ class AppleDriftLiveTest {
 
     @Test
     void searchRowsCarryTheRequiredKeys() {
-        ItunesSearchClient client =
-                new ItunesSearchClient(restClient(PROPERTIES.search().url().toString()), JSON);
+        // the production budget; the single call here takes one permit
+        ItunesSearchClient client = new ItunesSearchClient(
+                restClient(PROPERTIES.search().url().toString()), JSON, new SearchBudget(PROPERTIES));
 
         ItunesSearchResponse response = client.search("pages", "de", 10);
         detector.inspect(response);

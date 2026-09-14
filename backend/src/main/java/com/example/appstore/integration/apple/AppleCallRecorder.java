@@ -5,6 +5,7 @@ import com.example.appstore.catalog.UpstreamConnectException;
 import com.example.appstore.catalog.UpstreamContractException;
 import com.example.appstore.catalog.UpstreamException;
 import com.example.appstore.catalog.UpstreamRateLimitedException;
+import com.example.appstore.catalog.UpstreamRateLimitedException.Reason;
 import com.example.appstore.catalog.UpstreamReadTimeoutException;
 import com.example.appstore.catalog.UpstreamServerErrorException;
 import com.example.appstore.observability.MetricNames;
@@ -62,26 +63,36 @@ final class AppleCallRecorder {
             case UpstreamConnectException ignored -> "connect_error";
             case UpstreamReadTimeoutException ignored -> "read_timeout";
             case UpstreamServerErrorException ignored -> "server_error";
-            case UpstreamRateLimitedException ignored -> "rate_limited";
+            case UpstreamRateLimitedException limited ->
+                switch (limited.reason()) {
+                    case APPLE -> "rate_limited";
+                    case SHORT_CIRCUIT -> "short_circuited";
+                    case BUDGET -> "budget_exhausted";
+                };
             case UpstreamContractException ignored -> "contract_error";
             case StorefrontNotServedException ignored -> "storefront_rejected";
         };
     }
 
+    /** The HTTP status Apple returned, or {@code 0} when no answer was received or Apple wasn't called. */
     static int statusOf(UpstreamException e) {
         return switch (e) {
             case UpstreamServerErrorException s -> s.status();
             case UpstreamContractException c -> c.status();
-            case UpstreamRateLimitedException ignored -> 429;
+            case UpstreamRateLimitedException limited -> limited.reason() == Reason.APPLE ? 429 : 0;
             case StorefrontNotServedException ignored -> 400;
             case UpstreamConnectException ignored -> 0;
             case UpstreamReadTimeoutException ignored -> 0;
         };
     }
 
-    /** WARN for 429, timeouts and 5xx; ERROR for contract errors (our bug or drift); INFO for a rejected storefront. */
+    /**
+     * WARN for 429, an exhausted budget, timeouts and 5xx; DEBUG for the short-circuit; ERROR for contract errors (our
+     * bug or drift); INFO for a rejected storefront ({@code docs/architecture/error-handling.md}).
+     */
     static Level levelOf(UpstreamException e) {
         return switch (e) {
+            case UpstreamRateLimitedException limited when limited.reason() == Reason.SHORT_CIRCUIT -> Level.DEBUG;
             case UpstreamContractException ignored -> Level.ERROR;
             case StorefrontNotServedException ignored -> Level.INFO;
             default -> Level.WARN;

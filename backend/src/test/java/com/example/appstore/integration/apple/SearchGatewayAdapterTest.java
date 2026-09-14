@@ -16,15 +16,14 @@ import com.example.appstore.catalog.UpstreamConnectException;
 import com.example.appstore.catalog.UpstreamContractException;
 import com.example.appstore.catalog.UpstreamException;
 import com.example.appstore.catalog.UpstreamRateLimitedException;
+import com.example.appstore.catalog.UpstreamRateLimitedException.Reason;
 import com.example.appstore.catalog.UpstreamReadTimeoutException;
 import com.example.appstore.catalog.UpstreamServerErrorException;
+import com.example.appstore.integration.apple.SearchBudgetTest.MutableClock;
 import com.example.appstore.observability.MetricNames;
 import io.micrometer.core.instrument.simple.SimpleMeterRegistry;
 import java.net.URI;
-import java.time.Clock;
 import java.time.Duration;
-import java.time.Instant;
-import java.time.ZoneOffset;
 import java.util.List;
 import java.util.stream.Stream;
 import org.junit.jupiter.api.Test;
@@ -73,15 +72,16 @@ class SearchGatewayAdapterTest {
     @Test
     void appleRateLimitBlocksFurtherCallsUntilRetryAfterPassed(CapturedOutput output) {
         when(client.search(anyString(), anyString(), anyInt()))
-                .thenThrow(new UpstreamRateLimitedException(Duration.ofSeconds(30), "limited"))
+                .thenThrow(appleLimit(Duration.ofSeconds(30)))
                 .thenReturn(new ItunesSearchResponse(0, List.of()));
 
         assertThatThrownBy(() -> adapter.search(QUERY)).isInstanceOf(UpstreamRateLimitedException.class);
         clock.advance(Duration.ofMillis(10_500));
         assertThatThrownBy(() -> adapter.search(QUERY))
-                .isInstanceOfSatisfying(
-                        UpstreamRateLimitedException.class,
-                        e -> assertThat(e.retryAfter()).isEqualTo(Duration.ofSeconds(20)));
+                .isInstanceOfSatisfying(UpstreamRateLimitedException.class, e -> {
+                    assertThat(e.retryAfter()).isEqualTo(Duration.ofSeconds(20));
+                    assertThat(e.reason()).isEqualTo(Reason.SHORT_CIRCUIT);
+                });
         verify(client, times(1)).search(anyString(), anyString(), anyInt());
 
         clock.advance(Duration.ofSeconds(20));
@@ -95,14 +95,27 @@ class SearchGatewayAdapterTest {
 
     @Test
     void retryAfterIsCappedAtTheConfiguredMaximum() {
-        when(client.search(anyString(), anyString(), anyInt()))
-                .thenThrow(new UpstreamRateLimitedException(Duration.ofHours(1), "limited"));
+        when(client.search(anyString(), anyString(), anyInt())).thenThrow(appleLimit(Duration.ofHours(1)));
 
         assertThatThrownBy(() -> adapter.search(QUERY))
                 .isInstanceOfSatisfying(
                         UpstreamRateLimitedException.class,
                         e -> assertThat(e.retryAfter()).isEqualTo(Duration.ofMinutes(5)));
         assertThat(guard.remainingBlock()).contains(Duration.ofMinutes(5));
+    }
+
+    @Test
+    void exhaustedBudgetIsRecordedWithoutStartingTheShortCircuit() {
+        UpstreamRateLimitedException budget =
+                new UpstreamRateLimitedException(Duration.ofSeconds(3), Reason.BUDGET, "budget");
+        when(client.search(anyString(), anyString(), anyInt()))
+                .thenThrow(budget)
+                .thenReturn(new ItunesSearchResponse(0, List.of()));
+
+        assertThatThrownBy(() -> adapter.search(QUERY)).isSameAs(budget);
+        assertThat(samples("budget_exhausted")).isEqualTo(1);
+        assertThat(guard.remainingBlock()).isEmpty();
+        assertThat(adapter.search(QUERY)).isEmpty();
     }
 
     @Test
@@ -140,6 +153,10 @@ class SearchGatewayAdapterTest {
                 .count();
     }
 
+    private static UpstreamRateLimitedException appleLimit(Duration retryAfter) {
+        return new UpstreamRateLimitedException(retryAfter, Reason.APPLE, "limited");
+    }
+
     private static ItunesSearchResponse response(ItunesSearchResponse.Row... rows) {
         return new ItunesSearchResponse(rows.length, List.of(rows));
     }
@@ -155,29 +172,5 @@ class SearchGatewayAdapterTest {
                 new AppleProperties.Timeout(Duration.ofSeconds(2), Duration.ofSeconds(5)),
                 new AppleProperties.Retry(2, Duration.ofSeconds(8)),
                 new AppleProperties.RetryAfter(maxRetryAfter));
-    }
-
-    private static final class MutableClock extends Clock {
-
-        private Instant now = Instant.parse("2026-09-14T10:00:00Z");
-
-        void advance(Duration duration) {
-            now = now.plus(duration);
-        }
-
-        @Override
-        public Instant instant() {
-            return now;
-        }
-
-        @Override
-        public ZoneOffset getZone() {
-            return ZoneOffset.UTC;
-        }
-
-        @Override
-        public Clock withZone(java.time.ZoneId zone) {
-            return this;
-        }
     }
 }

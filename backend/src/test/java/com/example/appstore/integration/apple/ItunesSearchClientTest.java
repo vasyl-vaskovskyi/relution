@@ -223,6 +223,8 @@ class ItunesSearchClientTest {
                 new AppleProperties.Retry(2, Duration.ofSeconds(8)),
                 new AppleProperties.RetryAfter(Duration.ofMinutes(5)));
         RestClient restClient = new AppleClientConfiguration().itunesSearchRestClient(RestClient.builder(), properties);
-        return new ItunesSearchClient(restClient, JsonMapper.builder().build());
+        // a budget that never runs out here; SearchBudgetTest and AppleRetryTest cover the budget
+        return new ItunesSearchClient(
+                restClient, JsonMapper.builder().build(), new SearchBudget(10_000, java.time.Clock.systemUTC()));
     }
 }

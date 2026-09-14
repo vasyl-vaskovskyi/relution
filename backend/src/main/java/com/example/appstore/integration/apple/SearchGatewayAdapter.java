@@ -5,6 +5,7 @@ import com.example.appstore.catalog.AppSummary;
 import com.example.appstore.catalog.SearchQuery;
 import com.example.appstore.catalog.UpstreamException;
 import com.example.appstore.catalog.UpstreamRateLimitedException;
+import com.example.appstore.catalog.UpstreamRateLimitedException.Reason;
 import io.micrometer.core.instrument.MeterRegistry;
 import java.time.Duration;
 import java.util.List;
@@ -42,9 +43,10 @@ public class SearchGatewayAdapter implements AppSearchGateway {
         int termLength = query.term().length();
         Optional<Duration> blocked = guard.remainingBlock();
         if (blocked.isPresent()) {
-            recorder.record("short_circuited", 0, Duration.ZERO, Level.DEBUG, TERM_LENGTH, termLength);
-            throw new UpstreamRateLimitedException(
-                    blocked.get(), "Search short-circuited while Apple's Retry-After runs");
+            UpstreamRateLimitedException shortCircuit = new UpstreamRateLimitedException(
+                    blocked.get(), Reason.SHORT_CIRCUIT, "Search short-circuited while Apple's Retry-After runs");
+            recorder.recordFailure(shortCircuit, Duration.ZERO, TERM_LENGTH, termLength);
+            throw shortCircuit;
         }
         long start = System.nanoTime();
         try {
@@ -59,9 +61,16 @@ public class SearchGatewayAdapter implements AppSearchGateway {
             recorder.record(outcome, 200, elapsed(start), Level.INFO, TERM_LENGTH, termLength);
             return items;
         } catch (UpstreamRateLimitedException e) {
-            Duration applied = guard.block(e.retryAfter());
-            recorder.recordFailure(e, elapsed(start), TERM_LENGTH, termLength);
-            throw applied.equals(e.retryAfter()) ? e : new UpstreamRateLimitedException(applied, e.getMessage());
+            UpstreamRateLimitedException reported = e;
+            if (e.reason() == Reason.APPLE) {
+                // only Apple's own 429 starts the short-circuit; an exhausted budget refills by itself
+                Duration applied = guard.block(e.retryAfter());
+                if (!applied.equals(e.retryAfter())) {
+                    reported = new UpstreamRateLimitedException(applied, Reason.APPLE, e.getMessage());
+                }
+            }
+            recorder.recordFailure(reported, elapsed(start), TERM_LENGTH, termLength);
+            throw reported;
         } catch (UpstreamException e) {
             recorder.recordFailure(e, elapsed(start), TERM_LENGTH, termLength);
             throw e;
