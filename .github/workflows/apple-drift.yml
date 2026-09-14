@@ -1,0 +1,32 @@
+name: Apple drift
+
+# Nightly check against the real Apple APIs (ADR-0037). At most 3 Apple calls.
+# Deliberately not triggered by pull requests: it depends on Apple's availability and rate limit.
+on:
+  schedule:
+    - cron: "17 3 * * *"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: apple-drift
+  cancel-in-progress: false
+
+jobs:
+  live-test:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    defaults:
+      run:
+        working-directory: backend
+    steps:
+      - uses: actions/checkout@v7.0.1
+      - uses: actions/setup-java@v6.0.1
+        with:
+          distribution: temurin
+          java-version: "25"
+      # Also validates the Gradle wrapper checksum
+      - uses: gradle/actions/setup-gradle@v6.3.0
+      - run: ./gradlew liveTest
