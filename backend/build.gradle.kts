@@ -34,6 +34,7 @@ spotless {
 
 dependencies {
 	implementation(libs.boot.starter.actuator)
+	implementation(libs.boot.starter.opentelemetry)
 	implementation(libs.boot.starter.restclient)
 	implementation(libs.boot.starter.security)
 	implementation(libs.boot.starter.oauth2.resource.server)

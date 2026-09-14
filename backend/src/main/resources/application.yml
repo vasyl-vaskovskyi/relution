@@ -21,6 +21,19 @@ management:
     health:
       probes:
         add-additional-paths: true
+  # Level 2 (docs/operations/observability.md): every OTLP export is off; compose.observability.yml turns them on
+  otlp:
+    metrics:
+      export:
+        enabled: false
+  tracing:
+    export:
+      enabled: false
+    sampling:
+      probability: 0.1
+  logging:
+    export:
+      enabled: false
   metrics:
     distribution:
       percentiles-histogram:

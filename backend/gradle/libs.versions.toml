@@ -11,6 +11,7 @@ palantir-java-format = "2.98.0"
 [libraries]
 # Versions managed by the Spring Boot BOM
 boot-starter-actuator = { module = "org.springframework.boot:spring-boot-starter-actuator" }
+boot-starter-opentelemetry = { module = "org.springframework.boot:spring-boot-starter-opentelemetry" }
 boot-starter-restclient = { module = "org.springframework.boot:spring-boot-starter-restclient" }
 boot-starter-security = { module = "org.springframework.boot:spring-boot-starter-security" }
 boot-starter-oauth2-resource-server = { module = "org.springframework.boot:spring-boot-starter-security-oauth2-resource-server" }
