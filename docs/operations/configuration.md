@@ -28,6 +28,11 @@ If one of these is missing or invalid, the application refuses to start. An `App
 | `appstore.apple.retry.max` | `APPSTORE_APPLE_RETRY_MAX` | `2` | Retries for connection failures |
 | `appstore.apple.retry.timeout` | `APPSTORE_APPLE_RETRY_TIMEOUT` | `PT8S` | No new attempt starts after this time (a running attempt isn't aborted) |
 | `appstore.apple.retryafter.max` | `APPSTORE_APPLE_RETRYAFTER_MAX` | `PT5M` | Upper bound for Apple's `Retry-After` in the 429 guard |
+| `appstore.apple.circuit.failurerate` | `APPSTORE_APPLE_CIRCUIT_FAILURERATE` | `50` | Percentage of failed calls in the window that opens a circuit breaker (1–100) |
+| `appstore.apple.circuit.window` | `APPSTORE_APPLE_CIRCUIT_WINDOW` | `20` | Number of recent calls the failure rate is computed over |
+| `appstore.apple.circuit.minimumcalls` | `APPSTORE_APPLE_CIRCUIT_MINIMUMCALLS` | `10` | Calls needed before the failure rate is evaluated |
+| `appstore.apple.circuit.open` | `APPSTORE_APPLE_CIRCUIT_OPEN` | `PT30S` | How long a breaker stays open (also the `Retry-After` while open) |
+| `appstore.apple.circuit.halfopencalls` | `APPSTORE_APPLE_CIRCUIT_HALFOPENCALLS` | `3` | Test calls allowed while half-open |
 | `appstore.apple.search.budget` | `APPSTORE_APPLE_SEARCH_BUDGET` | `20` | Outbound Search calls per minute allowed by the outbound limiter. Raise it when more requests are bought ([ADR-0045](../adr/0045-search-budget-is-configuration-and-the-outbound-limiter-is-core.md)) |
 | `appstore.cache.search.ttl` | `APPSTORE_CACHE_SEARCH_TTL` | `PT10M` | `app-search` time to live |
 | `appstore.cache.search.size` | `APPSTORE_CACHE_SEARCH_SIZE` | `1000` | `app-search` maximum entries |

@@ -34,6 +34,7 @@ The client never learns anything about the allowlist or how it is maintained. Th
 | Apple 429 | 503 + `Retry-After` | `upstream-unavailable` | no | WARN |
 | Local short-circuit while Apple's `Retry-After` runs | 503 + remaining `Retry-After` | `upstream-unavailable` | no | DEBUG |
 | Outbound Search budget exhausted ([ADR-0045](../adr/0045-search-budget-is-configuration-and-the-outbound-limiter-is-core.md)) | 503 + `Retry-After` | `upstream-unavailable` | no | WARN |
+| Circuit breaker open ([ADR-0047](../adr/0047-circuit-breaker-per-apple-api.md)) | 503 + `Retry-After` | `upstream-unavailable` | no | DEBUG (the transition is WARN once) |
 | Read timeout | 504 | `upstream-timeout` | no | WARN |
 | Connection failure (after retries or retry `timeout`) | 502 | `upstream-error` | yes | WARN |
 | Apple 5xx | 502 | `upstream-error` | no | WARN |

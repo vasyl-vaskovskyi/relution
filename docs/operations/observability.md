@@ -34,7 +34,7 @@ Exposed on `8081/actuator/metrics` and `8081/actuator/prometheus`.
 | Metric | Type | Tags | Meaning |
 |---|---|---|---|
 | `http.server.requests` | Timer | Spring defaults (URI template, no query) | Incoming requests |
-| `appstore.apple.requests` | Timer with percentiles histogram | `api=search\|lookup`, `outcome=success\|empty\|not_found\|storefront_rejected\|rate_limited\|short_circuited\|budget_exhausted\|connect_error\|read_timeout\|server_error\|contract_error` | One sample per logical upstream call, short-circuit or exhausted budget, recorded after retries |
+| `appstore.apple.requests` | Timer with percentiles histogram | `api=search\|lookup`, `outcome=success\|empty\|not_found\|storefront_rejected\|rate_limited\|short_circuited\|budget_exhausted\|circuit_open\|connect_error\|read_timeout\|server_error\|contract_error` | One sample per logical upstream call, short-circuit or exhausted budget, recorded after retries |
 | `appstore.apple.mapping.missing_field` | Counter | `api`, `field` | Drift signal ([ADR-0037](../adr/0037-legacy-api-drift-detection.md)) |
 | `appstore.storefront.allowlist.mismatch` | Counter | `direction=missing\|outdated` | Allowlist maintenance signal |
 | `cache.gets` (and the other Caffeine cache metrics) | Counter | `cache=app-search\|app-details`, `result=hit\|miss` | Cache effectiveness |
@@ -59,6 +59,9 @@ See [ADR-0038](../adr/0038-alert-rules.md). The rules live in `ops/alerts.yml`, 
 | `StorefrontAllowlistOutdated` | `increase(appstore_storefront_allowlist_mismatch_total{direction="outdated"}[1h]) > 0` | Warning |
 | `AppleLatencyHigh` | `histogram_quantile(0.95, sum by (le, api) (rate(appstore_apple_requests_seconds_bucket[5m]))) > 3` for 10 m | Warning |
 | `AppstoreDown` | `up{job="appstore-management"} == 0` for 5 m (the management port can't be scraped) | Critical |
+| `AppleCircuitOpen` | `max by (name) (resilience4j_circuitbreaker_state{state="open"}) == 1` for 5 m | Warning |
+
+Circuit breaker metrics come from Resilience4j's Micrometer binding: `resilience4j_circuitbreaker_state{name, state}`, `resilience4j_circuitbreaker_calls_seconds_count{name, kind}` and `resilience4j_circuitbreaker_failure_rate{name}` ([ADR-0047](../adr/0047-circuit-breaker-per-apple-api.md)). `name` is `search` or `lookup`.
 
 ## Level 2: OpenTelemetry + Grafana LGTM (stretch goal)
 

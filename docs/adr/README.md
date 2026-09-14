@@ -41,7 +41,7 @@ None. [ADR-0026](0026-hybrid-routing-angular-client-calls-apple-search-directly-
 | [0027](0027-observability-logs-and-metrics-in-the-app-opentelemetry-graf.md) | Observability: logs and metrics in the app, OpenTelemetry + Grafana LGTM as a stretch goal | Accepted; amended by ADR-0033 (Boot-native OTLP properties, variable names), ADR-0034 (trace id as correlation id) and ADR-0038 (alert rules, `appstore.` metric prefix) |
 | [0028](0028-package-boundaries-and-ports.md) | Package boundaries, ports and ArchUnit enforcement | Accepted; renames sub-packages of ADR-0015 |
 | [0029](0029-domain-terms-in-public-api.md) | Domain terms in the public API, decimal money, extensible contract | Accepted; supersedes ADR-0014; amends ADR-0023 |
-| [0030](0030-details-cache-and-bounded-retry.md) | Native async caches, one lookup-result cache, bounded retry | Accepted; supersedes ADR-0011; amends ADR-0012; amended by ADR-0043 (`storefront-verdict` cache removed) |
+| [0030](0030-details-cache-and-bounded-retry.md) | Native async caches, one lookup-result cache, bounded retry | Accepted; supersedes ADR-0011; amends ADR-0012; amended by ADR-0043 (`storefront-verdict` cache removed) and ADR-0047 (circuit breaker) |
 | [0031](0031-rate-limit-short-circuit.md) | Short-circuit Search calls after Apple returns 429 | Accepted; amends ADR-0012 and ADR-0007 |
 | [0032](0032-management-port-and-probes.md) | Separate management port, probes, restricted exposure | Accepted; amended by ADR-0044 (the management chain matches the whole port) |
 | [0033](0033-configuration-namespace.md) | One configuration namespace `appstore.*` | Accepted; amends ADR-0006, ADR-0018 and ADR-0027 |
@@ -58,6 +58,7 @@ None. [ADR-0026](0026-hybrid-routing-angular-client-calls-apple-search-directly-
 | [0044](0044-secure-the-management-port-as-a-whole.md) | Secure the management port as a whole | Accepted; amends ADR-0032 |
 | [0045](0045-search-budget-is-configuration-and-the-outbound-limiter-is-core.md) | The Search budget is configuration, and the outbound limiter is core | Accepted; amends ADR-0007, ADR-0017 and ADR-0025 |
 | [0046](0046-frontend-assets-stay-same-origin-no-cdn-fonts-or-icons.md) | Frontend assets stay same-origin: no CDN fonts or icons | Accepted |
+| [0047](0047-circuit-breaker-per-apple-api.md) | A circuit breaker per Apple API | Accepted; amends ADR-0030 |
 
 ## Writing a new ADR
 

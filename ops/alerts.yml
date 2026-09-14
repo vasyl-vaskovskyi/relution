@@ -77,3 +77,16 @@ groups:
             Prometheus cannot scrape {{ $labels.instance }} of job
             appstore-management. The instance is down or unreachable.
           runbook_url: https://github.com/vasyl-vaskovskyi/relution/blob/main/docs/operations/runbook.md#appstoredown
+
+      - alert: AppleCircuitOpen
+        expr: max by (name) (resilience4j_circuitbreaker_state{state="open"}) == 1
+        for: 5m
+        labels:
+          severity: warning
+        annotations:
+          summary: A circuit breaker for an Apple API is open
+          description: >-
+            The {{ $labels.name }} circuit breaker has been open for 5 minutes after
+            repeated connection failures, timeouts or 5xx. Uncached requests to that
+            API get 503 without calling Apple.
+          runbook_url: https://github.com/vasyl-vaskovskyi/relution/blob/main/docs/operations/runbook.md#applecircuitopen
