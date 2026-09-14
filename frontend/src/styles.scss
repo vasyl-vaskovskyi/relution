@@ -6,7 +6,13 @@
 @use '@angular/material' as mat;
 
 // System fonts only: nothing is downloaded from a third-party origin (ADR-0046)
-$system-font-stack: system-ui, -apple-system, 'Segoe UI', Roboto, 'Helvetica Neue', Arial,
+$system-font-stack:
+  system-ui,
+  -apple-system,
+  'Segoe UI',
+  Roboto,
+  'Helvetica Neue',
+  Arial,
   sans-serif;
 
 html {
