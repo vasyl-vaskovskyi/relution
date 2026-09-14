@@ -28,7 +28,7 @@ If one of these is missing or invalid, the application refuses to start. An `App
 | `appstore.apple.retry.max` | `APPSTORE_APPLE_RETRY_MAX` | `2` | Retries for connection failures |
 | `appstore.apple.retry.timeout` | `APPSTORE_APPLE_RETRY_TIMEOUT` | `PT8S` | No new attempt starts after this time (a running attempt isn't aborted) |
 | `appstore.apple.retryafter.max` | `APPSTORE_APPLE_RETRYAFTER_MAX` | `PT5M` | Upper bound for Apple's `Retry-After` in the 429 guard |
-| `appstore.apple.search.budget` | `APPSTORE_APPLE_SEARCH_BUDGET` | `20` | Outbound Search calls per minute (only if the stretch-goal limiter is built) |
+| `appstore.apple.search.budget` | `APPSTORE_APPLE_SEARCH_BUDGET` | `20` | Outbound Search calls per minute allowed by the outbound limiter. Raise it when more requests are bought ([ADR-0045](../adr/0045-search-budget-is-configuration-and-the-outbound-limiter-is-core.md)) |
 | `appstore.cache.search.ttl` | `APPSTORE_CACHE_SEARCH_TTL` | `PT10M` | `app-search` time to live |
 | `appstore.cache.search.size` | `APPSTORE_CACHE_SEARCH_SIZE` | `1000` | `app-search` maximum entries |
 | `appstore.cache.details.ttl` | `APPSTORE_CACHE_DETAILS_TTL` | `PT15M` | `app-details` time to live for `Found` |

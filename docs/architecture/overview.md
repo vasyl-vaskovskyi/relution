@@ -95,10 +95,10 @@ All six extend the sealed `UpstreamException`. `AppNotFoundException` is separat
 | Area | Choice | ADR |
 |---|---|---|
 | Language / runtime | Java 25 LTS (Gradle toolchain), virtual threads | [0002](../adr/0002-java-25-lts.md), [0030](../adr/0030-details-cache-and-bounded-retry.md) |
-| Framework | Spring Boot 4.1.x (Spring Framework 7, Jackson 3) | [0003](../adr/0003-spring-boot-4-1-with-restclient.md) |
+| Framework | Spring Boot 4.1.x (Spring Framework 7.0, Spring Security 7.1, Jackson 3) | [0003](../adr/0003-spring-boot-4-1-with-restclient.md) |
 | HTTP client | `RestClient` from the Boot-configured builder; connect/read timeouts configurable | [0003](../adr/0003-spring-boot-4-1-with-restclient.md) |
-| Caching | Caffeine `AsyncCache` used directly (no Spring cache abstraction) | [0030](../adr/0030-details-cache-and-bounded-retry.md) |
-| Resilience | Spring Framework 7 `@Retryable` (with `timeout`) | [0030](../adr/0030-details-cache-and-bounded-retry.md) |
+| Caching | Caffeine `AsyncCache` used directly (no Spring cache abstraction); loader threads get the MDC via Micrometer context propagation | [0030](../adr/0030-details-cache-and-bounded-retry.md) |
+| Resilience | Spring Framework 7 `@Retryable` (with `timeout`), 429 short-circuit, outbound limiter on Search with a configurable budget | [0030](../adr/0030-details-cache-and-bounded-retry.md), [0031](../adr/0031-rate-limit-short-circuit.md), [0045](../adr/0045-search-budget-is-configuration-and-the-outbound-limiter-is-core.md) |
 | Auth | Spring Security OAuth2 resource server, self-issued HS256 JWT | [0004](../adr/0004-self-issued-hs256-jwt-no-fallback.md), [0034](../adr/0034-security-and-privacy-hardening.md) |
 | API docs | springdoc-openapi 3.1.x | [0001](../adr/0001-server-only-scope-with-spring-boot.md) |
 | Observability | Actuator on port 8081, Micrometer + Prometheus registry, ECS structured logs; OpenTelemetry as a stretch goal | [0027](../adr/0027-observability-logs-and-metrics-in-the-app-opentelemetry-graf.md), [0032](../adr/0032-management-port-and-probes.md) |

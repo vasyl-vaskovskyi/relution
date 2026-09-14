@@ -8,7 +8,7 @@ Before doing any work, read [`docs/challenge/plan.md`](docs/challenge/plan.md). 
 
 ## The project
 
-A Spring Boot 4 service (Java 25) with two endpoints: it searches apps via the Apple iTunes Search API and returns app details via the Apple MZStorePlatform lookup API (which Apple marks as Legacy). An Angular 22 client demonstrates both. The service turns Apple payloads into small, stable DTOs and translates upstream failures into RFC 9457 problem responses. It also provides caching, bounded retry, a 429 short-circuit, JWT auth, OpenAPI, structured logs and metrics.
+A Spring Boot 4 service (Java 25) with two endpoints: it searches apps via the Apple iTunes Search API and returns app details via the Apple MZStorePlatform lookup API (which Apple marks as Legacy). An Angular 22 client demonstrates both. The service turns Apple payloads into small, stable DTOs and translates upstream failures into RFC 9457 problem responses. It also provides caching with request deduplication, bounded retry, a 429 short-circuit, an outbound limiter for the Search budget, JWT auth, OpenAPI, structured logs and metrics.
 
 ## Where things live
 

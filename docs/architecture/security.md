@@ -36,7 +36,7 @@ See [ADR-0004](../adr/0004-self-issued-hs256-jwt-no-fallback.md) and [ADR-0034](
 | **anything else** | `denyAll()`: 401 without a token, 403 with a token |
 
 - **Error format:** the authentication entry point and the access-denied handler write the standard ProblemDetail through the `api` package's `ProblemDetails` factory ([`error-handling.md`](error-handling.md)).
-- **Management port 8081:** a separate `SecurityFilterChain` for `EndpointRequest.toAnyEndpoint()` permits the exposed endpoints. The port is protected by the network, not by tokens. *Verify* how Spring Boot 4 applies security to a separate management port.
+- **Management port 8081** ([ADR-0044](../adr/0044-secure-the-management-port-as-a-whole.md)): a separate `SecurityFilterChain` (`@Order(1)`) matches every request on the management server, via `WebServerApplicationContext.hasServerNamespace(context, "management")`, and permits it. The exposure list alone decides what exists there, so unexposed paths return 404. Matching only `EndpointRequest.toAnyEndpoint()` is not enough: other paths on 8081 would fall through to the public catch-all and return 401 (seen in the kickoff spike). The port is protected by the network, not by tokens.
 
 **Web client:** users log in with the client credentials (a shortcut for this demo). The token is kept in memory only.
 
