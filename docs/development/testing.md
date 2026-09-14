@@ -67,3 +67,17 @@ git diff docs/api/openapi.json    # review the contract change
 - The `test` task prints full assertion messages, so a mismatch shows its diff excerpt and the update command in the console and in CI logs.
 - The Gradle `test` task passes the snapshot's absolute path as the system property `openapi.snapshot.path`. A test started from an IDE without it resolves `../docs/api/openapi.json` from `backend/`.
 - Breaking changes still follow the [compatibility rules](../api/README.md#compatibility-rules).
+- Then regenerate the frontend API types in the same pull request (next section).
+
+### Regenerate the frontend API types
+
+`frontend/src/app/core/api/generated/openapi.ts` is generated from `docs/api/openapi.json` by `openapi-typescript` and committed, so the frontend Docker build doesn't need `docs/` ([ADR-0052](../adr/0052-generate-frontend-api-types-from-the-openapi-contract.md)):
+
+```bash
+nvm use && (cd frontend && npm ci && npm run generate:api)
+git diff frontend/src/app/core/api/generated    # review, then fix api.types.ts if tsc complains
+(cd frontend && npm test -- --watch=false && npm run build)
+```
+
+- Never edit the generated file by hand. Prettier skips it (`frontend/.prettierignore`).
+- The CI `frontend` job runs the generator and fails when the committed file differs, including after an `openapi-typescript` update that changes the output.

@@ -6,7 +6,8 @@
     "start": "ng serve",
     "build": "ng build",
     "watch": "ng build --watch --configuration development",
-    "test": "ng test"
+    "test": "ng test",
+    "generate:api": "openapi-typescript ../docs/api/openapi.json --output src/app/core/api/generated/openapi.ts"
   },
   "private": true,
   "packageManager": "npm@11.19.0",
@@ -27,8 +28,14 @@
     "@angular/cli": "22.1.8",
     "@angular/compiler-cli": "22.1.6",
     "jsdom": "28.1.0",
+    "openapi-typescript": "7.13.0",
     "prettier": "3.9.6",
     "typescript": "6.0.3",
     "vitest": "4.1.11"
+  },
+  "overrides": {
+    "openapi-typescript": {
+      "typescript": "$typescript"
+    }
   }
 }
