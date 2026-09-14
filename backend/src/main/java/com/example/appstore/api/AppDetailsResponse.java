@@ -2,6 +2,7 @@ package com.example.appstore.api;
 
 import com.example.appstore.catalog.AppDetails;
 import com.example.appstore.catalog.DeviceFamily;
+import io.swagger.v3.oas.annotations.media.Schema;
 import java.time.LocalDate;
 import java.util.List;
 import java.util.Locale;
@@ -32,7 +33,11 @@ public record AppDetailsResponse(
 
     public record Links(String store, String support, String privacyPolicy) {}
 
-    /** The storefront Apple served; {@code language} can differ from the requested {@code l}. */
+    /**
+     * The storefront Apple served; {@code language} can differ from the requested {@code l}. Named explicitly: the simple
+     * name clashes with {@link AppSearchResponse.Storefront} in OpenAPI.
+     */
+    @Schema(name = "DetailsStorefront")
     public record Storefront(String cc, String language, String platform) {}
 
     static AppDetailsResponse from(AppDetails app) {

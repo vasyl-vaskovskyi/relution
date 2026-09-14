@@ -2,6 +2,7 @@ package com.example.appstore.api;
 
 import com.example.appstore.catalog.AppSearchResult;
 import com.example.appstore.catalog.AppSummary;
+import io.swagger.v3.oas.annotations.media.Schema;
 import java.util.List;
 
 /** Response of {@code GET /api/v1/apps} ({@code docs/api/README.md}). */
@@ -10,6 +11,8 @@ public record AppSearchResponse(List<Item> items, int count, Storefront storefro
     public record Item(
             String id, String name, String developer, String iconUrl, String kind, PriceDto price, RatingDto rating) {}
 
+    /** Named explicitly: the simple name clashes with {@link AppDetailsResponse.Storefront} in OpenAPI. */
+    @Schema(name = "SearchStorefront")
     public record Storefront(String cc) {}
 
     static AppSearchResponse from(AppSearchResult result) {
