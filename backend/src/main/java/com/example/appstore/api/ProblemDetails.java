@@ -2,7 +2,9 @@ package com.example.appstore.api;
 
 import com.example.appstore.observability.CorrelationId;
 import java.net.URI;
+import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Map;
 import org.slf4j.MDC;
 import org.springframework.http.ProblemDetail;
 
@@ -37,6 +39,35 @@ public final class ProblemDetails {
         ProblemDetail problem = of(ProblemType.INVALID_REQUEST, "One or more parameters are invalid.", path);
         problem.setProperty(ERRORS, List.copyOf(errors));
         return problem;
+    }
+
+    /** Missing, invalid or expired token, or bad client credentials. */
+    public static ProblemDetail unauthorized(String path) {
+        return of(ProblemType.UNAUTHORIZED, "A valid access token or client credentials are required.", path);
+    }
+
+    /** A valid token without the required scope, or a path that is never exposed. */
+    public static ProblemDetail forbidden(String path) {
+        return of(ProblemType.FORBIDDEN, "The access token doesn't allow this request.", path);
+    }
+
+    /**
+     * The problem as a flat map (standard members plus properties), for writers outside Spring MVC's message converters,
+     * such as security handlers.
+     */
+    public static Map<String, Object> asMap(ProblemDetail problem) {
+        Map<String, Object> body = new LinkedHashMap<>();
+        body.put("type", problem.getType().toString());
+        body.put("title", problem.getTitle());
+        body.put("status", problem.getStatus());
+        body.put("detail", problem.getDetail());
+        if (problem.getInstance() != null) {
+            body.put("instance", problem.getInstance().toString());
+        }
+        if (problem.getProperties() != null) {
+            body.putAll(problem.getProperties());
+        }
+        return body;
     }
 
     /** Adds the current correlation id to a problem built elsewhere (e.g. by Spring for an unknown path). */

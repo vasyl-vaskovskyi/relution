@@ -7,6 +7,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 import com.example.appstore.observability.CorrelationId;
 import com.github.tomakehurst.wiremock.WireMockServer;
+import java.nio.charset.StandardCharsets;
 import java.util.List;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -43,7 +44,6 @@ import tools.jackson.databind.json.JsonMapper;
 class LogSafetyIntegrationTest {
 
     private static final String SEARCH_TERM = "very-private-term-7f3a";
-    private static final String BEARER_TOKEN = "eyJhbGciOi.secret-payload.signature";
     private static final String APPLE_BODY = "secret-apple-body-91";
     private static final List<String> FAKE_APPLE_LOGGERS = List.of("WireMock", "org.wiremock", "org.eclipse.jetty");
     private static final JsonMapper JSON = JsonMapper.builder().build();
@@ -54,18 +54,28 @@ class LogSafetyIntegrationTest {
     @Value("${local.server.port}")
     int port;
 
+    @Value("${appstore.auth.client.id}")
+    String clientId;
+
+    @Value("${appstore.auth.client.secret}")
+    String clientSecret;
+
+    @Value("${appstore.auth.jwt.secret}")
+    String jwtSecret;
+
     @Test
-    void searchTermsAndTokensNeverReachTheApplicationLogs(CapturedOutput output) {
+    void searchTermsTokensAndSecretsNeverReachTheApplicationLogs(CapturedOutput output) {
         apple.stubFor(get(urlPathEqualTo("/search"))
                 .willReturn(aResponse()
                         .withStatus(200)
                         .withHeader("Content-Type", "text/javascript; charset=utf-8")
                         .withBodyFile("apple/search/200-apps-de.json")));
+        String token = accessToken();
 
         ResponseEntity<String> response = RestClient.create()
                 .get()
                 .uri("http://127.0.0.1:" + port + "/api/v1/apps?term={term}&cc=de", SEARCH_TERM)
-                .header(HttpHeaders.AUTHORIZATION, "Bearer " + BEARER_TOKEN)
+                .header(HttpHeaders.AUTHORIZATION, "Bearer " + token)
                 .header(CorrelationId.HEADER, "corr-log-safety")
                 .retrieve()
                 .toEntity(String.class);
@@ -75,10 +85,15 @@ class LogSafetyIntegrationTest {
 
         String applicationLogs = applicationLines(output);
         assertThat(applicationLogs)
-                .as("the upstream log line is JSON with the correlation id and the term length")
+                .as("the upstream log line is JSON with the correlation id, the client id and the term length")
                 .contains("\"correlationId\":\"corr-log-safety\"")
+                .contains("\"clientId\":\"" + clientId + "\"")
                 .contains("termLength=" + SEARCH_TERM.length());
-        assertThat(applicationLogs).doesNotContain(SEARCH_TERM).doesNotContain(BEARER_TOKEN);
+        assertThat(applicationLogs)
+                .doesNotContain(SEARCH_TERM)
+                .doesNotContain(token)
+                .doesNotContain(clientSecret)
+                .doesNotContain(jwtSecret);
         assertThat(output.toString())
                 .as("the term did travel to the fake Apple server, so the filter above is not vacuous")
                 .contains(SEARCH_TERM);
@@ -92,6 +107,7 @@ class LogSafetyIntegrationTest {
         int status = RestClient.create()
                 .get()
                 .uri("http://127.0.0.1:" + port + "/api/v1/apps?term=pages&cc=de")
+                .header(HttpHeaders.AUTHORIZATION, "Bearer " + accessToken())
                 .exchange((request, clientResponse) ->
                         clientResponse.getStatusCode().value());
 
@@ -101,6 +117,38 @@ class LogSafetyIntegrationTest {
         assertThat(output.toString())
                 .as("the fake Apple server did send the body")
                 .contains(APPLE_BODY);
+    }
+
+    @Test
+    void rejectedTokenRequestsAreLoggedWithoutCredentials(CapturedOutput output) {
+        String wrongSecret = "wrong-secret-4c1d";
+
+        int status = RestClient.create()
+                .post()
+                .uri("http://127.0.0.1:" + port + "/auth/token")
+                .header(
+                        HttpHeaders.AUTHORIZATION,
+                        "Basic " + HttpHeaders.encodeBasicAuth(clientId, wrongSecret, StandardCharsets.UTF_8))
+                .exchange((request, clientResponse) ->
+                        clientResponse.getStatusCode().value());
+
+        assertThat(status).isEqualTo(401);
+        assertThat(applicationLines(output))
+                .contains("token request rejected")
+                .doesNotContain(wrongSecret)
+                .doesNotContain(clientSecret);
+    }
+
+    private String accessToken() {
+        String body = RestClient.create()
+                .post()
+                .uri("http://127.0.0.1:" + port + "/auth/token")
+                .header(
+                        HttpHeaders.AUTHORIZATION,
+                        "Basic " + HttpHeaders.encodeBasicAuth(clientId, clientSecret, StandardCharsets.UTF_8))
+                .retrieve()
+                .body(String.class);
+        return JSON.readTree(body).path("accessToken").asString();
     }
 
     /** All captured lines except those of the fake Apple server; lines that aren't ECS JSON are kept. */
