@@ -16,9 +16,9 @@ import org.slf4j.event.Level;
 import org.springframework.stereotype.Component;
 
 /**
- * Implements {@link AppSearchGateway} with the iTunes Search API. Applies the 429 short-circuit and records exactly one
- * {@code appstore.apple.requests} sample and one log line per logical call ({@code docs/operations/observability.md}).
- * The search term is never logged, only its length.
+ * Implements {@link AppSearchGateway} with the iTunes Search API. Applies the 429 short-circuit and the circuit breaker
+ * (around the retried client call) and records exactly one {@code appstore.apple.requests} sample and one log line per
+ * logical call ({@code docs/operations/observability.md}). The search term is never logged, only its length.
  */
 @Component
 public class SearchGatewayAdapter implements AppSearchGateway {
@@ -28,12 +28,18 @@ public class SearchGatewayAdapter implements AppSearchGateway {
 
     private final ItunesSearchClient client;
     private final SearchRateLimitGuard guard;
+    private final AppleCircuitBreakers breakers;
     private final AppleCallRecorder recorder;
     private final AppleMissingFieldDetector missingFields;
 
-    public SearchGatewayAdapter(ItunesSearchClient client, SearchRateLimitGuard guard, MeterRegistry registry) {
+    public SearchGatewayAdapter(
+            ItunesSearchClient client,
+            SearchRateLimitGuard guard,
+            AppleCircuitBreakers breakers,
+            MeterRegistry registry) {
         this.client = client;
         this.guard = guard;
+        this.breakers = breakers;
         this.recorder = new AppleCallRecorder(registry, "search");
         this.missingFields = new AppleMissingFieldDetector(registry);
     }
@@ -50,7 +56,8 @@ public class SearchGatewayAdapter implements AppSearchGateway {
         }
         long start = System.nanoTime();
         try {
-            ItunesSearchResponse response = client.search(query.term(), query.countryCode(), query.limit());
+            ItunesSearchResponse response = breakers.call(
+                    AppleCircuitBreakers.SEARCH, () -> client.search(query.term(), query.countryCode(), query.limit()));
             missingFields.inspect(response);
             List<AppSummary> items = ItunesSearchMapper.toSummaries(response);
             int rows = response.results() == null ? 0 : response.results().size();

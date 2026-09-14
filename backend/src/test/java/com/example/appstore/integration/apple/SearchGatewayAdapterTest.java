@@ -43,7 +43,24 @@ class SearchGatewayAdapterTest {
     private final SimpleMeterRegistry registry = new SimpleMeterRegistry();
     private final ItunesSearchClient client = mock(ItunesSearchClient.class);
     private final SearchRateLimitGuard guard = new SearchRateLimitGuard(properties(Duration.ofMinutes(5)), clock);
-    private final SearchGatewayAdapter adapter = new SearchGatewayAdapter(client, guard, registry);
+    private final AppleCircuitBreakers breakers = new AppleCircuitBreakers(AppleCircuitBreakersTest.SMALL, registry);
+    private final SearchGatewayAdapter adapter = new SearchGatewayAdapter(client, guard, breakers, registry);
+
+    @Test
+    void anOpenCircuitIsRecordedWithoutCallingApple() {
+        when(client.search(anyString(), anyString(), anyInt())).thenThrow(new UpstreamConnectException("down", null));
+        for (int i = 0; i < 4; i++) {
+            assertThatThrownBy(() -> adapter.search(QUERY)).isInstanceOf(UpstreamConnectException.class);
+        }
+
+        assertThatThrownBy(() -> adapter.search(QUERY))
+                .isInstanceOf(com.example.appstore.catalog.UpstreamCircuitOpenException.class);
+        verify(client, times(4)).search(anyString(), anyString(), anyInt());
+        assertThat(samples("circuit_open")).isEqualTo(1);
+        assertThat(guard.remainingBlock())
+                .as("an open circuit is not Apple's 429")
+                .isEmpty();
+    }
 
     @Test
     void mapsResultsAndRecordsSuccess(CapturedOutput output) {
