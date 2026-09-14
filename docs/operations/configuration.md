@@ -21,6 +21,9 @@ If one of these is missing or invalid, the application refuses to start. An `App
 | `appstore.auth.jwt.ttl` | `APPSTORE_AUTH_JWT_TTL` | `PT15M` | Access-token lifetime (validated maximum `PT1H`) |
 | `appstore.auth.jwt.issuer` | `APPSTORE_AUTH_JWT_ISSUER` | `appstore` | JWT `iss` |
 | `appstore.auth.jwt.audience` | `APPSTORE_AUTH_JWT_AUDIENCE` | `appstore-api` | JWT `aud` |
+| `appstore.auth.limit.failures` | `APPSTORE_AUTH_LIMIT_FAILURES` | `10` | Failed `POST /auth/token` attempts allowed per client address before 429; one permit comes back every `window / failures` ([ADR-0049](../adr/0049-rate-limit-failed-token-requests-per-client-address.md)) |
+| `appstore.auth.limit.window` | `APPSTORE_AUTH_LIMIT_WINDOW` | `PT5M` | Time in which the whole failure budget refills (`PT1S` to `P1D`) |
+| `appstore.auth.limit.keys` | `APPSTORE_AUTH_LIMIT_KEYS` | `10000` | Maximum client addresses tracked; bounds the limiter's memory |
 | `appstore.apple.search.url` | `APPSTORE_APPLE_SEARCH_URL` | `https://itunes.apple.com` | Search API base URL (tests point it at WireMock) |
 | `appstore.apple.lookup.url` | `APPSTORE_APPLE_LOOKUP_URL` | `https://uclient-api.itunes.apple.com` | Lookup API base URL |
 | `appstore.apple.timeout.connect` | `APPSTORE_APPLE_TIMEOUT_CONNECT` | `PT2S` | Connect timeout |
