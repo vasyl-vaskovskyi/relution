@@ -15,6 +15,7 @@
 | Log safety | `@SpringBootTest` with ECS JSON logs and WireMock (`LogSafetyIntegrationTest`) | Application log lines carry the correlation id, client id and term length, never the term, the token, the secrets or an Apple body | The binding privacy list ([`../architecture/security.md`](../architecture/security.md#logging-and-privacy)) |
 | Configuration | `ApplicationContextRunner` (`ApplicationPropertiesTest`, `AuthConfigurationTest`) | Defaults bind; invalid Apple/cache values, a missing JWT secret or client credentials, a secret that isn't Base64 or shorter than 32 bytes, and a TTL above 1 h stop the context without revealing the secret | Fail-fast must actually fail |
 | OpenAPI | `@SpringBootTest` (`OpenApiDocumentationTest`) | Both endpoints and the bearer scheme are documented; the `prod` profile serves no API docs | Docs stay reachable locally and closed in production |
+| API contract snapshot | `@SpringBootTest` (`OpenApiContractSnapshotTest`) | `/v3/api-docs`, normalized (keys sorted, generated `servers` removed, pretty-printed), equals the committed [`docs/api/openapi.json`](../api/openapi.json); a mismatch fails with the first differing lines and the update command | Every public API change is visible in the pull request diff |
 | Architecture | ArchUnit (`archunit-junit6`) | Package dependency rules ([`../architecture/overview.md`](../architecture/overview.md#dependency-rules-enforced-by-an-archunit-test)) | Boundaries don't erode |
 | Apple drift | `liveTest` source set (`AppleDriftLiveTest`), tag `live`, plain JUnit without a Spring context | Exactly 3 real calls on `cc=de`: one Search (`pages`), a lookup of Pages (`361309726`, iOS) and one of Final Cut Pro (`424389933`, Mac). They use the production clients, mappers, `AppleMissingFieldDetector` and the URLs and timeouts from `application.yml`. No `missing_field` counter increments (the same required-key list), plus known values (`kind`, `bundleId`, `deviceFamilies`, offer version). The unit test `AppleMissingFieldDetectorTest` proves that the captures produce no signal | Frozen fixtures can't detect Legacy API changes ([ADR-0037](../adr/0037-legacy-api-drift-detection.md)) |
 | Frontend | Vitest | Auth interceptor, locale pre-fill, problem-type → message ([`../architecture/frontend.md`](../architecture/frontend.md#tests)) | The client logic most likely to break silently |
@@ -22,7 +23,7 @@
 **Deliberately not tested:**
 - Spring wiring beyond one context-load test and the integration tests above.
 - Records and accessors.
-- The OpenAPI document in detail (only its presence and the security scheme).
+- Individual OpenAPI details beyond the presence checks: the snapshot test covers the whole document, and reviewers judge its diff.
 - Angular templates and components (covered by the demo).
 - Live Apple calls in `check`: these run only in `liveTest`.
 
@@ -50,3 +51,16 @@ backend/src/test/resources/wiremock/
 (cd backend && ./gradlew liveTest)    # real Apple calls; not part of check (nightly: .github/workflows/apple-drift.yml)
 (cd frontend && npm test -- --watch=false)    # Vitest via ng test
 ```
+
+### Update the OpenAPI contract snapshot
+
+When a backend change alters the public API on purpose, regenerate `docs/api/openapi.json` and commit it in the same pull request:
+
+```bash
+(cd backend && ./gradlew test --tests '*OpenApiContractSnapshotTest' -PupdateOpenApiSnapshot)
+git diff docs/api/openapi.json    # review the contract change
+```
+
+- `-PupdateOpenApiSnapshot` makes the test write the normalized document instead of comparing it. Without the property (as in `check` and CI) the test only compares.
+- The Gradle `test` task passes the snapshot's absolute path as the system property `openapi.snapshot.path`. A test started from an IDE without it resolves `../docs/api/openapi.json` from `backend/`.
+- Breaking changes still follow the [compatibility rules](../api/README.md#compatibility-rules).

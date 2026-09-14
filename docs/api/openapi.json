@@ -1,0 +1,511 @@
+{
+  "components" : {
+    "schemas" : {
+      "AppDetailsResponse" : {
+        "properties" : {
+          "bundleId" : {
+            "type" : "string"
+          },
+          "description" : {
+            "type" : "string"
+          },
+          "developer" : {
+            "type" : "string"
+          },
+          "firstReleaseDate" : {
+            "format" : "date",
+            "type" : "string"
+          },
+          "genres" : {
+            "items" : {
+              "type" : "string"
+            },
+            "type" : "array"
+          },
+          "iconUrl" : {
+            "type" : "string"
+          },
+          "id" : {
+            "type" : "string"
+          },
+          "kind" : {
+            "type" : "string"
+          },
+          "links" : {
+            "$ref" : "#/components/schemas/Links"
+          },
+          "minimumOsVersion" : {
+            "type" : "string"
+          },
+          "name" : {
+            "type" : "string"
+          },
+          "platforms" : {
+            "items" : {
+              "type" : "string"
+            },
+            "type" : "array"
+          },
+          "price" : {
+            "$ref" : "#/components/schemas/PriceDto"
+          },
+          "rating" : {
+            "$ref" : "#/components/schemas/RatingDto"
+          },
+          "seller" : {
+            "type" : "string"
+          },
+          "storefront" : {
+            "$ref" : "#/components/schemas/Storefront"
+          },
+          "subtitle" : {
+            "type" : "string"
+          },
+          "universal" : {
+            "type" : "boolean"
+          },
+          "version" : {
+            "type" : "string"
+          },
+          "watchBundleId" : {
+            "type" : "string"
+          },
+          "whatsNew" : {
+            "type" : "string"
+          }
+        },
+        "type" : "object"
+      },
+      "AppSearchResponse" : {
+        "properties" : {
+          "count" : {
+            "format" : "int32",
+            "type" : "integer"
+          },
+          "items" : {
+            "items" : {
+              "$ref" : "#/components/schemas/Item"
+            },
+            "type" : "array"
+          },
+          "storefront" : {
+            "$ref" : "#/components/schemas/Storefront"
+          }
+        },
+        "type" : "object"
+      },
+      "Item" : {
+        "properties" : {
+          "developer" : {
+            "type" : "string"
+          },
+          "iconUrl" : {
+            "type" : "string"
+          },
+          "id" : {
+            "type" : "string"
+          },
+          "kind" : {
+            "type" : "string"
+          },
+          "name" : {
+            "type" : "string"
+          },
+          "price" : {
+            "$ref" : "#/components/schemas/PriceDto"
+          },
+          "rating" : {
+            "$ref" : "#/components/schemas/RatingDto"
+          }
+        },
+        "type" : "object"
+      },
+      "Links" : {
+        "properties" : {
+          "privacyPolicy" : {
+            "type" : "string"
+          },
+          "store" : {
+            "type" : "string"
+          },
+          "support" : {
+            "type" : "string"
+          }
+        },
+        "type" : "object"
+      },
+      "PriceDto" : {
+        "properties" : {
+          "amount" : {
+            "type" : "string"
+          },
+          "currency" : {
+            "type" : "string"
+          },
+          "formatted" : {
+            "type" : "string"
+          }
+        },
+        "type" : "object"
+      },
+      "ProblemDetail" : {
+        "properties" : {
+          "detail" : {
+            "type" : "string"
+          },
+          "instance" : {
+            "format" : "uri",
+            "type" : "string"
+          },
+          "properties" : {
+            "additionalProperties" : { },
+            "type" : "object"
+          },
+          "status" : {
+            "format" : "int32",
+            "type" : "integer"
+          },
+          "title" : {
+            "type" : "string"
+          },
+          "type" : {
+            "format" : "uri",
+            "type" : "string"
+          }
+        },
+        "type" : "object"
+      },
+      "RatingDto" : {
+        "properties" : {
+          "average" : {
+            "format" : "double",
+            "type" : "number"
+          },
+          "count" : {
+            "format" : "int64",
+            "type" : "integer"
+          }
+        },
+        "type" : "object"
+      },
+      "Storefront" : {
+        "properties" : {
+          "cc" : {
+            "type" : "string"
+          }
+        },
+        "type" : "object"
+      }
+    },
+    "securitySchemes" : {
+      "bearer-jwt" : {
+        "bearerFormat" : "JWT",
+        "description" : "Access token from POST /auth/token with scope apps:read",
+        "scheme" : "bearer",
+        "type" : "http"
+      }
+    }
+  },
+  "info" : {
+    "description" : "Searches apps in the Apple App Store and returns app details as small, stable DTOs. Errors are RFC 9457 problem details (application/problem+json) with a correlationId. Get a token with POST /auth/token (HTTP Basic client credentials), then use Authorize. Policies and problem types: docs/api/README.md.",
+    "title" : "App Store search and details API",
+    "version" : "v1"
+  },
+  "openapi" : "3.1.0",
+  "paths" : {
+    "/api/v1/apps" : {
+      "get" : {
+        "description" : "No pagination: Apple ignores offsets, so `limit` is the only size control.",
+        "operationId" : "search",
+        "parameters" : [ {
+          "description" : "Search term; trimmed, 1–100 characters, not blank",
+          "in" : "query",
+          "name" : "term",
+          "required" : true,
+          "schema" : {
+            "maxLength" : 100,
+            "minLength" : 0,
+            "type" : "string"
+          }
+        }, {
+          "description" : "Two-letter storefront country code, case-insensitive",
+          "example" : "de",
+          "in" : "query",
+          "name" : "cc",
+          "required" : true,
+          "schema" : {
+            "pattern" : "[A-Za-z]{2}",
+            "type" : "string"
+          }
+        }, {
+          "description" : "Maximum number of results, 1–50",
+          "in" : "query",
+          "name" : "limit",
+          "required" : false,
+          "schema" : {
+            "default" : 25,
+            "format" : "int32",
+            "maximum" : 50,
+            "minimum" : 1,
+            "type" : "integer"
+          }
+        } ],
+        "responses" : {
+          "200" : {
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/AppSearchResponse"
+                }
+              }
+            },
+            "description" : "Matching apps; `count` equals the number of items"
+          },
+          "400" : {
+            "content" : {
+              "application/problem+json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/ProblemDetail"
+                }
+              }
+            },
+            "description" : "Invalid parameters (`invalid-request`, see `errors[]`) or no store for this country (`unsupported-storefront`)"
+          },
+          "401" : {
+            "content" : {
+              "application/problem+json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/ProblemDetail"
+                }
+              }
+            },
+            "description" : "Token missing, invalid or expired (`unauthorized`)"
+          },
+          "403" : {
+            "content" : {
+              "application/problem+json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/ProblemDetail"
+                }
+              }
+            },
+            "description" : "Token lacks the scope `apps:read` (`forbidden`)"
+          },
+          "502" : {
+            "content" : {
+              "application/problem+json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/ProblemDetail"
+                }
+              }
+            },
+            "description" : "Apple failed or returned an unexpected response (`upstream-error`)"
+          },
+          "503" : {
+            "content" : {
+              "application/problem+json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/ProblemDetail"
+                }
+              }
+            },
+            "description" : "Apple rate limit reached (`upstream-unavailable`)",
+            "headers" : {
+              "Retry-After" : {
+                "description" : "Seconds to wait before retrying",
+                "schema" : {
+                  "format" : "int32",
+                  "type" : "integer"
+                }
+              }
+            }
+          },
+          "504" : {
+            "content" : {
+              "application/problem+json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/ProblemDetail"
+                }
+              }
+            },
+            "description" : "Apple didn't answer in time (`upstream-timeout`)"
+          }
+        },
+        "security" : [ {
+          "bearer-jwt" : [ ]
+        } ],
+        "summary" : "Search apps in a storefront",
+        "tags" : [ "Apps" ]
+      }
+    },
+    "/api/v1/apps/{id}" : {
+      "get" : {
+        "description" : "Apple decides which language it serves; `storefront.language` tells which one it did.",
+        "operationId" : "details",
+        "parameters" : [ {
+          "description" : "App id (Apple adamId), 1–15 digits",
+          "example" : 361309726,
+          "in" : "path",
+          "name" : "id",
+          "required" : true,
+          "schema" : {
+            "pattern" : "\\d{1,15}",
+            "type" : "string"
+          }
+        }, {
+          "description" : "Two-letter storefront country code, case-insensitive",
+          "example" : "de",
+          "in" : "query",
+          "name" : "cc",
+          "required" : true,
+          "schema" : {
+            "pattern" : "[A-Za-z]{2}",
+            "type" : "string"
+          }
+        }, {
+          "description" : "Requested language tag such as `de` or `de-DE`",
+          "example" : "de",
+          "in" : "query",
+          "name" : "l",
+          "required" : true,
+          "schema" : {
+            "pattern" : "[a-zA-Z]{2}([-_][a-zA-Z]{2})?",
+            "type" : "string"
+          }
+        }, {
+          "description" : "`ios` or `mac`; for universal apps, selects iOS or Mac metadata",
+          "in" : "query",
+          "name" : "platform",
+          "required" : false,
+          "schema" : {
+            "enum" : [ "ios", "mac" ],
+            "pattern" : "ios|mac",
+            "type" : "string"
+          }
+        } ],
+        "responses" : {
+          "200" : {
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/AppDetailsResponse"
+                }
+              }
+            },
+            "description" : "The app's details in the requested storefront"
+          },
+          "400" : {
+            "content" : {
+              "application/problem+json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/ProblemDetail"
+                }
+              }
+            },
+            "description" : "Invalid parameters (`invalid-request`, see `errors[]`) or no store for this country (`unsupported-storefront`)"
+          },
+          "401" : {
+            "content" : {
+              "application/problem+json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/ProblemDetail"
+                }
+              }
+            },
+            "description" : "Token missing, invalid or expired (`unauthorized`)"
+          },
+          "403" : {
+            "content" : {
+              "application/problem+json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/ProblemDetail"
+                }
+              }
+            },
+            "description" : "Token lacks the scope `apps:read` (`forbidden`)"
+          },
+          "404" : {
+            "content" : {
+              "application/problem+json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/ProblemDetail"
+                }
+              }
+            },
+            "description" : "The app doesn't exist, isn't available in this storefront, or isn't accessible (`app-not-found`)"
+          },
+          "502" : {
+            "content" : {
+              "application/problem+json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/ProblemDetail"
+                }
+              }
+            },
+            "description" : "Apple failed or returned an unexpected response (`upstream-error`)"
+          },
+          "503" : {
+            "content" : {
+              "application/problem+json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/ProblemDetail"
+                }
+              }
+            },
+            "description" : "Apple rate limit reached (`upstream-unavailable`)",
+            "headers" : {
+              "Retry-After" : {
+                "description" : "Seconds to wait before retrying",
+                "schema" : {
+                  "format" : "int32",
+                  "type" : "integer"
+                }
+              }
+            }
+          },
+          "504" : {
+            "content" : {
+              "application/problem+json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/ProblemDetail"
+                }
+              }
+            },
+            "description" : "Apple didn't answer in time (`upstream-timeout`)"
+          }
+        },
+        "security" : [ {
+          "bearer-jwt" : [ ]
+        } ],
+        "summary" : "Get app details",
+        "tags" : [ "Apps" ]
+      }
+    },
+    "/auth/token" : {
+      "post" : {
+        "operationId" : "token",
+        "parameters" : [ {
+          "in" : "header",
+          "name" : "Authorization",
+          "required" : false,
+          "schema" : {
+            "type" : "string"
+          }
+        } ],
+        "responses" : {
+          "200" : {
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "type" : "object"
+                }
+              }
+            },
+            "description" : "OK"
+          }
+        },
+        "tags" : [ "token-controller" ]
+      }
+    }
+  }
+}
