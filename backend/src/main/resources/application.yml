@@ -26,6 +26,9 @@ management:
       percentiles-histogram:
         "[appstore.apple.requests]": true
 
+springdoc:
+  default-produces-media-type: application/json
+
 logging:
   structured:
     ecs:

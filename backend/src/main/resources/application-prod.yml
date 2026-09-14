@@ -1,0 +1,7 @@
+# Production profile (SPRING_PROFILES_ACTIVE=prod): docs/operations/configuration.md#profiles
+
+springdoc:
+  api-docs:
+    enabled: false
+  swagger-ui:
+    enabled: false
