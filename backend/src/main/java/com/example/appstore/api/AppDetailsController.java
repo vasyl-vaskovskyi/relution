@@ -26,10 +26,15 @@ class AppDetailsController {
 
     @GetMapping("/{id}")
     AppDetailsResponse details(
-            @PathVariable @Pattern(regexp = "\\d{1,15}") String id,
-            @RequestParam @Pattern(regexp = "[A-Za-z]{2}") String cc,
-            @RequestParam @Pattern(regexp = "[a-zA-Z]{2}([-_][a-zA-Z]{2})?") String l,
-            @RequestParam(defaultValue = "ios") @Pattern(regexp = "ios|mac") String platform) {
+            @PathVariable @Pattern(regexp = "\\d{1,15}", message = "must be 1 to 15 digits") String id,
+            @RequestParam @Pattern(regexp = "[A-Za-z]{2}", message = "must be a two-letter country code") String cc,
+            @RequestParam
+                    @Pattern(
+                            regexp = "[a-zA-Z]{2}([-_][a-zA-Z]{2})?",
+                            message = "must be a language tag like de or de-DE")
+                    String l,
+            @RequestParam(defaultValue = "ios") @Pattern(regexp = "ios|mac", message = "must be ios or mac")
+                    String platform) {
         Platform requested = Platform.valueOf(platform.toUpperCase(Locale.ROOT));
         return AppDetailsResponse.from(detailsService.details(id, cc, l, requested));
     }
