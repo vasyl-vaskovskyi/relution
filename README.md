@@ -32,7 +32,7 @@ docker compose up --build
 
 | What | URL (bound to 127.0.0.1) |
 |---|---|
-| Web client (arrives with the frontend PR) | http://localhost:4200. Log in with `APPSTORE_AUTH_CLIENT_ID` / `APPSTORE_AUTH_CLIENT_SECRET` from `.env` |
+| Web client | http://localhost:4200. Log in with `APPSTORE_AUTH_CLIENT_ID` / `APPSTORE_AUTH_CLIENT_SECRET` from `.env` |
 | API | http://localhost:8080 |
 | Readiness | http://localhost:8080/readyz |
 | Management (health, metrics, Prometheus) | http://localhost:8081/actuator |
