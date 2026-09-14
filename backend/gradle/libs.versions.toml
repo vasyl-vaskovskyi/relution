@@ -11,6 +11,10 @@ palantir-java-format = "2.98.0"
 # Versions managed by the Spring Boot BOM
 boot-starter-actuator = { module = "org.springframework.boot:spring-boot-starter-actuator" }
 boot-starter-restclient = { module = "org.springframework.boot:spring-boot-starter-restclient" }
+boot-starter-security = { module = "org.springframework.boot:spring-boot-starter-security" }
+boot-starter-oauth2-resource-server = { module = "org.springframework.boot:spring-boot-starter-security-oauth2-resource-server" }
+boot-test-security = { module = "org.springframework.boot:spring-boot-starter-security-test" }
+boot-test-oauth2-resource-server = { module = "org.springframework.boot:spring-boot-starter-security-oauth2-resource-server-test" }
 boot-starter-validation = { module = "org.springframework.boot:spring-boot-starter-validation" }
 boot-starter-webmvc = { module = "org.springframework.boot:spring-boot-starter-webmvc" }
 boot-test-actuator = { module = "org.springframework.boot:spring-boot-starter-actuator-test" }

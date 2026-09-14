@@ -35,6 +35,8 @@ spotless {
 dependencies {
 	implementation(libs.boot.starter.actuator)
 	implementation(libs.boot.starter.restclient)
+	implementation(libs.boot.starter.security)
+	implementation(libs.boot.starter.oauth2.resource.server)
 	implementation(libs.boot.starter.validation)
 	implementation(libs.boot.starter.webmvc)
 	implementation(libs.caffeine)
@@ -43,6 +45,8 @@ dependencies {
 	runtimeOnly(libs.micrometer.registry.prometheus)
 	testImplementation(libs.boot.test.actuator)
 	testImplementation(libs.boot.test.restclient)
+	testImplementation(libs.boot.test.security)
+	testImplementation(libs.boot.test.oauth2.resource.server)
 	testImplementation(libs.boot.test.validation)
 	testImplementation(libs.boot.test.webmvc)
 	testImplementation(libs.wiremock.spring.boot)
