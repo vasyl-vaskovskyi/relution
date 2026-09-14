@@ -4,12 +4,11 @@ The working agreement and plan for the day. The durable engineering rules are in
 
 ## Working agreement (Vasyl ↔ AI assistant)
 
-1. **Vasyl owns every commit, approved per block.** At the start of each block:
-   1. Present the planned commit list: subject line and files for each commit, with at most 10 files or a named exception.
-   2. **Wait for Vasyl's approval of the list.**
-   3. Implement commit by commit. Run the tests before each commit, and commit only when they are green.
-   4. Any deviation (a new commit, a different scope, an extra dependency) needs a new approval.
-   5. Open the block's PR with a summary. The PR review is the real review.
+1. **Vasyl owns every commit; commit lists are pre-approved per block** (changed at H+1:10 on 2026-09-14 to keep the pace; the bootstrap block still had an explicit list):
+   1. Implement each block's scope from the schedule below commit by commit, with at most 10 files per commit or a named exception. Run the tests before each commit, and commit only when they are green.
+   2. **Ask Vasyl only about** new dependencies, ADR-level decisions and every merge into `main`.
+   3. Keep status reports minimal.
+   4. Open the block's PR with a summary. The PR review is the real review.
 2. **Questions** are always multiple-choice (AskUserQuestion), with the recommended option first. Check the arithmetic of any schedule or budget option before offering it (see AI log #5).
 3. **Quality over the clock.** The budgets below are for planning only. Never rush, skip tests or drop edge cases because a block overran. Vasyl decides if anything is reprioritized.
 4. **Confirm concrete actions** before running generators, creating code or installing anything (see AI log #6).
