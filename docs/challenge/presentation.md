@@ -47,7 +47,11 @@ Present three decisions properly, and keep everything else for Q&A.
 
 - Where AI helped: API reconnaissance, research, drafting, multi-perspective reviews, the de-risking spike.
 - Where it got in the way: overconfident "facts", a schedule that didn't add up, acting on planning answers.
-- Walk through the strongest [`ai-log.md`](ai-log.md) entry, ideally a code-level one from the day. Prep examples: #3 (a client input error mapped to 502) and #7 (a package cycle and blocking cache found by review).
+- Walk through the strongest [`ai-log.md`](ai-log.md) entry. Code-level examples from the day:
+  - **#11:** "Caffeine removes failed futures" was true but asynchronous. A test on the real executor caught it, and `CacheSupport` now removes the failed future itself.
+  - **#10:** a WireMock fault test never injected the fault, and the JDK client silently retries a GET.
+- Prep examples: #3 (a client input error mapped to 502) and #7 (a package cycle and blocking cache found by review).
+- **Parallel work with agents:** frontend, Docker, alerts, drift, OpenAPI and docs tracks ran as background agents in their own worktrees, each ending at a PR with green CI. Two coordination issues came up: an agent's constructor use collided with the caching work (resolved in the rebase), and an outside `git pull` created a merge conflict (resolved without a force push).
 
 ## 4. Part 3 (2–3 min)
 
@@ -61,6 +65,7 @@ Confirm or extend these on the day:
 - **Legacy API:** the MZ API is Legacy and undocumented. The drift test and metric detect changes but can't prevent them.
 - **Storefront allowlist:** static. Staleness is detected and logged, not fixed.
 - **Per instance:** caches, the 429 guard and the outbound limiter are per instance, while Apple's limit is per IP (or per bought budget). At scale this needs a shared cache and a central budget.
+- **Merging:** with one maintainer, GitHub can't count an approval, so PRs were merged with the admin override after green CI. With a team, the required approval takes effect.
 - **Bursts:** the limiter can answer 503 for bursts Apple itself would still accept. That is deliberate: we stay within the published or bought budget.
 - **Auth:** HS256 shared secret, self-issued tokens, no key rotation, no rate limit on `/auth/token`. The web client logs in with client credentials. Production would use OIDC with per-user tokens.
 - **Latency:** retries can stretch one call to about 12 s in the theoretical worst case.
