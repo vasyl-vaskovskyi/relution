@@ -53,6 +53,10 @@ export interface paths {
         };
         get?: never;
         put?: never;
+        /**
+         * Get an access token
+         * @description HTTP Basic authentication with the client id and secret. Failed attempts are limited per client address; over the limit every request gets 429, valid credentials included.
+         */
         post: operations["token"];
         delete?: never;
         options?: never;
@@ -139,6 +143,12 @@ export interface components {
         };
         SearchStorefront: {
             cc?: string;
+        };
+        TokenResponse: {
+            accessToken?: string;
+            /** Format: int64 */
+            expiresIn?: number;
+            tokenType?: string;
         };
     };
     responses: never;
@@ -350,13 +360,33 @@ export interface operations {
         };
         requestBody?: never;
         responses: {
-            /** @description OK */
+            /** @description A bearer token with scope `apps:read` */
             200: {
                 headers: {
                     [name: string]: unknown;
                 };
                 content: {
-                    "application/json": Record<string, never>;
+                    "application/json": components["schemas"]["TokenResponse"];
+                };
+            };
+            /** @description Missing or invalid client credentials (`unauthorized`) */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ProblemDetail"];
+                };
+            };
+            /** @description Too many failed attempts from this client address (`too-many-requests`) */
+            429: {
+                headers: {
+                    /** @description Seconds to wait before retrying */
+                    "Retry-After"?: number;
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ProblemDetail"];
                 };
             };
         };
