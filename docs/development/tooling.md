@@ -9,7 +9,7 @@ Versions marked *verify* were checked on 2026-09-13. Confirm them when the files
 | Job | Steps |
 |---|---|
 | `backend` | `actions/setup-java` (v6, Temurin 25) → `gradle/actions/setup-gradle` (v6) → `./gradlew check` |
-| `frontend` | `actions/setup-node` (v7, `node-version-file: .nvmrc`, npm cache keyed on `frontend/package-lock.json`) → `npm ci` → `npm test -- --watch=false` → `npm run build` |
+| `frontend` | `actions/setup-node` (v7, `node-version-file: .nvmrc`, npm cache keyed on `frontend/package-lock.json`) → `npm ci` → `npm run generate:api` → `git diff --exit-code` on the generated API types ([ADR-0052](../adr/0052-generate-frontend-api-types-from-the-openapi-contract.md)) → `npm test -- --watch=false` → `npm run build` |
 | `images` | `docker build backend` → `docker build frontend` (no push) |
 | `alerts` | `docker build -t promtool ops/promtool` → `promtool check rules /ops/alerts.yml` → `promtool test rules /ops/alerts.test.yml`, both via `docker run` with `ops/` mounted read-only ([ADR-0050](../adr/0050-alert-rule-unit-tests-with-promtool.md)) |
 
