@@ -74,7 +74,7 @@ See [ADR-0032](../adr/0032-management-port-and-probes.md).
   - nginx access logs use a format without `$args` ([`../operations/deployment.md`](../operations/deployment.md#nginx-frontendnginxconf));
   - when tracing is enabled, an `ObservationFilter` removes the query from the high-cardinality URL key values (*verify* the key names on the day).
 - **Correlation ids are validated** to prevent log injection ([`error-handling.md`](error-handling.md#correlation-id)).
-- **A log-capture test** (`LogSafetyIntegrationTest`) runs the whole application with ECS JSON logs and asserts that no search term, `Bearer` value or Apple response body appears in the application's log lines. The fake Apple server (WireMock) logs the requests it receives. It stands in for Apple's side, which receives the term by design, so its lines are excluded. The auth block adds the configured secrets to the assertion.
+- **A log-capture test** (`LogSafetyIntegrationTest`) runs the whole application with ECS JSON logs and asserts that no search term, `Bearer` value or Apple response body appears in the application's log lines. The fake Apple server (WireMock) logs the requests it receives. It stands in for Apple's side, which receives the term by design, so its lines are excluded. The test authenticates for real and also asserts that the access token, the client secret and the JWT secret never appear.
 
 ## Upstream
 

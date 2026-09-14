@@ -12,7 +12,7 @@ Every entry follows the same pattern: **signal → impact → check → action**
   - traffic spikes on `http_server_requests_seconds_count{uri="/api/v1/apps"}`.
 - **Action:**
   1. Confirm the short-circuit is working (`short_circuited` > 0, few `rate_limited`). Mostly `budget_exhausted` means the local limiter holds the traffic back before Apple sees it.
-  2. Look for abusive clients by grouping the `apple call` log lines by `clientId` (set once authentication lands).
+  2. Look for abusive clients by grouping the `apple call` log lines by `clientId` (the JWT subject).
   3. Consider raising `APPSTORE_CACHE_SEARCH_TTL`.
   4. Check that `APPSTORE_APPLE_SEARCH_BUDGET` is not above what Apple allows or what was bought, and that replicas sharing one egress IP split the budget ([`../architecture/caching-resilience.md`](../architecture/caching-resilience.md#outbound-rate-limiter-on-search)). If the need is real, buy more requests and raise the budget, or plan the shared cache ([known limits](../architecture/caching-resilience.md#known-limits)).
   5. Never rotate IPs to get around the limit ([ADR-0025](../adr/0025-deal-with-the-per-ip-search-rate-limit-within-apples-rules.md)).
@@ -55,8 +55,6 @@ This section also covers the `AppleMissingFields` alert.
 5. Also review the WARN logs `storefront missing from allowlist, verify the list: <code>` (counter `direction=missing`). Requests for these codes are rejected without calling Apple, so a new Apple storefront shows up only there ([ADR-0043](../adr/0043-reject-unlisted-storefront-codes-locally.md)).
 
 ### Rotate the JWT signing secret
-This and the next procedure apply once authentication lands.
-
 1. Generate a new secret with `openssl rand -base64 32`.
 2. Deploy it as `APPSTORE_AUTH_JWT_SECRET`.
 3. Every issued token becomes invalid. Clients get 401 and request a new token; the TTL is at most 1 h.
