@@ -9,7 +9,7 @@ Versions marked *verify* were checked on 2026-09-13. Confirm them when the files
 | Job | Steps |
 |---|---|
 | `backend` | `actions/setup-java` (v6, Temurin 25) → `gradle/actions/setup-gradle` (v6) → `./gradlew check` |
-| `frontend` | `actions/setup-node` (v7, `node-version-file: .nvmrc`, *verify* the option) → `npm ci` → `npm test -- --watch=false` → `npm run build` |
+| `frontend` | `actions/setup-node` (v7, `node-version-file: .nvmrc`, npm cache keyed on `frontend/package-lock.json`) → `npm ci` → `npm test -- --watch=false` → `npm run build` |
 | `images` | `docker build backend` and `docker build frontend` (no push) |
 
 **`.github/workflows/apple-drift.yml`** runs nightly and on demand: `./gradlew liveTest` ([ADR-0037](../adr/0037-legacy-api-drift-detection.md)). It never blocks pull requests.
