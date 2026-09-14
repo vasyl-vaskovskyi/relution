@@ -40,6 +40,8 @@ docker compose up --build
 
 The local compose build of the web client uses the `demo` configuration, which logs every API call to the browser console. Production builds don't.
 
+**Optional observability stack:** set `APPSTORE_GRAFANA_ADMIN_PASSWORD` in `.env`, then run `docker compose -f docker-compose.yml -f compose.observability.yml up --build`. It exports traces and metrics to Grafana at http://localhost:3000 (demo use only; see [`docs/operations/observability.md`](docs/operations/observability.md#level-2-opentelemetry--grafana-lgtm-stretch-goal)).
+
 ## Local development
 
 **Backend.** Any JDK that can run Gradle is enough; the Gradle toolchain downloads Java 25.
