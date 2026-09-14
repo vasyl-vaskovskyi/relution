@@ -42,6 +42,7 @@ dependencies {
 	implementation(libs.boot.starter.webmvc)
 	implementation(libs.caffeine)
 	implementation(libs.micrometer.context.propagation)
+	implementation(libs.opentelemetry.logback.appender)
 	implementation(libs.resilience4j.circuitbreaker)
 	implementation(libs.resilience4j.micrometer)
 	implementation(libs.springdoc.webmvc.ui)
