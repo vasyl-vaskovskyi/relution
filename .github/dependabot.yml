@@ -1,0 +1,22 @@
+version: 2
+
+# open-pull-requests-limit is 0 during the Discovery Day, so update PRs don't
+# compete with the day's reviews. Raise it (e.g. to 5) afterwards (ADR-0042).
+updates:
+  - package-ecosystem: gradle
+    directory: /backend
+    schedule:
+      interval: weekly
+    open-pull-requests-limit: 0
+    groups:
+      minor-and-patch:
+        update-types: [minor, patch]
+
+  - package-ecosystem: github-actions
+    directory: /
+    schedule:
+      interval: weekly
+    open-pull-requests-limit: 0
+    groups:
+      minor-and-patch:
+        update-types: [minor, patch]
