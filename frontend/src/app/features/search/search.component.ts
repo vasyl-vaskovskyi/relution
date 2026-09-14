@@ -25,6 +25,7 @@ import {
 } from 'rxjs';
 import { SearchCriteria, SearchResponse } from '../../core/api/api.types';
 import { AppsApiService } from '../../core/api/apps-api.service';
+import { platformForKind } from '../../core/api/platform';
 import { LoadState, withLoadState } from '../../core/api/load-state';
 import { problemMessage } from '../../core/errors/problem-message';
 import { LocaleService } from '../../core/locale/locale.service';
@@ -118,6 +119,7 @@ export class SearchComponent {
   );
 
   protected readonly problem = problemMessage;
+  protected readonly platformFor = platformForKind;
 
   protected retry(): void {
     this.retry$.next();

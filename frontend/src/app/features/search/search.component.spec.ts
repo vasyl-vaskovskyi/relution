@@ -194,8 +194,17 @@ describe('SearchComponent', () => {
     expect(items[0].querySelector('img')?.getAttribute('src')).toBe(
       'https://example.test/361309726.png',
     );
-    expect(items[0].getAttribute('href')).toBe('/apps/361309726?cc=de&l=de');
+    expect(items[0].getAttribute('href')).toBe('/apps/361309726?cc=de&l=de&platform=ios');
     expect(element().querySelector('.empty')).toBeNull();
+  });
+
+  it('links Mac apps to the Mac details', async () => {
+    const request = await search('final cut');
+    request.flush(response([{ ...app('424389933', 'Final Cut Pro'), kind: 'MAC_APP' }]));
+    await advance();
+
+    const link = element().querySelector('a[mat-list-item]');
+    expect(link?.getAttribute('href')).toBe('/apps/424389933?cc=de&l=de&platform=mac');
   });
 
   it('cancels an outdated request when the term changes', async () => {
