@@ -4,7 +4,7 @@
 
 | Image | Build | Runtime |
 |---|---|---|
-| `backend/Dockerfile` | `eclipse-temurin:25-jdk` (pinned, Ubuntu-based) runs `./gradlew bootJar` | `eclipse-temurin:25-jre` (pinned, **Ubuntu-based, not `-alpine`**: the healthcheck needs bash), non-root user, layered jar, `EXPOSE 8080 8081`, `JAVA_TOOL_OPTIONS=-XX:MaxRAMPercentage=75 -XX:+ExitOnOutOfMemoryError` |
+| `backend/Dockerfile` | `eclipse-temurin:25.0.4_7-jdk-resolute` (Ubuntu 26.04) runs `./gradlew bootJar`, then extracts the layers with `java -Djarmode=tools -jar … extract --layers --launcher` | `eclipse-temurin:25.0.4_7-jre-resolute` (**Ubuntu-based, not `-alpine`**: the healthcheck needs bash), system user `appstore` (uid 999), layered jar started by `JarLauncher`, `EXPOSE 8080 8081`, `JAVA_TOOL_OPTIONS=-XX:MaxRAMPercentage=75 -XX:+ExitOnOutOfMemoryError` |
 | `frontend/Dockerfile` | `node:24-alpine` (pinned) runs `npm ci && npm run build -- --configuration ${ANGULAR_CONFIGURATION}` (default `production`) | `nginxinc/nginx-unprivileged` stable alpine (pinned, e.g. `1.30.4-alpine`), listens on 8080, uses `frontend/nginx.conf` |
 
 Dependabot updates the pinned tags. Nothing is pushed from CI.
@@ -23,7 +23,7 @@ Dependabot updates the pinned tags. Nothing is pushed from CI.
 
 ### Health checks
 
-- **`app`:** the Temurin JRE image has neither `curl` nor `wget`, so the check uses bash's `/dev/tcp` against the management port (*verify* on the day):
+- **`app`:** the Temurin JRE image has neither `curl` nor `wget`, so the check uses bash's `/dev/tcp` against the management port. It lives in `docker-compose.yml` (interval 10 s, timeout 3 s, start period 30 s, 3 retries). Verified on 2026-09-14: exit 0 and `healthy` when readiness is UP:
   ```yaml
   test: ["CMD", "bash", "-c", "exec 3<>/dev/tcp/127.0.0.1/8081 && printf 'GET /actuator/health/readiness HTTP/1.0\\r\\nHost: localhost\\r\\n\\r\\n' >&3 && grep -q '\"UP\"' <&3"]
   ```
