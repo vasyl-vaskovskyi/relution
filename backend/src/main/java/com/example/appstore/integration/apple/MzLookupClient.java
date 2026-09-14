@@ -2,14 +2,18 @@ package com.example.appstore.integration.apple;
 
 import com.example.appstore.catalog.Platform;
 import com.example.appstore.catalog.StorefrontNotServedException;
+import com.example.appstore.catalog.UpstreamConnectException;
 import com.example.appstore.catalog.UpstreamContractException;
 import com.example.appstore.catalog.UpstreamException;
 import com.example.appstore.catalog.UpstreamRateLimitedException;
+import com.example.appstore.catalog.UpstreamRateLimitedException.Reason;
 import com.example.appstore.catalog.UpstreamServerErrorException;
 import java.io.IOException;
 import java.util.Locale;
+import java.util.concurrent.TimeUnit;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.http.HttpStatusCode;
+import org.springframework.resilience.annotation.Retryable;
 import org.springframework.stereotype.Component;
 import org.springframework.web.client.ResourceAccessException;
 import org.springframework.web.client.RestClient;
@@ -36,10 +40,19 @@ public class MzLookupClient {
     }
 
     /**
-     * Looks up one id. An empty {@code results} is returned as is ("not found" is the caller's decision).
+     * Looks up one id. An empty {@code results} is returned as is ("not found" is the caller's decision). Only connection
+     * failures are retried, through the Spring proxy ({@code docs/architecture/caching-resilience.md}).
      *
      * @throws StorefrontNotServedException if Apple served another storefront than {@code countryCode}
      */
+    @Retryable(
+            includes = UpstreamConnectException.class,
+            maxRetriesString = "${appstore.apple.retry.max}",
+            timeoutString = "${appstore.apple.retry.timeout}",
+            delay = 200,
+            multiplier = 2,
+            jitter = 100,
+            timeUnit = TimeUnit.MILLISECONDS)
     public MzLookupResponse lookup(String id, String countryCode, String languageTag, Platform platform) {
         MzLookupResponse response;
         try {
@@ -77,7 +90,7 @@ public class MzLookupClient {
         }
         if (status.value() == 429) {
             throw new UpstreamRateLimitedException(
-                    AppleHttpSupport.retryAfter(response.getHeaders()), "Lookup rate limited by Apple");
+                    AppleHttpSupport.retryAfter(response.getHeaders()), Reason.APPLE, "Lookup rate limited by Apple");
         }
         if (status.is5xxServerError()) {
             throw new UpstreamServerErrorException(status.value(), "Lookup failed with status " + status.value(), null);
