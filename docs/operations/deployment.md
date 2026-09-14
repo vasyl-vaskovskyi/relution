@@ -50,9 +50,11 @@ docker compose -f docker-compose.yml -f compose.observability.yml up --build
 ```
 
 `compose.observability.yml`:
-- adds `otel-lgtm` (`grafana/otel-lgtm`, pinned tag), publishing only `127.0.0.1:3000` (Grafana);
-- sets the OTLP variables on `app` ([`configuration.md`](configuration.md));
-- takes the Grafana password from `APPSTORE_GRAFANA_ADMIN_PASSWORD`.
+- adds `otel-lgtm` (`grafana/otel-lgtm:0.33.0`), publishing only `127.0.0.1:3000` (Grafana). The app reaches the collector at `otel-lgtm:4318` (OTLP over HTTP) on the compose network;
+- sets the OTLP variables on `app` ([`configuration.md`](configuration.md#set-by-the-compose-files-not-secrets-not-in-env)) and starts `app` after `otel-lgtm`;
+- takes the Grafana password from `APPSTORE_GRAFANA_ADMIN_PASSWORD` in `.env`; Compose refuses to start without it. Log in to Grafana as `admin` with that password.
+
+Stop the stack and drop its data with `docker compose -f docker-compose.yml -f compose.observability.yml down -v`.
 
 The image is intended for development and demos only ([`observability.md`](observability.md)).
 

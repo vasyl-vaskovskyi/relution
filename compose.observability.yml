@@ -1,0 +1,24 @@
+# Optional observability stack (Level 2): docs/operations/observability.md and deployment.md.
+#   docker compose -f docker-compose.yml -f compose.observability.yml up --build
+# Needs APPSTORE_GRAFANA_ADMIN_PASSWORD in .env; this file holds no secrets (ADR-0006).
+services:
+  app:
+    environment:
+      # OTLP export over HTTP to the collector in otel-lgtm; variable names: docs/operations/configuration.md
+      MANAGEMENT_OTLP_METRICS_EXPORT_ENABLED: "true"
+      MANAGEMENT_OTLP_METRICS_EXPORT_URL: http://otel-lgtm:4318/v1/metrics
+      MANAGEMENT_TRACING_EXPORT_ENABLED: "true"
+      MANAGEMENT_OPENTELEMETRY_TRACING_EXPORT_OTLP_ENDPOINT: http://otel-lgtm:4318/v1/traces
+      MANAGEMENT_TRACING_SAMPLING_PROBABILITY: "1.0"
+    depends_on:
+      otel-lgtm:
+        condition: service_started
+
+  otel-lgtm:
+    # Grafana marks this image as for development, demo and testing only
+    image: grafana/otel-lgtm:0.33.0
+    environment:
+      GF_SECURITY_ADMIN_PASSWORD: ${APPSTORE_GRAFANA_ADMIN_PASSWORD:?set APPSTORE_GRAFANA_ADMIN_PASSWORD in .env}
+    ports:
+      # only Grafana is published; the app reaches the collector on the compose network
+      - "127.0.0.1:3000:3000"

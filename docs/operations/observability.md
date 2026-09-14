@@ -11,8 +11,9 @@ There are two levels ([ADR-0027](../adr/0027-observability-logs-and-metrics-in-t
 - **MDC:**
   - `correlationId` on every line;
   - `clientId` (JWT `sub`) on authenticated requests;
-  - `traceId` and `spanId` when tracing is enabled.
-  - The MDC is propagated to cache loader threads ([`../architecture/caching-resilience.md`](../architecture/caching-resilience.md#caches)).
+  - `traceId` and `spanId` on request lines. Spring Boot's OpenTelemetry bridge creates spans even while tracing export is off (observed 2026-09-14), but only Level 2 exports them, so at Level 1 `correlationId` is the id to search for;
+  - with tracing (Level 2): `clientCorrelationId` when the client sent a valid `X-Correlation-Id` ([`../architecture/error-handling.md`](../architecture/error-handling.md#correlation-id)).
+  - `correlationId`, `clientCorrelationId` and `clientId` are propagated to cache loader threads, together with the current observation, so the Apple client span stays in the request's trace ([`../architecture/caching-resilience.md`](../architecture/caching-resilience.md#caches)).
 - **Per logical upstream call:** one INFO line from the gateway adapter, after retries, with `api`, `outcome`, `status`, `durationMs`, and `termLength` (search) or `id` (lookup).
 - **WARN:** a storefront missing from the allowlist, Apple 429, an exhausted outbound budget, timeouts, Apple 5xx.
 - **INFO and DEBUG in the upstream line:** a storefront Apple rejected is INFO (the policy logs the ERROR); the 429 short-circuit is DEBUG, because the WARN was already logged when Apple answered 429.
@@ -65,17 +66,20 @@ Circuit breaker metrics come from Resilience4j's Micrometer binding: `resilience
 
 ## Level 2: OpenTelemetry + Grafana LGTM (stretch goal)
 
-- **Dependency:** `org.springframework.boot:spring-boot-starter-opentelemetry` (Micrometer Tracing bridge plus OTLP exporters). Exporting logs may also need the OpenTelemetry Logback appender; ask before adding it.
-- **Default:** all exports are disabled in `application.yml`. `compose.observability.yml` enables them, with endpoints and 100 % sampling ([`configuration.md`](configuration.md)).
-- **Trace context:** W3C `traceparent`, Spring Boot's default. nginx forwards it, and the trace id becomes the correlation id ([`../architecture/error-handling.md`](../architecture/error-handling.md#correlation-id)).
+- **Dependency:** `org.springframework.boot:spring-boot-starter-opentelemetry` (Micrometer Tracing bridge, OpenTelemetry SDK, OTLP span exporter and the Micrometer OTLP meter registry).
+- **Signals exported:** traces and metrics. **Logs are not exported:** Boot's OTLP log exporter only receives Logback events through the OpenTelemetry Logback appender, which is not an approved dependency. Container logs stay the log source (`docker compose logs app`), and their `traceId` field links them to Tempo.
+- **Default:** all exports are disabled in `application.yml`, and sampling is 10 %. `compose.observability.yml` enables trace and metric export, with endpoints and 100 % sampling ([`configuration.md`](configuration.md#set-by-the-compose-files-not-secrets-not-in-env)).
+- **Trace context:** W3C `traceparent`, Spring Boot's default, consumed only while tracing export is enabled. nginx forwards it, and the trace id becomes the correlation id ([`../architecture/error-handling.md`](../architecture/error-handling.md#correlation-id)).
+- **Cache loaders:** the current observation is propagated to loader threads, so the outgoing `RestClient` span stays in the request's trace ([`../architecture/caching-resilience.md`](../architecture/caching-resilience.md#caches)).
 - **Privacy:** query strings are removed from span attributes ([`../architecture/security.md`](../architecture/security.md#logging-and-privacy)).
 - **Stack:** `grafana/otel-lgtm`, a single container with an OpenTelemetry Collector, Prometheus, Loki, Tempo, Pyroscope and Grafana.
   - Only Grafana is published, on `127.0.0.1:3000`.
   - The admin password comes from `.env`.
   - Grafana describes the image as intended for **development, demo and testing**. In production, point the OTLP properties at a real backend; no code change is needed.
-- **Scope:** no committed dashboards (use Grafana Explore) and no automated tests.
+- **Scope:** no committed dashboards (use Grafana Explore). Tests cover the privacy filter and the trace id as correlation id with an in-memory span exporter, not the compose stack ([`../development/testing.md`](../development/testing.md)).
 - **Demo:**
   1. Search in the UI.
   2. In Tempo, show the server span and the outgoing `RestClient` span.
-  3. In Loki, filter by `traceId`.
-  4. In Prometheus, show `appstore_apple_requests_seconds_count` by `outcome` and the cache hit ratio.
+  3. Copy the trace id from the `X-Correlation-Id` response header and find the request's log lines with `docker compose logs app | grep <trace id>`.
+  4. In Prometheus, show `appstore_apple_requests_milliseconds_count` by `outcome` and the cache hit ratio (`cache_gets_total`). Metrics pushed over OTLP use milliseconds, the OTLP registry's base time unit (observed 2026-09-14). The alert rules keep the scraped `_seconds` names from `/actuator/prometheus`.
+- **Verified end to end (2026-09-14):** one search produced a single trace in Tempo with the server span (`http.url=/api/v1/apps`), Spring Security's internal spans and the Apple client span (`http.url=https://itunes.apple.com/search`); the term was in no span. The response's `X-Correlation-Id` was the trace id.
