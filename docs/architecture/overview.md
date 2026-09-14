@@ -40,7 +40,7 @@ com.example.appstore
 │                          one outcome metric and log line per logical call), ItunesSearchClient, MzLookupClient
 │                          (HTTP, @Retryable), raw Apple records, pure mappers, RestClient beans, AppleProperties,
 │                          SearchRateLimitGuard, SearchBudget (outbound token bucket), AppleCircuitBreakers
-├── auth/                  TokenController, TokenService, SecurityConfig, AuthProperties
+├── auth/                  TokenController, TokenService, TokenRequestLimiter, SecurityConfig, AuthProperties
 └── observability/         CorrelationIdFilter, MDC context propagation for loader threads, MetricNames
 ```
 
@@ -51,7 +51,7 @@ com.example.appstore
 | `catalog` | JDK, Spring core, Caffeine, Micrometer, `observability` | `api`, `integration`, `auth` |
 | `integration.apple` | `catalog`, `observability` | `api`, `auth` |
 | `api` | `catalog`, `observability` | `integration`, `auth` |
-| `auth` | `api` (only the `ProblemDetails` factory), `observability` | `catalog`, `integration` |
+| `auth` | `api` (only the `ProblemDetails` factory), `observability`, Caffeine (failed-attempt limiter), Micrometer | `catalog`, `integration` |
 
 - **Controllers never see Apple JSON.** Services never see HTTP status codes.
 - **Mappers are pure functions** (raw Apple record → domain record), with no Spring and no I/O. They are the most thoroughly tested code.

@@ -65,6 +65,16 @@ This section also covers the `AppleMissingFields` alert.
 3. Every issued token becomes invalid. Clients get 401 and request a new token; the TTL is at most 1 h.
 4. Zero-downtime rotation (multiple keys with `kid`) is not implemented. It is planned together with an identity provider.
 
+### Logins fail with "too many failed login attempts" (429 on `/auth/token`)
+- **Signal:** users or API clients report 429 `too-many-requests`; `appstore_auth_token_requests_total{outcome="rate_limited"}` rises. There is no alert rule.
+- **Impact:** no new tokens for that client address until `Retry-After` passes. Tokens already issued keep working. Behind the bundled nginx, every browser shares one address, so one person guessing blocks web logins for all ([ADR-0049](../adr/0049-rate-limit-failed-token-requests-per-client-address.md)).
+- **Check:** the ratio of `rejected` to `issued`, and INFO logs `token request rejected: missing or invalid client credentials` (they carry no address or credentials). Many rejections from a real client usually mean it holds old credentials after a rotation.
+- **Action:**
+  1. Usually wait: one failure permit returns every `APPSTORE_AUTH_LIMIT_WINDOW / APPSTORE_AUTH_LIMIT_FAILURES` (30 s by default).
+  2. If a client has outdated credentials, hand it the current ones (see below).
+  3. A restart clears all buckets; use it only when the guessing has stopped.
+  4. Suspected brute force against a public deployment: block the source at the ingress. Don't raise the limits to make it go away.
+
 ### Rotate the client credentials
 Set new `APPSTORE_AUTH_CLIENT_ID` and `APPSTORE_AUTH_CLIENT_SECRET` values, deploy, and hand the new values to API clients. Tokens already issued stay valid until they expire.
 
