@@ -74,7 +74,7 @@ Circuit breaker metrics come from Resilience4j's Micrometer binding: `resilience
 - **Privacy:** query strings are removed from span attributes ([`../architecture/security.md`](../architecture/security.md#logging-and-privacy)).
 - **Stack:** `grafana/otel-lgtm`, a single container with an OpenTelemetry Collector, Prometheus, Loki, Tempo, Pyroscope and Grafana.
   - Only Grafana is published, on `127.0.0.1:3000`.
-  - The admin password comes from `.env`.
+  - The admin password comes from `.env.observability`, which the app container never receives ([`deployment.md`](deployment.md#optional-observability-stack)).
   - Grafana describes the image as intended for **development, demo and testing**. In production, point the OTLP properties at a real backend; no code change is needed.
 - **Scope:** no committed dashboards (use Grafana Explore). Tests cover the privacy filter and the trace id as correlation id with an in-memory span exporter, not the compose stack ([`../development/testing.md`](../development/testing.md)).
 - **Demo:**

@@ -46,15 +46,16 @@ Dependabot updates the pinned tags. Nothing is pushed from CI.
 ## Optional observability stack
 
 ```bash
-docker compose -f docker-compose.yml -f compose.observability.yml up --build
+cp .env.observability.example .env.observability   # set APPSTORE_GRAFANA_ADMIN_PASSWORD
+docker compose --env-file .env.observability -f docker-compose.yml -f compose.observability.yml up --build
 ```
 
 `compose.observability.yml`:
 - adds `otel-lgtm` (`grafana/otel-lgtm:0.33.0`), publishing only `127.0.0.1:3000` (Grafana). The app reaches the collector at `otel-lgtm:4318` (OTLP over HTTP) on the compose network;
 - sets the OTLP variables on `app` ([`configuration.md`](configuration.md#set-by-the-compose-files-not-secrets-not-in-env)) and starts `app` after `otel-lgtm`;
-- takes the Grafana password from `APPSTORE_GRAFANA_ADMIN_PASSWORD` in `.env`; Compose refuses to start without it. Log in to Grafana as `admin` with that password.
+- takes the Grafana password from `APPSTORE_GRAFANA_ADMIN_PASSWORD` in `.env.observability`, passed with `--env-file`. Compose uses that file only for interpolation, so the `app` container doesn't receive the password. Compose refuses to start without the file or the value ([`configuration.md`](configuration.md#only-used-by-the-observability-stack-envobservability-not-env)). Log in to Grafana as `admin` with that password.
 
-Stop the stack and drop its data with `docker compose -f docker-compose.yml -f compose.observability.yml down -v`.
+Stop the stack and drop its data with `docker compose --env-file .env.observability -f docker-compose.yml -f compose.observability.yml down -v`.
 
 The image is intended for development and demos only ([`observability.md`](observability.md)).
 

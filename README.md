@@ -40,7 +40,7 @@ docker compose up --build
 
 The local compose build of the web client uses the `demo` configuration, which logs every API call to the browser console. Production builds don't.
 
-**Optional observability stack:** set `APPSTORE_GRAFANA_ADMIN_PASSWORD` in `.env`, then run `docker compose -f docker-compose.yml -f compose.observability.yml up --build`. It exports traces and metrics to Grafana at http://localhost:3000 (demo use only; see [`docs/operations/observability.md`](docs/operations/observability.md#level-2-opentelemetry--grafana-lgtm-stretch-goal)).
+**Optional observability stack:** run `cp .env.observability.example .env.observability`, set `APPSTORE_GRAFANA_ADMIN_PASSWORD` there (not in `.env`, which the app container receives), then run `docker compose --env-file .env.observability -f docker-compose.yml -f compose.observability.yml up --build`. It exports traces and metrics to Grafana at http://localhost:3000 (demo use only; see [`docs/operations/observability.md`](docs/operations/observability.md#level-2-opentelemetry--grafana-lgtm-stretch-goal)).
 
 ## Local development
 

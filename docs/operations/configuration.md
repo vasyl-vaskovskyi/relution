@@ -61,11 +61,14 @@ If one of these is missing or invalid, the application refuses to start. An `App
 - **Defaults:** `application.yml` disables every OTLP export (`management.otlp.metrics.export.enabled`, `management.tracing.export.enabled` and `management.logging.export.enabled` are `false`) and sets `management.tracing.sampling.probability` to `0.1`. Each can be overridden with its canonical environment variable.
 - **Log export stays off**, even in `compose.observability.yml`: Boot's OTLP log exporter needs the OpenTelemetry Logback appender to receive log events, and that dependency isn't approved ([`observability.md`](observability.md#level-2-opentelemetry--grafana-lgtm-stretch-goal)).
 
-## Only used by the observability stack
+## Only used by the observability stack (`.env.observability`, not `.env`)
 
 | Variable | Description |
 |---|---|
-| `APPSTORE_GRAFANA_ADMIN_PASSWORD` | Grafana admin password. `compose.observability.yml` passes it on as `GF_SECURITY_ADMIN_PASSWORD` |
+| `APPSTORE_GRAFANA_ADMIN_PASSWORD` | Required for the stack, no default. Grafana admin password. `compose.observability.yml` passes it on as `GF_SECURITY_ADMIN_PASSWORD` |
+
+- **Separate file:** it lives in the git-ignored `.env.observability` (template: `.env.observability.example`), which Compose reads with `--env-file` for interpolation only. The app container gets `.env` through `env_file`, so it never receives the Grafana password. Don't put the variable into `.env`.
+- **Fail fast:** a missing file (`couldn't find env file`) or an empty value (`required variable APPSTORE_GRAFANA_ADMIN_PASSWORD is missing a value`) stops Compose before anything starts (checked with `docker compose config`, Compose v5.5.1, 2026-09-14).
 
 ## Fixed in `application.yml` and the build
 

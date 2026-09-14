@@ -1,6 +1,8 @@
 # Optional observability stack (Level 2): docs/operations/observability.md and deployment.md.
-#   docker compose -f docker-compose.yml -f compose.observability.yml up --build
-# Needs APPSTORE_GRAFANA_ADMIN_PASSWORD in .env; this file holds no secrets (ADR-0006).
+#   cp .env.observability.example .env.observability   # then set the password
+#   docker compose --env-file .env.observability -f docker-compose.yml -f compose.observability.yml up --build
+# The Grafana password comes from .env.observability, not .env: --env-file only feeds the interpolation below,
+# so the app container (env_file: .env) never receives it. This file holds no secrets (ADR-0006).
 services:
   app:
     environment:
@@ -18,7 +20,7 @@ services:
     # Grafana marks this image as for development, demo and testing only
     image: grafana/otel-lgtm:0.33.0
     environment:
-      GF_SECURITY_ADMIN_PASSWORD: ${APPSTORE_GRAFANA_ADMIN_PASSWORD:?set APPSTORE_GRAFANA_ADMIN_PASSWORD in .env}
+      GF_SECURITY_ADMIN_PASSWORD: ${APPSTORE_GRAFANA_ADMIN_PASSWORD:?set APPSTORE_GRAFANA_ADMIN_PASSWORD in .env.observability and pass --env-file .env.observability}
     ports:
       # only Grafana is published; the app reaches the collector on the compose network
       - "127.0.0.1:3000:3000"

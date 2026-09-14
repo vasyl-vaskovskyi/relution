@@ -1,7 +1,8 @@
-# Secrets — copy .env.example to .env locally, never commit .env
+# Secrets — copy .env.example to .env (and .env.observability.example to .env.observability) locally, never commit them
 .env
 .env.*
 !.env.example
+!.env.observability.example
 
 # Gradle
 .gradle/
