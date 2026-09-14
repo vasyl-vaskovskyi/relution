@@ -43,6 +43,30 @@ See [ADR-0042](../adr/0042-commit-size-and-parallel-pull-requests.md) and [`../.
 - **Browser-direct search** ([ADR-0026](../adr/0026-hybrid-routing-angular-client-calls-apple-search-directly-de.md)): not for the Discovery Day; a scaling option for the presentation.
 - **Search budget** ([ADR-0045](../adr/0045-search-budget-is-configuration-and-the-outbound-limiter-is-core.md)): the team confirmed we build for today's limit and that more requests can be bought.
 
+## Progress on the day (2026-09-14)
+
+All pull requests were rebase-merged after green CI (`backend`, `frontend`, `images`); from #10 on, Vasyl let the merges run without per-PR approval.
+
+| PR | Block or track | Built by |
+|---|---|---|
+| #1 | Kickoff: spike results, ADR-0044/0045, Boot 4.1.1 skeleton, ArchUnit, CI | this session |
+| #2 | Operability: Prometheus alert rules | background agent |
+| #3 | Frontend scaffold | background agent |
+| #4 | Search | this session |
+| #5 | Docker image, compose, `images` job | background agent |
+| #6 | Details | this session |
+| #7 | Operability: drift detection (`liveTest`, nightly workflow, `missing_field`) | background agent |
+| #8 | Caching, retry, outbound Search budget | this session |
+| #9 | Errors and Level 1 observability | this session |
+| #10 | README, runbook and testing docs checked against the code | background agent |
+| #11 | OpenAPI and `scripts/smoke.sh` | background agent |
+| #12 | Auth | this session |
+| #13 | Docs updated after auth | this session |
+
+- **Order change:** caching and resilience ran before errors and auth (ADR-0045).
+- **End-to-end check:** `scripts/smoke.sh` passes all 13 checks against the jar and against `docker compose up --build`.
+- **Still open:** the frontend UI PR; stretch goals only with Vasyl's go-ahead.
+
 ## Kickoff checklist
 
 1. Confirm the brief and scope with the team. Check the GitHub setup (`gh auth status`, `main` pushed, rebase merge only).
